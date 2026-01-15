@@ -1,5 +1,5 @@
 /* =====================================================
-   FIREBASE IMPORTS (v9+ MODULAR)
+   FIREBASE (v9+ MODULAR)
 ===================================================== */
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
 import {
@@ -7,16 +7,6 @@ import {
   signInWithEmailAndPassword,
   onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
-
-import {
-  getFirestore,
-  collection,
-  addDoc,
-  getDocs,
-  query,
-  orderBy,
-  serverTimestamp
-} from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
 
 /* =====================================================
    FIREBASE CONFIG
@@ -32,7 +22,6 @@ const firebaseConfig = {
 
 const firebaseApp = initializeApp(firebaseConfig);
 const auth = getAuth(firebaseApp);
-const db = getFirestore(firebaseApp);
 
 /* =====================================================
    DOM READY
@@ -40,7 +29,7 @@ const db = getFirestore(firebaseApp);
 document.addEventListener("DOMContentLoaded", () => {
 
   /* =====================
-     LOGIN
+     LOGIN ELEMENTI
   ===================== */
   const loginBox = document.getElementById("login-box");
   const appBox = document.getElementById("app");
@@ -48,6 +37,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const inputEmail = document.getElementById("login-email");
   const inputPassword = document.getElementById("login-password");
 
+  /* =====================
+     LOGIN
+  ===================== */
   btnLogin.addEventListener("click", async () => {
     const email = inputEmail.value.trim();
     const password = inputPassword.value.trim();
@@ -64,11 +56,14 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
+  /* =====================
+     SESSIONE
+  ===================== */
   onAuthStateChanged(auth, user => {
     if (user) {
       loginBox.classList.add("hidden");
       appBox.classList.remove("hidden");
-      inizializzaApp(user);
+      inizializzaApp();
     } else {
       loginBox.classList.remove("hidden");
       appBox.classList.add("hidden");
@@ -78,25 +73,12 @@ document.addEventListener("DOMContentLoaded", () => {
   /* =====================================================
      APP
   ===================================================== */
-  async function inizializzaApp(user) {
+  function inizializzaApp() {
 
     /* =====================
-       DATI
+       DATI (LOCAL)
     ===================== */
-    let movimenti = [];
-    let fornitori = JSON.parse(localStorage.getItem("fornitori")) || [];
-
-    /* =====================
-       CARICA MOVIMENTI DA FIRESTORE
-    ===================== */
-    async function caricaMovimenti() {
-      const ref = collection(db, "users", user.uid, "movimenti");
-      const q = query(ref, orderBy("data", "asc"));
-      const snap = await getDocs(q);
-      movimenti = snap.docs.map(d => d.data());
-    }
-
-    await caricaMovimenti();
+    let movimenti = JSON.parse(localStorage.getItem("movimenti")) || [];
 
     /* =====================
        ELEMENTI BASE
@@ -107,6 +89,25 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const formEntrata = document.getElementById("form-entrata");
     const formUscita = document.getElementById("form-uscita");
+
+    /* =====================
+       POPUP SETTIMANA
+    ===================== */
+    const popupSettimana = document.getElementById("popup-dettaglio");
+    const chiudiPopupSettimana = document.getElementById("chiudi-popup");
+    const listaDettaglio = document.getElementById("lista-dettaglio");
+    const popupPeriodo = document.getElementById("popup-periodo");
+
+    /* =====================
+       POPUP MESE
+    ===================== */
+    const popupMese = document.getElementById("popup-mese");
+    const chiudiPopupMese = document.getElementById("chiudi-popup-mese");
+    const titoloMese = document.getElementById("titolo-mese");
+    const listaSettimaneMese = document.getElementById("lista-settimane-mese");
+    const btnExportMese = document.getElementById("export-mese");
+
+    let meseCorrenteMovimenti = [];
 
     /* =====================
        UTILITY
@@ -124,13 +125,27 @@ document.addEventListener("DOMContentLoaded", () => {
       const d = new Date(data);
       const giorno = d.getDay();
       const diff = giorno === 0 ? -6 : 1 - giorno;
+
       const lunedi = new Date(d);
       lunedi.setDate(d.getDate() + diff);
       lunedi.setHours(0,0,0,0);
+
       const sabato = new Date(lunedi);
       sabato.setDate(lunedi.getDate() + 5);
       sabato.setHours(23,59,59,999);
+
       return { lunedi, sabato };
+    }
+
+    function calcolaSettimane(movs) {
+      const out = [];
+      movs.forEach(m => {
+        const s = settimanaDaData(m.data);
+        if (!out.some(x => x.lunedi.getTime() === s.lunedi.getTime())) {
+          out.push(s);
+        }
+      });
+      return out;
     }
 
     /* =====================
@@ -159,26 +174,49 @@ document.addEventListener("DOMContentLoaded", () => {
       };
     });
 
-    document.getElementById("form-entrata-dati").onsubmit = async e => {
+    document.getElementById("form-entrata-dati").onsubmit = e => {
       e.preventDefault();
       if (!metodoEntrata) return alert("Seleziona metodo");
 
-      const nuovaEntrata = {
+      movimenti.push({
         data: document.getElementById("data-entrata").value,
         tipo: "entrata",
         metodo: metodoEntrata,
-        importo: +document.getElementById("importo-entrata").value,
-        createdAt: serverTimestamp()
-      };
+        importo: +document.getElementById("importo-entrata").value
+      });
 
-      await addDoc(
-        collection(db, "users", user.uid, "movimenti"),
-        nuovaEntrata
-      );
-
-      movimenti.push(nuovaEntrata);
+      localStorage.setItem("movimenti", JSON.stringify(movimenti));
       e.target.reset();
       metodoEntrata = null;
+      aggiornaUI();
+    };
+
+    /* =====================
+       USCITA
+    ===================== */
+    let tipoDocumento = null;
+
+    document.querySelectorAll(".btn-doc").forEach(btn => {
+      btn.onclick = () => {
+        document.querySelectorAll(".btn-doc").forEach(b => b.classList.remove("attivo"));
+        btn.classList.add("attivo");
+        tipoDocumento = btn.dataset.doc;
+      };
+    });
+
+    document.getElementById("form-uscita-dati").onsubmit = e => {
+      e.preventDefault();
+
+      movimenti.push({
+        data: document.getElementById("data-uscita").value,
+        tipo: "uscita",
+        fornitore: document.getElementById("fornitore-input").value,
+        documento: tipoDocumento,
+        importo: +document.getElementById("importo-uscita").value
+      });
+
+      localStorage.setItem("movimenti", JSON.stringify(movimenti));
+      e.target.reset();
       aggiornaUI();
     };
 
@@ -212,6 +250,35 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     /* =====================
+       DETTAGLIO SETTIMANA
+    ===================== */
+    btnDettaglio.onclick = () => {
+      popupSettimana.classList.remove("hidden");
+      caricaDettaglio(settimanaDaData(new Date()));
+    };
+
+    chiudiPopupSettimana.onclick = () =>
+      popupSettimana.classList.add("hidden");
+
+    function caricaDettaglio({ lunedi, sabato }) {
+      listaDettaglio.innerHTML = "";
+      popupPeriodo.textContent =
+        `(Lun ${lunedi.getDate()} - Sab ${sabato.getDate()})`;
+
+      movimenti
+        .filter(m => {
+          const d = new Date(m.data);
+          return d >= lunedi && d <= sabato;
+        })
+        .forEach(m => {
+          const li = document.createElement("li");
+          li.textContent =
+            `${formattaData(m.data)} - €${m.importo.toFixed(2)}`;
+          listaDettaglio.appendChild(li);
+        });
+    }
+
+    /* =====================
        ARCHIVIO MENSILE
     ===================== */
     function costruisciArchivioMensile() {
@@ -231,9 +298,48 @@ document.addEventListener("DOMContentLoaded", () => {
         const box = document.createElement("div");
         box.className = "box-mese";
         box.textContent = `${mesi[mese]} ${anno}`;
+        box.onclick = () => apriPopupMese(anno, mese, gruppi[key]);
         cont.appendChild(box);
       });
     }
+
+    function apriPopupMese(anno, mese, movs) {
+      popupMese.classList.remove("hidden");
+      titoloMese.textContent = `${mesi[mese]} ${anno}`;
+      listaSettimaneMese.innerHTML = "";
+      meseCorrenteMovimenti = movs;
+
+      calcolaSettimane(movs).forEach(s => {
+        const btn = document.createElement("button");
+        btn.textContent = `Settimana Lun ${s.lunedi.getDate()}`;
+        btn.onclick = () => {
+          popupMese.classList.add("hidden");
+          popupSettimana.classList.remove("hidden");
+          caricaDettaglio(s);
+        };
+        listaSettimaneMese.appendChild(btn);
+      });
+    }
+
+    chiudiPopupMese.onclick = () =>
+      popupMese.classList.add("hidden");
+
+    /* =====================
+       PDF MESE
+    ===================== */
+    btnExportMese.onclick = () => {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      doc.text(titoloMese.textContent, 14, 15);
+      let y = 25;
+
+      meseCorrenteMovimenti.forEach(m => {
+        doc.text(`${formattaData(m.data)} €${m.importo}`, 14, y);
+        y += 7;
+      });
+
+      doc.save(`${titoloMese.textContent}.pdf`);
+    };
 
     function aggiornaUI() {
       aggiornaRiepilogoSettimana();
@@ -243,6 +349,7 @@ document.addEventListener("DOMContentLoaded", () => {
     aggiornaUI();
   }
 });
+
 
 
 
