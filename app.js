@@ -174,7 +174,7 @@ document.addEventListener("DOMContentLoaded", () => {
       };
     });
 
-    document.getElementById("form-entrata-dati").onsubmit = e => {
+    document.getElementById("form-entrata-dati").onsubmit = async e => {
       e.preventDefault();
       if (!metodoEntrata) return alert("Seleziona metodo");
 
@@ -356,6 +356,7 @@ movimenti = await caricaMovimenti();
     aggiornaUI();
   }
 });
+
 
 
 
