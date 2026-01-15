@@ -8,18 +8,13 @@
 </head>
 <body>
 
-<!-- LOGIN -->
+<!-- ================= LOGIN ================= -->
 <section class="card" id="login-box">
   <h2>Accesso</h2>
-
-  <input type="email" id="login-email" placeholder="Email" required>
-  <input type="password" id="login-password" placeholder="Password" required>
-
+  <input type="email" id="login-email" placeholder="Email">
+  <input type="password" id="login-password" placeholder="Password">
   <button id="btn-login">🔐 Entra</button>
-
-  <p id="login-error" style="color:red; display:none;"></p>
 </section>
-
 
 <!-- ================= APP ================= -->
 <div id="app" class="hidden">
@@ -148,8 +143,7 @@
   window.firebaseAuth = getAuth(app);
   window.firebaseDB = getFirestore(app);
 </script>
-<script src="app.js" type="module"></script>
+
+<script src="app.js"></script>
 </body>
 </html>
-
-

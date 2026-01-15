@@ -1,3 +1,6 @@
+/* =====================================================
+   FIREBASE IMPORTS (v9+ MODULAR)
+===================================================== */
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
 import {
   getAuth,
@@ -5,9 +8,9 @@ import {
   onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
 
-/* =====================
+/* =====================================================
    FIREBASE CONFIG
-===================== */
+===================================================== */
 const firebaseConfig = {
   apiKey: "AIzaSyAuuwzai8Da1S9MsVmeQ78FdYFTffT6HSo",
   authDomain: "gestionale-cassa-bar.firebaseapp.com",
@@ -20,27 +23,42 @@ const firebaseConfig = {
 const firebaseApp = initializeApp(firebaseConfig);
 const auth = getAuth(firebaseApp);
 
-
+/* =====================================================
+   DOM READY
+===================================================== */
 document.addEventListener("DOMContentLoaded", () => {
 
+  /* =====================
+     LOGIN ELEMENTI
+  ===================== */
   const loginBox = document.getElementById("login-box");
   const appBox = document.getElementById("app");
   const btnLogin = document.getElementById("btn-login");
-  const loginError = document.getElementById("login-error");
+  const inputEmail = document.getElementById("login-email");
+  const inputPassword = document.getElementById("login-password");
 
-  btnLogin.onclick = async () => {
-    const email = document.getElementById("login-email").value;
-    const password = document.getElementById("login-password").value;
+  /* =====================
+     LOGIN
+  ===================== */
+  btnLogin.addEventListener("click", async () => {
+    const email = inputEmail.value.trim();
+    const password = inputPassword.value.trim();
+
+    if (!email || !password) {
+      alert("Inserisci email e password");
+      return;
+    }
 
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      loginError.style.display = "none";
     } catch (err) {
-      loginError.textContent = "Email o password errate";
-      loginError.style.display = "block";
+      alert("Email o password errate");
     }
-  };
+  });
 
+  /* =====================
+     SESSIONE
+  ===================== */
   onAuthStateChanged(auth, user => {
     if (user) {
       loginBox.classList.add("hidden");
@@ -52,130 +70,247 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
+  /* =====================================================
+     APP
+  ===================================================== */
   function inizializzaApp() {
-    console.log("✅ Utente loggato, app avviata");
-    // qui resta TUTTO il codice dell’app che avevi
-  }
-});
-
-});
-
-
-  /* =====================
-     APP PRINCIPALE
-  ===================== */
-  function inizializzaApp() {
-
-    console.log("✅ App inizializzata");
 
     /* =====================
-       DATI (TEMP)
+       DATI (LOCAL)
     ===================== */
     let movimenti = JSON.parse(localStorage.getItem("movimenti")) || [];
+    let fornitori = JSON.parse(localStorage.getItem("fornitori")) || [];
 
     /* =====================
-       ELEMENTI
+       ELEMENTI BASE
     ===================== */
     const btnEntrata = document.getElementById("btn-entrata");
     const btnUscita = document.getElementById("btn-uscita");
+    const btnDettaglio = document.getElementById("btn-dettaglio");
 
     const formEntrata = document.getElementById("form-entrata");
     const formUscita = document.getElementById("form-uscita");
 
     /* =====================
-       MOSTRA / NASCONDI FORM
+       POPUP SETTIMANA
     ===================== */
-    btnEntrata.addEventListener("click", () => {
-      formEntrata.classList.remove("hidden");
-      formUscita.classList.add("hidden");
-    });
-
-    btnUscita.addEventListener("click", () => {
-      formUscita.classList.remove("hidden");
-      formEntrata.classList.add("hidden");
-    });
+    const popupSettimana = document.getElementById("popup-dettaglio");
+    const chiudiPopupSettimana = document.getElementById("chiudi-popup");
+    const listaDettaglio = document.getElementById("lista-dettaglio");
+    const popupPeriodo = document.getElementById("popup-periodo");
 
     /* =====================
-       ENTRATE
+       POPUP MESE
+    ===================== */
+    const popupMese = document.getElementById("popup-mese");
+    const chiudiPopupMese = document.getElementById("chiudi-popup-mese");
+    const titoloMese = document.getElementById("titolo-mese");
+    const listaSettimaneMese = document.getElementById("lista-settimane-mese");
+    const btnExportMese = document.getElementById("export-mese");
+
+    let meseCorrenteMovimenti = [];
+
+    /* =====================
+       UTILITY
+    ===================== */
+    const mesi = [
+      "Gennaio","Febbraio","Marzo","Aprile","Maggio","Giugno",
+      "Luglio","Agosto","Settembre","Ottobre","Novembre","Dicembre"
+    ];
+
+    function formattaData(d) {
+      return new Date(d).toLocaleDateString("it-IT");
+    }
+
+    function settimanaDaData(data) {
+      const d = new Date(data);
+      const giorno = d.getDay();
+      const diff = giorno === 0 ? -6 : 1 - giorno;
+
+      const lunedi = new Date(d);
+      lunedi.setDate(d.getDate() + diff);
+      lunedi.setHours(0,0,0,0);
+
+      const sabato = new Date(lunedi);
+      sabato.setDate(lunedi.getDate() + 5);
+      sabato.setHours(23,59,59,999);
+
+      return { lunedi, sabato };
+    }
+
+    function calcolaSettimane(movs) {
+      const out = [];
+      movs.forEach(m => {
+        const s = settimanaDaData(m.data);
+        if (!out.some(x => x.lunedi.getTime() === s.lunedi.getTime())) {
+          out.push(s);
+        }
+      });
+      return out;
+    }
+
+    /* =====================
+       MOSTRA FORM
+    ===================== */
+    btnEntrata.onclick = () => {
+      formEntrata.classList.remove("hidden");
+      formUscita.classList.add("hidden");
+    };
+
+    btnUscita.onclick = () => {
+      formUscita.classList.remove("hidden");
+      formEntrata.classList.add("hidden");
+    };
+
+    /* =====================
+       ENTRATA
     ===================== */
     let metodoEntrata = null;
 
     document.querySelectorAll(".btn-metodo").forEach(btn => {
-      btn.addEventListener("click", () => {
+      btn.onclick = () => {
         document.querySelectorAll(".btn-metodo").forEach(b => b.classList.remove("attivo"));
         btn.classList.add("attivo");
         metodoEntrata = btn.dataset.metodo;
-      });
+      };
     });
 
-    document.getElementById("form-entrata-dati").addEventListener("submit", e => {
+    document.getElementById("form-entrata-dati").onsubmit = e => {
       e.preventDefault();
-
-      if (!metodoEntrata) {
-        alert("Seleziona CONTANTI o POS");
-        return;
-      }
+      if (!metodoEntrata) return alert("Seleziona metodo");
 
       movimenti.push({
         data: document.getElementById("data-entrata").value,
         tipo: "entrata",
         metodo: metodoEntrata,
-        importo: Number(document.getElementById("importo-entrata").value)
+        importo: +document.getElementById("importo-entrata").value
       });
 
       localStorage.setItem("movimenti", JSON.stringify(movimenti));
-
       e.target.reset();
       metodoEntrata = null;
-      document.querySelectorAll(".btn-metodo").forEach(b => b.classList.remove("attivo"));
-      formEntrata.classList.add("hidden");
-    });
+      aggiornaUI();
+    };
 
     /* =====================
-       USCITE
+       USCITA
     ===================== */
     let tipoDocumento = null;
 
     document.querySelectorAll(".btn-doc").forEach(btn => {
-      btn.addEventListener("click", () => {
+      btn.onclick = () => {
         document.querySelectorAll(".btn-doc").forEach(b => b.classList.remove("attivo"));
         btn.classList.add("attivo");
         tipoDocumento = btn.dataset.doc;
-      });
+      };
     });
 
-    document.getElementById("form-uscita-dati").addEventListener("submit", e => {
+    document.getElementById("form-uscita-dati").onsubmit = e => {
       e.preventDefault();
 
-      const data = document.getElementById("data-uscita").value;
-      const fornitore = document.getElementById("fornitore-input").value.trim();
-      const importo = Number(document.getElementById("importo-uscita").value);
-
-      if (!data || !fornitore || !tipoDocumento) {
-        alert("Compila tutti i campi");
-        return;
-      }
-
       movimenti.push({
-        data,
+        data: document.getElementById("data-uscita").value,
         tipo: "uscita",
-        fornitore,
+        fornitore: document.getElementById("fornitore-input").value,
         documento: tipoDocumento,
-        importo
+        importo: +document.getElementById("importo-uscita").value
       });
 
       localStorage.setItem("movimenti", JSON.stringify(movimenti));
-
       e.target.reset();
-      tipoDocumento = null;
-      document.querySelectorAll(".btn-doc").forEach(b => b.classList.remove("attivo"));
-      formUscita.classList.add("hidden");
-    });
+      aggiornaUI();
+    };
+
+    /* =====================
+       DETTAGLIO SETTIMANA
+    ===================== */
+    btnDettaglio.onclick = () => {
+      popupSettimana.classList.remove("hidden");
+      caricaDettaglio(settimanaDaData(new Date()));
+    };
+
+    chiudiPopupSettimana.onclick = () =>
+      popupSettimana.classList.add("hidden");
+
+    function caricaDettaglio({ lunedi, sabato }) {
+      listaDettaglio.innerHTML = "";
+      popupPeriodo.textContent = `Lun ${lunedi.getDate()} - Sab ${sabato.getDate()}`;
+
+      movimenti.filter(m => {
+        const d = new Date(m.data);
+        return d >= lunedi && d <= sabato;
+      }).forEach(m => {
+        const li = document.createElement("li");
+        li.textContent = `${formattaData(m.data)} - €${m.importo.toFixed(2)}`;
+        listaDettaglio.appendChild(li);
+      });
+    }
+
+    /* =====================
+       ARCHIVIO MENSILE
+    ===================== */
+    function costruisciArchivioMensile() {
+      const cont = document.getElementById("lista-mesi");
+      cont.innerHTML = "";
+
+      const gruppi = {};
+      movimenti.forEach(m => {
+        const d = new Date(m.data);
+        const key = `${d.getFullYear()}-${d.getMonth()}`;
+        if (!gruppi[key]) gruppi[key] = [];
+        gruppi[key].push(m);
+      });
+
+      Object.keys(gruppi).forEach(key => {
+        const [anno, mese] = key.split("-");
+        const box = document.createElement("div");
+        box.className = "box-mese";
+        box.textContent = `${mesi[mese]} ${anno}`;
+        box.onclick = () => apriPopupMese(anno, mese, gruppi[key]);
+        cont.appendChild(box);
+      });
+    }
+
+    function apriPopupMese(anno, mese, movs) {
+      popupMese.classList.remove("hidden");
+      titoloMese.textContent = `${mesi[mese]} ${anno}`;
+      listaSettimaneMese.innerHTML = "";
+      meseCorrenteMovimenti = movs;
+
+      calcolaSettimane(movs).forEach(s => {
+        const btn = document.createElement("button");
+        btn.textContent = `Settimana Lun ${s.lunedi.getDate()}`;
+        btn.onclick = () => {
+          popupMese.classList.add("hidden");
+          popupSettimana.classList.remove("hidden");
+          caricaDettaglio(s);
+        };
+        listaSettimaneMese.appendChild(btn);
+      });
+    }
+
+    chiudiPopupMese.onclick = () =>
+      popupMese.classList.add("hidden");
+
+    /* =====================
+       PDF
+    ===================== */
+    btnExportMese.onclick = () => {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      doc.text(titoloMese.textContent, 14, 15);
+      let y = 25;
+      meseCorrenteMovimenti.forEach(m => {
+        doc.text(`${formattaData(m.data)} €${m.importo}`, 14, y);
+        y += 7;
+      });
+      doc.save(`${titoloMese.textContent}.pdf`);
+    };
+
+    function aggiornaUI() {
+      costruisciArchivioMensile();
+    }
+
+    aggiornaUI();
   }
 });
-
-
-
-
-
-
