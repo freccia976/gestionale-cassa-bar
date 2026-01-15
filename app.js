@@ -1,27 +1,12 @@
 /* =====================================================
-   FIREBASE (v9+ MODULAR)
+   IMPORT DAL LAYER FIREBASE
 ===================================================== */
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
 import {
-  getAuth,
-  signInWithEmailAndPassword,
-  onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
-
-/* =====================================================
-   FIREBASE CONFIG
-===================================================== */
-const firebaseConfig = {
-  apiKey: "AIzaSyAuuwzai8Da1S9MsVmeQ78FdYFTffT6HSo",
-  authDomain: "gestionale-cassa-bar.firebaseapp.com",
-  projectId: "gestionale-cassa-bar",
-  storageBucket: "gestionale-cassa-bar.firebasestorage.app",
-  messagingSenderId: "680357723856",
-  appId: "1:680357723856:web:4d84167fa82af2b395e8d5"
-};
-
-const firebaseApp = initializeApp(firebaseConfig);
-const auth = getAuth(firebaseApp);
+  login,
+  onUserChanged,
+  salvaMovimento,
+  caricaMovimenti
+} from "./firebase-db.js";
 
 /* =====================================================
    DOM READY
@@ -50,7 +35,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      await login(email, password);
     } catch (err) {
       alert("Email o password errate");
     }
@@ -59,7 +44,7 @@ document.addEventListener("DOMContentLoaded", () => {
   /* =====================
      SESSIONE
   ===================== */
-  onAuthStateChanged(auth, user => {
+  onUserChanged(user => {
     if (user) {
       loginBox.classList.add("hidden");
       appBox.classList.remove("hidden");
@@ -73,12 +58,12 @@ document.addEventListener("DOMContentLoaded", () => {
   /* =====================================================
      APP
   ===================================================== */
-  function inizializzaApp() {
+  async function inizializzaApp() {
 
     /* =====================
-       DATI (LOCAL)
+       DATI
     ===================== */
-    let movimenti = JSON.parse(localStorage.getItem("movimenti")) || [];
+    let movimenti = await caricaMovimenti();
 
     /* =====================
        ELEMENTI BASE
@@ -178,52 +163,18 @@ document.addEventListener("DOMContentLoaded", () => {
       e.preventDefault();
       if (!metodoEntrata) return alert("Seleziona metodo");
 
-      movime<script src="firebase-db.js" type="module"></script>
-<script src="app.js" type="module"></script>
-const nuovaEntrata = {
-  data: document.getElementById("data-entrata").value,
-  tipo: "entrata",
-  metodo: metodoEntrata,
-  importo: +document.getElementById("importo-entrata").value
-};
+      const nuovaEntrata = {
+        data: document.getElementById("data-entrata").value,
+        tipo: "entrata",
+        metodo: metodoEntrata,
+        importo: +document.getElementById("importo-entrata").value
+      };
 
-// salva su Firebase
-await salvaMovimento(nuovaEntrata);
-
-// ricarica da Firebase
-movimenti = await caricaMovimenti();
+      await salvaMovimento(nuovaEntrata);
+      movimenti = await caricaMovimenti();
 
       e.target.reset();
       metodoEntrata = null;
-      aggiornaUI();
-    };
-
-    /* =====================
-       USCITA
-    ===================== */
-    let tipoDocumento = null;
-
-    document.querySelectorAll(".btn-doc").forEach(btn => {
-      btn.onclick = () => {
-        document.querySelectorAll(".btn-doc").forEach(b => b.classList.remove("attivo"));
-        btn.classList.add("attivo");
-        tipoDocumento = btn.dataset.doc;
-      };
-    });
-
-    document.getElementById("form-uscita-dati").onsubmit = e => {
-      e.preventDefault();
-
-      movimenti.push({
-        data: document.getElementById("data-uscita").value,
-        tipo: "uscita",
-        fornitore: document.getElementById("fornitore-input").value,
-        documento: tipoDocumento,
-        importo: +document.getElementById("importo-uscita").value
-      });
-
-      localStorage.setItem("movimenti", JSON.stringify(movimenti));
-      e.target.reset();
       aggiornaUI();
     };
 
@@ -356,11 +307,4 @@ movimenti = await caricaMovimenti();
     aggiornaUI();
   }
 });
-
-
-
-
-
-
-
 
