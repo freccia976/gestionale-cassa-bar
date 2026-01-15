@@ -23,42 +23,40 @@ const auth = getAuth(firebaseApp);
 
 document.addEventListener("DOMContentLoaded", () => {
 
- const auth = window.firebaseAuth;
-window.auth = auth; // 👈 ESPONIAMO AUTH GLOBALMENTE
-
-
   const loginBox = document.getElementById("login-box");
   const appBox = document.getElementById("app");
   const btnLogin = document.getElementById("btn-login");
   const loginError = document.getElementById("login-error");
 
-  // LOGIN
-  btnLogin.addEventListener("click", async () => {
-    loginError.style.display = "none";
-
-    const email = document.getElementById("login-email").value.trim();
-    const password = document.getElementById("login-password").value.trim();
+  btnLogin.onclick = async () => {
+    const email = document.getElementById("login-email").value;
+    const password = document.getElementById("login-password").value;
 
     try {
       await signInWithEmailAndPassword(auth, email, password);
+      loginError.style.display = "none";
     } catch (err) {
-      console.error(err);
       loginError.textContent = "Email o password errate";
       loginError.style.display = "block";
     }
-  });
+  };
 
-  // CONTROLLO SESSIONE
   onAuthStateChanged(auth, user => {
     if (user) {
       loginBox.classList.add("hidden");
       appBox.classList.remove("hidden");
-      console.log("LOGIN OK:", user.email);
+      inizializzaApp();
     } else {
       loginBox.classList.remove("hidden");
       appBox.classList.add("hidden");
     }
   });
+
+  function inizializzaApp() {
+    console.log("✅ Utente loggato, app avviata");
+    // qui resta TUTTO il codice dell’app che avevi
+  }
+});
 
 });
 
@@ -175,6 +173,7 @@ window.auth = auth; // 👈 ESPONIAMO AUTH GLOBALMENTE
     });
   }
 });
+
 
 
 
