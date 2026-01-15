@@ -1,5 +1,7 @@
-import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } 
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, onAuthStateChanged }
 from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
+
 
 
 
@@ -8,7 +10,7 @@ document.addEventListener("DOMContentLoaded", () => {
   /* =====================
      FIREBASE AUTH
   ===================== */
-  const auth = getAuth();
+const auth = getAuth();
 
 const loginBox = document.getElementById("login-box");
 const appBox = document.getElementById("app");
@@ -26,6 +28,17 @@ btnLogin.onclick = async () => {
     loginError.textContent = err.message;
   }
 };
+
+onAuthStateChanged(auth, user => {
+  if (user) {
+    loginBox.classList.add("hidden");
+    appBox.classList.remove("hidden");
+  } else {
+    loginBox.classList.remove("hidden");
+    appBox.classList.add("hidden");
+  }
+});
+
 
 onAuthStateChanged(auth, user => {
   if (user) {
@@ -342,4 +355,5 @@ onAuthStateChanged(auth, user => {
     aggiornaUI();
   }
 });
+
 
