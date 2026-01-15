@@ -3,14 +3,8 @@ import {
   onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
 
-/* =====================
-   AVVIO
-===================== */
 document.addEventListener("DOMContentLoaded", () => {
 
-  /* =====================
-     FIREBASE AUTH
-  ===================== */
   const auth = window.firebaseAuth;
 
   const loginBox = document.getElementById("login-box");
@@ -22,29 +16,32 @@ document.addEventListener("DOMContentLoaded", () => {
   btnLogin.addEventListener("click", async () => {
     loginError.style.display = "none";
 
-    const email = document.getElementById("login-email").value;
-    const password = document.getElementById("login-password").value;
+    const email = document.getElementById("login-email").value.trim();
+    const password = document.getElementById("login-password").value.trim();
 
     try {
       await signInWithEmailAndPassword(auth, email, password);
     } catch (err) {
+      console.error(err);
       loginError.textContent = "Email o password errate";
       loginError.style.display = "block";
-      console.error(err);
     }
   });
 
-  // CONTROLLO SESSIONE (UNA SOLA VOLTA)
+  // CONTROLLO SESSIONE
   onAuthStateChanged(auth, user => {
     if (user) {
       loginBox.classList.add("hidden");
       appBox.classList.remove("hidden");
-      inizializzaApp();
+      console.log("LOGIN OK:", user.email);
     } else {
       loginBox.classList.remove("hidden");
       appBox.classList.add("hidden");
     }
   });
+
+});
+
 
   /* =====================
      APP PRINCIPALE
@@ -158,5 +155,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 });
+
 
 
