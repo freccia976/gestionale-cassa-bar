@@ -5,7 +5,9 @@ import {
 
 document.addEventListener("DOMContentLoaded", () => {
 
-  const auth = window.firebaseAuth;
+ const auth = window.firebaseAuth;
+window.auth = auth; // 👈 ESPONIAMO AUTH GLOBALMENTE
+
 
   const loginBox = document.getElementById("login-box");
   const appBox = document.getElementById("app");
@@ -155,6 +157,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 });
+
 
 
 
