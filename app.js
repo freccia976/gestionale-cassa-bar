@@ -253,6 +253,41 @@ let fornitori = JSON.parse(localStorage.getItem("fornitori")) || [];
       aggiornaUI();
     };
 
+
+     
+function aggiornaRiepilogoSettimana() {
+  const oggi = new Date();
+  const { lunedi, sabato } = settimanaDaData(oggi);
+
+  // periodo testo
+  document.getElementById("periodo-settimana").textContent =
+    `(Lun ${lunedi.getDate()} - Sab ${sabato.getDate()})`;
+
+  let contanti = 0;
+  let pos = 0;
+  let pagamenti = 0;
+
+  movimenti.forEach(m => {
+    const d = new Date(m.data);
+    if (d >= lunedi && d <= sabato) {
+      if (m.tipo === "entrata") {
+        m.metodo === "contanti"
+          ? contanti += m.importo
+          : pos += m.importo;
+      } else {
+        pagamenti += m.importo;
+      }
+    }
+  });
+
+  document.getElementById("tot-contanti").textContent = contanti.toFixed(2);
+  document.getElementById("tot-pos").textContent = pos.toFixed(2);
+  document.getElementById("tot-pagamenti").textContent = pagamenti.toFixed(2);
+  document.getElementById("saldo-contanti").textContent =
+    (contanti - pagamenti).toFixed(2);
+}
+
+     
     /* =====================
        DETTAGLIO SETTIMANA
     ===================== */
@@ -339,11 +374,13 @@ let fornitori = JSON.parse(localStorage.getItem("fornitori")) || [];
       doc.save(`${titoloMese.textContent}.pdf`);
     };
 
-    function aggiornaUI() {
-      costruisciArchivioMensile();
-    }
+   function aggiornaUI() {
+  aggiornaRiepilogoSettimana();
+  costruisciArchivioMensile();
+}
 
     aggiornaUI();
   }
 });
+
 
