@@ -15,6 +15,14 @@ import {
   orderBy
 } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
 
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  serverTimestamp
+} from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
+
+
 
 /* =====================================================
    FIREBASE CONFIG
@@ -210,15 +218,20 @@ let fornitori = JSON.parse(localStorage.getItem("fornitori")) || [];
     document.getElementById("form-entrata-dati").onsubmit = e => {
       e.preventDefault();
       if (!metodoEntrata) return alert("Seleziona metodo");
+const nuovaEntrata = {
+  data: document.getElementById("data-entrata").value,
+  tipo: "entrata",
+  metodo: metodoEntrata,
+  importo: +document.getElementById("importo-entrata").value,
+  createdAt: serverTimestamp()
+};
 
-      movimenti.push({
-        data: document.getElementById("data-entrata").value,
-        tipo: "entrata",
-        metodo: metodoEntrata,
-        importo: +document.getElementById("importo-entrata").value
-      });
+movimenti.push(nuovaEntrata);
+localStorage.setItem("movimenti", JSON.stringify(movimenti));
 
-      localStorage.setItem("movimenti", JSON.stringify(movimenti));
+// 🔥 SALVATAGGIO FIRESTORE
+await addDoc(collection(db, "movimenti"), nuovaEntrata);
+
       e.target.reset();
       metodoEntrata = null;
       aggiornaUI();
@@ -382,5 +395,6 @@ function aggiornaRiepilogoSettimana() {
     aggiornaUI();
   }
 });
+
 
 
