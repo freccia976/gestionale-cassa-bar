@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <title>Gestionale Cassa Bar</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- POPUP DETTAGLIO SETTIMANA -->
+<div id="popup-dettaglio" class="popup hidden">
+  <div class="popup-content">
+
+    <header class="popup-header">
+      <h2>
+        Dettaglio settimana
+        <span id="popup-periodo"></span>
+      </h2>
+      <button id="chiudi-popup">✖</button>
+    </header>
+
+    <ul id="lista-dettaglio"></ul>
+
+  </div>
+</div>
+
+<!-- POPUP RIEPILOGO MENSILE -->
+<div id="popup-mese" class="popup hidden">
+  <div class="popup-content">
+
+    <header class="popup-header">
+      <h2 id="titolo-mese"></h2>
+      <button id="chiudi-popup-mese">✖</button>
+    </header>
+
+
+
+    <div id="lista-settimane-mese"></div>
+
+    <div class="azioni-pdf">
+  <button id="export-mese">📄 Esporta mese</button>
+  <button id="export-settimana">📄 Esporta settimana</button>
+</div>
+    <hr>
+
+    <p>💶 Totale Contanti: <strong id="mese-contanti">0.00</strong> €</p>
+    <p>💳 Totale POS: <strong id="mese-pos">0.00</strong> €</p>
+    <p>📤 Totale Pagamenti: <strong id="mese-pagamenti">0.00</strong> €</p>
+    <p>💰 <strong>Saldo Contanti:</strong>
+      <span id="mese-saldo">0.00</span> €
+    </p>
+
+  </div>
+</div>
+
+
+  <!-- HEADER -->
+  <header class="header">
+    <img src="img/logo.png" alt="Logo Bar" class="logo">
+    <h1>Flussi di Cassa</h1>
+  </header>
+
+  <!-- FORM INSERIMENTO -->
+  <section class="card">
+  <h2>Flussi di Cassa</h2>
+
+  <div class="azioni">
+    <div class="box-azione entrata" id="btn-entrata">
+      ➕ Nuova Entrata
+    </div>
+
+    <div class="box-azione uscita" id="btn-uscita">
+      ➖ Nuova Uscita
+    </div>
+  </div>
+</section>
+
+<!-- FORM ENTRATA -->
+ <!-- FORM ENTRATA -->
+<section class="card hidden" id="form-entrata">
+  <h2>Nuova Entrata</h2>
+
+  <form id="form-entrata-dati">
+
+    <input type="date" id="data-entrata" required>
+
+    <div class="scelta-entrata">
+      <button type="button" class="btn-metodo" data-metodo="contanti">
+        💶 CONTANTI
+      </button>
+
+      <button type="button" class="btn-metodo" data-metodo="pos">
+        💳 POS
+      </button>
+    </div>
+
+    <input type="number" id="importo-entrata" placeholder="Importo €" step="0.01" required>
+
+    <button type="submit" class="btn-salva">
+      💾 Salva Entrata
+    </button>
+
+  </form>
+</section>
+
+
+<!-- FORM USCITA -->
+<section class="card hidden" id="form-uscita">
+  <h2>Nuova Uscita</h2>
+
+  <form id="form-uscita-dati">
+
+    <!-- DATA USCITA -->
+    <input 
+      type="date" 
+      id="data-uscita" 
+      required
+    >
+
+    <!-- FORNITORE CON SUGGERIMENTI -->
+    <input 
+      type="text" 
+      id="fornitore-input" 
+      list="lista-fornitori"
+      placeholder="Nome fornitore"
+      required
+    >
+
+    <datalist id="lista-fornitori"></datalist>
+
+    <!-- TIPO DOCUMENTO -->
+    <div class="scelta-documento">
+      <button type="button" class="btn-doc" data-doc="fattura">
+        📄 FATTURA
+      </button>
+
+      <button type="button" class="btn-doc" data-doc="scontrino">
+        🧾 SCONTRINO
+      </button>
+    </div>
+
+    <!-- NUMERO DOCUMENTO -->
+    <input 
+      type="text" 
+      id="numero-documento" 
+      placeholder="Numero documento (opzionale)"
+    >
+
+    <!-- IMPORTO -->
+    <input 
+      type="number" 
+      id="importo-uscita" 
+      placeholder="Importo €" 
+      step="0.01" 
+      required
+    >
+
+    <button type="submit" class="btn-salva">
+      💾 Salva Uscita
+    </button>
+
+  </form>
+</section>
+
+
+
+  <!-- RIEPILOGO SETTIMANA -->
+<!-- RIEPILOGO SETTIMANA -->
+<section class="card" id="riepilogo-settimana">
+  <h2>
+    Riepilogo Settimana
+    <span id="periodo-settimana" class="periodo-settimana"></span>
+  </h2>
+
+  <button id="btn-dettaglio" class="btn-dettaglio">
+  📋 Dettaglio settimana
+</button>
+
+
+  <p>💶 Totale Contanti: <strong id="tot-contanti">0.00</strong> €</p>
+  <p>💳 Totale POS: <strong id="tot-pos">0.00</strong> €</p>
+  <p>📤 Totale Pagamenti: <strong id="tot-pagamenti">0.00</strong> €</p>
+
+  <hr>
+
+  <p>💰 <strong>Saldo Contanti:</strong>
+    <span id="saldo-contanti">0.00</span> €
+  </p>
+</section>
+
+<!-- ARCHIVIO MENSILE -->
+<section class="card" id="archivio-mesi">
+  <h2>Archivio Mensile</h2>
+  <div id="lista-mesi"></div>
+</section>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,309 @@
+/* =====================
+   RESET BASE
+===================== */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont;
+  background: #f2f2f2;
+  margin: 0;
+  padding: 15px;
+  max-width: 600px;
+  margin-inline: auto;
+}
+
+/* =====================
+   HEADER
+===================== */
+.header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.logo {
+  width: 100%;
+  max-width: 520px;
+  max-height: 220px;
+  object-fit: contain;
+  margin-bottom: 15px;
+}
+
+h1 {
+  margin: 0;
+}
+
+/* =====================
+   CARD GENERICHE
+===================== */
+.card {
+  background: white;
+  padding: 15px;
+  border-radius: 14px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+
+h2 {
+  margin-top: 0;
+}
+
+/* =====================
+   FORM
+===================== */
+form {
+  display: grid;
+  gap: 10px;
+}
+
+input,
+select,
+button {
+  padding: 12px;
+  font-size: 16px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+}
+
+button {
+  background: #27ae60;
+  color: white;
+  border: none;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+/* =====================
+   AZIONI PRINCIPALI
+===================== */
+.azioni {
+  display: flex;
+  gap: 15px;
+}
+
+.box-azione {
+  flex: 1;
+  padding: 25px;
+  text-align: center;
+  font-size: 18px;
+  font-weight: bold;
+  border-radius: 16px;
+  cursor: pointer;
+}
+
+.box-azione.entrata {
+  background: #2ecc71;
+  color: white;
+}
+
+.box-azione.uscita {
+  background: #e74c3c;
+  color: white;
+}
+
+/* =====================
+   VISIBILITÀ
+===================== */
+.hidden {
+  display: none !important;
+}
+
+/* =====================
+   ENTRATE CONTANTI / POS
+===================== */
+.scelta-entrata {
+  display: flex;
+  gap: 15px;
+}
+
+.btn-metodo {
+  flex: 1;
+  padding: 25px;
+  font-size: 20px;
+  font-weight: bold;
+  border-radius: 18px;
+  border: none;
+  background: #e74c3c;
+  color: white;
+}
+
+.btn-metodo.attivo {
+  background: #2ecc71;
+}
+
+.btn-salva {
+  padding: 15px;
+  font-size: 18px;
+  border-radius: 14px;
+  border: none;
+  background: #2c3e50;
+  color: white;
+}
+
+/* =====================
+   USCITE - DOCUMENTI
+===================== */
+.scelta-documento {
+  display: flex;
+  gap: 15px;
+}
+
+.btn-doc {
+  flex: 1;
+  padding: 25px;
+  font-size: 20px;
+  font-weight: bold;
+  border-radius: 18px;
+  border: none;
+  background: #e74c3c;
+  color: white;
+}
+
+.btn-doc.attivo {
+  background: #2ecc71;
+}
+
+/* =====================
+   RIEPILOGO SETTIMANA
+===================== */
+.periodo-settimana {
+  display: block;
+  font-size: 14px;
+  color: #555;
+  margin-top: 4px;
+}
+
+/* =====================
+   POPUP
+===================== */
+.popup {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.popup-content {
+  background: white;
+  width: 90%;
+  max-width: 700px;
+  max-height: 85%;
+  overflow-y: auto;
+  border-radius: 16px;
+  padding: 15px;
+}
+
+.popup-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.popup-header h2 {
+  margin: 0;
+  font-size: 18px;
+  color: #2c3e50;
+}
+
+/* ===== BOTTONE CHIUDI ===== */
+.popup-header button {
+  border: none;
+  background: #eee;
+  color: #333;
+  font-size: 22px;
+  font-weight: bold;
+  cursor: pointer;
+  padding: 6px 12px;
+  border-radius: 10px;
+}
+
+.popup-header button:hover {
+  background: #ddd;
+}
+
+/* =====================
+   LISTA DETTAGLIO
+===================== */
+#lista-dettaglio {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+#lista-dettaglio li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.azioni-movimento button {
+  margin-left: 8px;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.btn-modifica {
+  background: #f1c40f;
+  color: #333;
+}
+
+.btn-elimina {
+  background: #e74c3c;
+  color: white;
+}
+
+/* =====================
+   ARCHIVIO MENSILE
+===================== */
+#lista-mesi {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-top: 15px;
+}
+
+/* BOX MESE */
+.box-mese {
+  background: #3498db;
+  color: white;
+  border-radius: 16px;
+  padding: 20px 10px;
+  text-align: center;
+  font-weight: bold;
+  font-size: 16px;
+  cursor: pointer;
+  aspect-ratio: 1 / 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.12);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.box-mese:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 14px rgba(0,0,0,0.18);
+}
+
+/* =====================
+   BOTTONI SETTIMANA
+===================== */
+.btn-settimana {
+  display: block;
+  width: 100%;
+  margin-bottom: 8px;
+  padding: 12px;
+  border-radius: 12px;
+  border: none;
+  background: #2ecc71;
+  color: white;
+  font-weight: bold;
+}
