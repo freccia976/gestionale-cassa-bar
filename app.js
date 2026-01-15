@@ -7,6 +7,14 @@ import {
   signInWithEmailAndPassword,
   onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
+import {
+  getFirestore,
+  collection,
+  getDocs,
+  query,
+  orderBy
+} from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
+
 
 /* =====================================================
    FIREBASE CONFIG
@@ -22,6 +30,8 @@ const firebaseConfig = {
 
 const firebaseApp = initializeApp(firebaseConfig);
 const auth = getAuth(firebaseApp);
+const db = getFirestore(firebaseApp);
+
 
 /* =====================================================
    DOM READY
@@ -75,11 +85,33 @@ document.addEventListener("DOMContentLoaded", () => {
   ===================================================== */
   function inizializzaApp() {
 
+
+     async function caricaMovimentiDaFirestore(uid) {
+  const ref = collection(db, "users", uid, "movimenti");
+  const q = query(ref, orderBy("data", "asc"));
+  const snap = await getDocs(q);
+
+  return snap.docs.map(doc => ({
+    id: doc.id,
+    ...doc.data()
+  }));
+}
+
+
     /* =====================
        DATI (LOCAL)
     ===================== */
-    let movimenti = JSON.parse(localStorage.getItem("movimenti")) || [];
-    let fornitori = JSON.parse(localStorage.getItem("fornitori")) || [];
+    let movimenti = [];
+let fornitori = JSON.parse(localStorage.getItem("fornitori")) || [];
+
+     (async () => {
+  const user = auth.currentUser;
+  if (!user) return;
+
+  movimenti = await caricaMovimentiDaFirestore(user.uid);
+  aggiornaUI();
+})();
+
 
     /* =====================
        ELEMENTI BASE
@@ -314,3 +346,4 @@ document.addEventListener("DOMContentLoaded", () => {
     aggiornaUI();
   }
 });
+
