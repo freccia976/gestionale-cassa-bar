@@ -1,6 +1,8 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword, onAuthStateChanged }
-from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
+import {
+  signInWithEmailAndPassword,
+  onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
+
 
 
 
@@ -10,7 +12,7 @@ document.addEventListener("DOMContentLoaded", () => {
   /* =====================
      FIREBASE AUTH
   ===================== */
-const auth = getAuth();
+const auth = window.firebaseAuth;
 
 const loginBox = document.getElementById("login-box");
 const appBox = document.getElementById("app");
@@ -24,10 +26,11 @@ btnLogin.onclick = async () => {
   try {
     await signInWithEmailAndPassword(auth, email, password);
   } catch (err) {
+    loginError.textContent = "Email o password errate";
     loginError.style.display = "block";
-    loginError.textContent = err.message;
   }
 };
+
 
 onAuthStateChanged(auth, user => {
   if (user) {
@@ -38,6 +41,7 @@ onAuthStateChanged(auth, user => {
     appBox.classList.add("hidden");
   }
 });
+
 
 
 onAuthStateChanged(auth, user => {
@@ -355,5 +359,6 @@ onAuthStateChanged(auth, user => {
     aggiornaUI();
   }
 });
+
 
 
