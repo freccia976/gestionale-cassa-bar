@@ -178,14 +178,21 @@ document.addEventListener("DOMContentLoaded", () => {
       e.preventDefault();
       if (!metodoEntrata) return alert("Seleziona metodo");
 
-      movimenti.push({
-        data: document.getElementById("data-entrata").value,
-        tipo: "entrata",
-        metodo: metodoEntrata,
-        importo: +document.getElementById("importo-entrata").value
-      });
+      movime<script src="firebase-db.js" type="module"></script>
+<script src="app.js" type="module"></script>
+const nuovaEntrata = {
+  data: document.getElementById("data-entrata").value,
+  tipo: "entrata",
+  metodo: metodoEntrata,
+  importo: +document.getElementById("importo-entrata").value
+};
 
-      localStorage.setItem("movimenti", JSON.stringify(movimenti));
+// salva su Firebase
+await salvaMovimento(nuovaEntrata);
+
+// ricarica da Firebase
+movimenti = await caricaMovimenti();
+
       e.target.reset();
       metodoEntrata = null;
       aggiornaUI();
@@ -349,6 +356,7 @@ document.addEventListener("DOMContentLoaded", () => {
     aggiornaUI();
   }
 });
+
 
 
 
