@@ -43,30 +43,6 @@ onAuthStateChanged(auth, user => {
 });
 
 
-
-onAuthStateChanged(auth, user => {
-  if (user) {
-    loginBox.classList.add("hidden");
-    appBox.classList.remove("hidden");
-  } else {
-    loginBox.classList.remove("hidden");
-    appBox.classList.add("hidden");
-  }
-});
-
-
-  // CONTROLLO SESSIONE
-  auth.onAuthStateChanged(user => {
-    if (user) {
-      loginBox.classList.add("hidden");
-      appBox.classList.remove("hidden");
-      inizializzaApp();
-    } else {
-      loginBox.classList.remove("hidden");
-      appBox.classList.add("hidden");
-    }
-  });
-
   /* =====================
      APP
   ===================== */
@@ -359,6 +335,7 @@ onAuthStateChanged(auth, user => {
     aggiornaUI();
   }
 });
+
 
 
 
