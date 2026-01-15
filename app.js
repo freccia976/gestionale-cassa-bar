@@ -1,33 +1,42 @@
+import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } 
+from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
+
+
+
 document.addEventListener("DOMContentLoaded", () => {
 
   /* =====================
      FIREBASE AUTH
   ===================== */
-  const auth = window.firebaseAuth;
+  const auth = getAuth();
 
-  const loginBox = document.getElementById("login-box");
-  const appBox = document.getElementById("app");
+const loginBox = document.getElementById("login-box");
+const appBox = document.getElementById("app");
+const btnLogin = document.getElementById("btn-login");
+const loginError = document.getElementById("login-error");
 
-  const inputEmail = document.getElementById("login-email");
-  const inputPassword = document.getElementById("login-password");
-  const btnLogin = document.getElementById("btn-login");
+btnLogin.onclick = async () => {
+  const email = document.getElementById("login-email").value;
+  const password = document.getElementById("login-password").value;
 
-  // LOGIN
-  btnLogin.onclick = async () => {
-    const email = inputEmail.value.trim();
-    const password = inputPassword.value.trim();
+  try {
+    await signInWithEmailAndPassword(auth, email, password);
+  } catch (err) {
+    loginError.style.display = "block";
+    loginError.textContent = err.message;
+  }
+};
 
-    if (!email || !password) {
-      alert("Inserisci email e password");
-      return;
-    }
+onAuthStateChanged(auth, user => {
+  if (user) {
+    loginBox.classList.add("hidden");
+    appBox.classList.remove("hidden");
+  } else {
+    loginBox.classList.remove("hidden");
+    appBox.classList.add("hidden");
+  }
+});
 
-    try {
-      await auth.signInWithEmailAndPassword(email, password);
-    } catch (err) {
-      alert("Errore login: " + err.message);
-    }
-  };
 
   // CONTROLLO SESSIONE
   auth.onAuthStateChanged(user => {
@@ -333,3 +342,4 @@ document.addEventListener("DOMContentLoaded", () => {
     aggiornaUI();
   }
 });
+
