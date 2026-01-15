@@ -1,7 +1,25 @@
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
 import {
+  getAuth,
   signInWithEmailAndPassword,
   onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
+
+/* =====================
+   FIREBASE CONFIG
+===================== */
+const firebaseConfig = {
+  apiKey: "AIzaSyAuuwzai8Da1S9MsVmeQ78FdYFTffT6HSo",
+  authDomain: "gestionale-cassa-bar.firebaseapp.com",
+  projectId: "gestionale-cassa-bar",
+  storageBucket: "gestionale-cassa-bar.firebasestorage.app",
+  messagingSenderId: "680357723856",
+  appId: "1:680357723856:web:4d84167fa82af2b395e8d5"
+};
+
+const firebaseApp = initializeApp(firebaseConfig);
+const auth = getAuth(firebaseApp);
+
 
 document.addEventListener("DOMContentLoaded", () => {
 
@@ -157,6 +175,7 @@ window.auth = auth; // 👈 ESPONIAMO AUTH GLOBALMENTE
     });
   }
 });
+
 
 
 
