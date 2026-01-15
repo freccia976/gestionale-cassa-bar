@@ -7,13 +7,6 @@ import {
   signInWithEmailAndPassword,
   onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
-import {
-  getFirestore,
-  collection,
-  getDocs,
-  query,
-  orderBy
-} from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
 
 import {
   getFirestore,
@@ -395,6 +388,7 @@ function aggiornaRiepilogoSettimana() {
     aggiornaUI();
   }
 });
+
 
 
 
