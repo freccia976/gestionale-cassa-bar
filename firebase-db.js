@@ -2,10 +2,12 @@
    FIREBASE DB LAYER
 ===================================================== */
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
+
 import {
   getAuth,
   signInWithEmailAndPassword,
-  onAuthStateChanged
+  onAuthStateChanged,
+  signOut
 } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
 
 import {
@@ -31,7 +33,7 @@ const firebaseConfig = {
 };
 
 /* =====================
-   INIT
+   INIT (UNA SOLA VOLTA)
 ===================== */
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
@@ -42,6 +44,10 @@ const db = getFirestore(app);
 ===================================================== */
 export function login(email, password) {
   return signInWithEmailAndPassword(auth, email, password);
+}
+
+export function logout() {
+  return signOut(auth);
 }
 
 export function onUserChanged(callback) {

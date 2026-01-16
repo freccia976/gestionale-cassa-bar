@@ -1,59 +1,16 @@
 /* =====================================================
-   IMPORT DAL LAYER FIREBASE
+   IMPORT
 ===================================================== */
-import {
-  login,
-  onUserChanged,
-  salvaMovimento,
-  caricaMovimenti
-} from "./firebase-db.js";
+import { initAuth } from "./auth.js";
+import { salvaMovimento, caricaMovimenti } from "./firebase-db.js";
 
 /* =====================================================
    DOM READY
 ===================================================== */
 document.addEventListener("DOMContentLoaded", () => {
 
-  /* =====================
-     LOGIN ELEMENTI
-  ===================== */
-  const loginBox = document.getElementById("login-box");
-  const appBox = document.getElementById("app");
-  const btnLogin = document.getElementById("btn-login");
-  const inputEmail = document.getElementById("login-email");
-  const inputPassword = document.getElementById("login-password");
-
-  /* =====================
-     LOGIN
-  ===================== */
-  btnLogin.addEventListener("click", async () => {
-    const email = inputEmail.value.trim();
-    const password = inputPassword.value.trim();
-
-    if (!email || !password) {
-      alert("Inserisci email e password");
-      return;
-    }
-
-    try {
-      await login(email, password);
-    } catch (err) {
-      alert("Email o password errate");
-    }
-  });
-
-  /* =====================
-     SESSIONE
-  ===================== */
-  onUserChanged(user => {
-    if (user) {
-      loginBox.classList.add("hidden");
-      appBox.classList.remove("hidden");
-      inizializzaApp();
-    } else {
-      loginBox.classList.remove("hidden");
-      appBox.classList.add("hidden");
-    }
-  });
+  // 👉 Auth gestisce login / sessione
+  initAuth(inizializzaApp);
 
   /* =====================================================
      APP
@@ -307,4 +264,3 @@ document.addEventListener("DOMContentLoaded", () => {
     aggiornaUI();
   }
 });
-
