@@ -6,6 +6,7 @@ import { salvaMovimento, caricaMovimenti } from "./firebase-db.js";
 import { eliminaMovimento } from "./movimenti-actions.js";
 import { modificaMovimento } from "./movimenti-actions.js";
 import { initUscite } from "./uscite.js";
+import { initFornitori } from "./fornitori.js";
 
 import { initEntrate } from "./entrate.js";
 
@@ -325,6 +326,9 @@ initUscite({
   },
   aggiornaUI
 });
+
+initFornitori();
+
 
 
 function apriPopupModifica(movimento) {

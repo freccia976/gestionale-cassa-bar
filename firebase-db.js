@@ -87,3 +87,29 @@ export async function caricaMovimenti() {
     ...d.data()
   }));
 }
+/* =====================================================
+   FORNITORI API
+===================================================== */
+export async function caricaFornitori() {
+  const user = auth.currentUser;
+  if (!user) return [];
+
+  const ref = collection(db, "users", user.uid, "fornitori");
+  const snap = await getDocs(ref);
+
+  return snap.docs.map(d => ({
+    id: d.id,
+    nome: d.data().nome
+  }));
+}
+
+export async function salvaFornitore(nome) {
+  const user = auth.currentUser;
+  if (!user) return;
+
+  const ref = collection(db, "users", user.uid, "fornitori");
+
+  await addDoc(ref, {
+    nome: nome.trim()
+  });
+}
