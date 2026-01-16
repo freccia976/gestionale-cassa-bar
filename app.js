@@ -3,6 +3,11 @@
 ===================================================== */
 import { initAuth } from "./auth.js";
 import { salvaMovimento, caricaMovimenti } from "./firebase-db.js";
+import { eliminaMovimento } from "./movimenti-actions.js";
+import { modificaMovimento } from "./movimenti-actions.js";
+import { initUscite } from "./uscite.js";
+
+import { initEntrate } from "./entrate.js";
 
 /* =====================================================
    DOM READY
@@ -103,37 +108,6 @@ document.addEventListener("DOMContentLoaded", () => {
       formEntrata.classList.add("hidden");
     };
 
-    /* =====================
-       ENTRATA
-    ===================== */
-    let metodoEntrata = null;
-
-    document.querySelectorAll(".btn-metodo").forEach(btn => {
-      btn.onclick = () => {
-        document.querySelectorAll(".btn-metodo").forEach(b => b.classList.remove("attivo"));
-        btn.classList.add("attivo");
-        metodoEntrata = btn.dataset.metodo;
-      };
-    });
-
-    document.getElementById("form-entrata-dati").onsubmit = async e => {
-      e.preventDefault();
-      if (!metodoEntrata) return alert("Seleziona metodo");
-
-      const nuovaEntrata = {
-        data: document.getElementById("data-entrata").value,
-        tipo: "entrata",
-        metodo: metodoEntrata,
-        importo: +document.getElementById("importo-entrata").value
-      };
-
-      await salvaMovimento(nuovaEntrata);
-      movimenti = await caricaMovimenti();
-
-      e.target.reset();
-      metodoEntrata = null;
-      aggiornaUI();
-    };
 
     /* =====================
        RIEPILOGO SETTIMANA
@@ -186,13 +160,88 @@ document.addEventListener("DOMContentLoaded", () => {
           return d >= lunedi && d <= sabato;
         })
         .forEach(m => {
-          const li = document.createElement("li");
-          li.textContent =
-            `${formattaData(m.data)} - €${m.importo.toFixed(2)}`;
-          listaDettaglio.appendChild(li);
-        });
+  const li = document.createElement("li");
+
+  let icona = "";
+  let descrizione = "";
+
+  if (m.tipo === "entrata") {
+    if (m.metodo === "contanti") {
+      icona = "💶";
+      descrizione = "Entrata contanti";
+    } else {
+      icona = "💳";
+      descrizione = "Entrata POS";
+    }
+  } else {
+    if (m.documento === "fattura") {
+      icona = "📄";
+    } else {
+      icona = "🧾";
     }
 
+    descrizione = `Pagamento a ${m.fornitore}`;
+    if (m.numeroDocumento) {
+      descrizione += ` (Doc. ${m.numeroDocumento})`;
+    }
+  }
+
+  li.innerHTML = `
+    <div class="riga-movimento">
+      <span>
+        <strong>${icona}</strong>
+        ${formattaData(m.data)}
+        — <strong>€${m.importo.toFixed(2)}</strong><br>
+        <small>${descrizione}</small>
+      </span>
+
+      <div class="azioni">
+        <button class="btn-modifica">✏️</button>
+        <button class="btn-elimina btn-danger">🗑️</button>
+      </div>
+    </div>
+  `;
+
+  // ELIMINA
+  li.querySelector(".btn-elimina").onclick = async () => {
+    await eliminaMovimento(m.id);
+    movimenti = await caricaMovimenti();
+    caricaDettaglio({ lunedi, sabato });
+    aggiornaUI();
+  };
+
+  // MODIFICA
+  li.querySelector(".btn-modifica").onclick = () => {
+    apriPopupModifica(m);
+  };
+
+  listaDettaglio.appendChild(li);
+});
+
+
+}
+
+const btnSalvaModifica = document.getElementById("btn-salva-modifica");
+
+if (btnSalvaModifica) {
+  btnSalvaModifica.onclick = async () => {
+    const id = document.getElementById("mod-id").value;
+
+    const datiAggiornati = {
+      data: document.getElementById("mod-data").value,
+      importo: +document.getElementById("mod-importo").value
+    };
+
+    await modificaMovimento(id, datiAggiornati);
+
+    document.getElementById("popup-modifica").classList.add("hidden");
+
+    movimenti = await caricaMovimenti();
+    aggiornaUI();
+    caricaDettaglio(settimanaDaData(new Date()));
+
+  };
+}
     /* =====================
        ARCHIVIO MENSILE
     ===================== */
@@ -260,6 +309,32 @@ document.addEventListener("DOMContentLoaded", () => {
       aggiornaRiepilogoSettimana();
       costruisciArchivioMensile();
     }
+
+initEntrate({
+  salvaMovimento,
+  caricaMovimenti: async () => {
+    movimenti = await caricaMovimenti();
+  },
+  aggiornaUI
+});
+
+initUscite({
+  salvaMovimento,
+  caricaMovimenti: async () => {
+    movimenti = await caricaMovimenti();
+  },
+  aggiornaUI
+});
+
+
+function apriPopupModifica(movimento) {
+  const popup = document.getElementById("popup-modifica");
+  popup.classList.remove("hidden");
+
+  document.getElementById("mod-data").value = movimento.data;
+  document.getElementById("mod-importo").value = movimento.importo;
+  document.getElementById("mod-id").value = movimento.id;
+}
 
     aggiornaUI();
   }

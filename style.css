@@ -307,3 +307,121 @@ button {
   color: white;
   font-weight: bold;
 }
+
+/* =========================
+   PULSANTI AZIONI MOVIMENTO
+========================= */
+.azioni-movimento {
+  display: flex;
+  gap: 8px;
+}
+
+.azioni-movimento button {
+  border: none;
+  padding: 6px 10px;
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 6px;
+}
+
+/* MODIFICA */
+.azioni-movimento button:first-child {
+  background: #36da0d;
+}
+
+/* ELIMINA */
+.azioni-movimento button:last-child {
+  background: #e53935;
+  color: white;
+}
+
+.azioni-movimento button:last-child:hover {
+  background: #c62828;
+}
+/* =====================
+   RIGA MOVIMENTO (POPUP SETTIMANA)
+===================== */
+#lista-dettaglio li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  padding: 8px;
+  border-bottom: 1px solid #ddd;
+}
+
+#lista-dettaglio li span {
+  flex: 1;
+}
+
+/* =====================
+   AZIONI MOVIMENTO
+===================== */
+#lista-dettaglio .azioni-movimento {
+  display: flex;
+  gap: 6px;
+}
+
+.btn-modifica {
+  background: #f0ad4e;
+  color: white;
+  border: none;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn-elimina {
+  background: #d9534f;
+  color: white;
+  border: none;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+/* =====================
+   POPUP GENERICO
+===================== */
+.popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+
+.popup-content {
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  min-width: 280px;
+}
+
+.hidden {
+  display: none;
+}
+.riga-movimento {
+  display: inline-block;
+  min-width: 260px;
+}
+.riga-movimento {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.azioni button {
+  margin-left: 5px;
+}
+
+.btn-danger {
+  background: #d9534f;
+  color: white;
+}

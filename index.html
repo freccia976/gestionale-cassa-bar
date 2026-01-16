@@ -56,6 +56,29 @@
   </div>
 </div>
 
+<!-- POPUP MODIFICA MOVIMENTO -->
+<div id="popup-modifica" class="popup hidden">
+  <div class="popup-content">
+    <h3>Modifica movimento</h3>
+
+    <input type="hidden" id="mod-id">
+
+    <label>Data</label>
+    <input type="date" id="mod-data">
+
+    <label>Importo</label>
+    <input type="number" id="mod-importo" step="0.01">
+
+    <div style="margin-top: 10px;">
+      <button id="btn-salva-modifica">💾 Salva</button>
+      <button onclick="document.getElementById('popup-modifica').classList.add('hidden')">
+        ❌ Annulla
+      </button>
+    </div>
+  </div>
+</div>
+
+
 <!-- HEADER -->
 <header class="header">
   <img src="img/logo.png" alt="Logo Bar" class="logo">
