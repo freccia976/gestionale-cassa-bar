@@ -23,14 +23,38 @@
 
 <!-- POPUP DETTAGLIO SETTIMANA -->
 <div id="popup-dettaglio" class="popup hidden">
-  <div class="popup-content">
+  <div class="popup-content prima-nota">
+
     <header class="popup-header">
-      <h2>Dettaglio settimana <span id="popup-periodo"></span></h2>
+      <h2>Prima Nota Settimanale <span id="popup-periodo"></span></h2>
       <button id="chiudi-popup">✖</button>
     </header>
-    <ul id="lista-dettaglio"></ul>
-  </div>
-</div>
+
+    <div class="prima-nota-header">
+      <div class="col-entrate">ENTRATE</div>
+      <div class="col-uscite">USCITE</div>
+    </div>
+
+    <div class="prima-nota-body">
+      <div id="col-entrate" class="prima-nota-col"></div>
+      <div id="col-uscite" class="prima-nota-col"></div>
+    </div>
+
+       <div class="prima-nota-footer">
+      <div>💶 Totale Contanti: <strong id="tot-contanti-pn">0.00</strong> €</div>
+      <div>💳 Totale POS: <strong id="tot-pos-pn">0.00</strong> €</div>
+      <div>📤 Totale Uscite: <strong id="tot-uscite-pn">0.00</strong> €</div>
+      <div class="saldo">
+        💰 Saldo Contanti:
+        <strong id="saldo-contanti-pn">0.00</strong> €
+      </div>
+    </div>
+
+  </div> <!-- popup-content -->
+</div> <!-- popup-dettaglio -->
+
+
+
 
 <!-- POPUP RIEPILOGO MENSILE -->
 <div id="popup-mese" class="popup hidden">
@@ -56,27 +80,74 @@
   </div>
 </div>
 
-<!-- POPUP MODIFICA MOVIMENTO -->
+<!-- ================= POPUP MODIFICA MOVIMENTO ================= -->
 <div id="popup-modifica" class="popup hidden">
-  <div class="popup-content">
-    <h3>Modifica movimento</h3>
+  <div class="popup-content prima-nota">
+
+    <header class="prima-nota-header">
+      <h2 id="mod-titolo">Modifica movimento</h2>
+      <button id="btn-chiudi-modifica">✖</button>
+    </header>
 
     <input type="hidden" id="mod-id">
 
-    <label>Data</label>
-    <input type="date" id="mod-data">
-
-    <label>Importo</label>
-    <input type="number" id="mod-importo" step="0.01">
-
-    <div style="margin-top: 10px;">
-      <button id="btn-salva-modifica">💾 Salva</button>
-      <button onclick="document.getElementById('popup-modifica').classList.add('hidden')">
-        ❌ Annulla
-      </button>
+    <!-- DATA -->
+    <div class="pn-row">
+      <label>Data</label>
+      <input type="date" id="mod-data">
     </div>
+
+    <!-- ================= ENTRATA ================= -->
+    <div id="mod-entrata" class="pn-section hidden">
+      <h3>Entrata</h3>
+
+      <div class="pn-row">
+        <label>Metodo</label>
+        <select id="mod-metodo">
+          <option value="contanti">💶 Contanti</option>
+          <option value="pos">💳 POS</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- ================= USCITA ================= -->
+    <div id="mod-uscita" class="pn-section hidden">
+      <h3>Uscita</h3>
+
+      <div class="pn-row">
+        <label>Fornitore</label>
+        <input type="text" id="mod-fornitore">
+      </div>
+
+      <div class="pn-row">
+        <label>Documento</label>
+        <select id="mod-documento">
+          <option value="fattura">📄 Fattura</option>
+          <option value="scontrino">🧾 Scontrino</option>
+        </select>
+      </div>
+
+      <div class="pn-row">
+        <label>Numero documento</label>
+        <input type="text" id="mod-numero-documento">
+      </div>
+    </div>
+
+    <!-- IMPORTO -->
+    <div class="pn-row totale">
+      <label>Importo (€)</label>
+      <input type="number" id="mod-importo" step="0.01">
+    </div>
+
+    <!-- AZIONI -->
+    <footer class="pn-actions">
+      <button id="btn-salva-modifica" class="btn-primary">💾 Salva</button>
+      <button id="btn-annulla-modifica" class="btn-secondary">❌ Annulla</button>
+    </footer>
+
   </div>
 </div>
+
 
 
 <!-- HEADER -->
