@@ -8,6 +8,8 @@ import { initEntrate } from "./entrate.js";
 import { initUscite } from "./uscite.js";
 import { initFornitori } from "./fornitori.js";
 import { initModificaPopup, apriPopupModifica } from "./modifica-popup.js";
+import { initSalvaChiusuraCassa } from "./chiusura-cassa.js";
+import { getUltimoFondoCassa } from "./firebase-db.js";
 
 /* =====================================================
    DOM READY
@@ -21,7 +23,15 @@ document.addEventListener("DOMContentLoaded", () => {
 ===================================================== */
 async function inizializzaApp() {
 
+  let fondoCassaIniziale = 0;
   let movimenti = await caricaMovimenti();
+  
+
+
+fondoCassaIniziale = await getUltimoFondoCassa();
+console.log("DEBUG fondoCassaIniziale:", fondoCassaIniziale);
+
+
 
   /* =====================
      ELEMENTI BASE
@@ -42,6 +52,54 @@ async function inizializzaApp() {
 
   const colEntrate = document.getElementById("col-entrate");
   const colUscite = document.getElementById("col-uscite");
+
+  /* =====================
+   POPUP CHIUSURA CASSA
+===================== */
+const btnChiusuraCassa = document.getElementById("btn-chiusura-cassa");
+const popupChiusuraCassa = document.getElementById("popup-chiusura-cassa");
+const chiudiChiusuraCassa = document.getElementById("chiudi-chiusura-cassa");
+const annullaChiusuraCassa = document.getElementById("btn-annulla-chiusura");
+
+/* =====================
+   CAMPI CHIUSURA CASSA
+===================== */
+const ccContantiEffettivi = document.getElementById("cc-contanti-effettivi");
+const ccVersamento = document.getElementById("cc-versamento");
+const ccLorenzo = document.getElementById("cc-lorenzo");
+const ccElisa = document.getElementById("cc-elisa");
+const ccBonus = document.getElementById("cc-bonus");
+const ccFondoCassa = document.getElementById("cc-fondo-cassa");
+
+/* =====================
+   CALCOLO FONDO CASSA
+===================== */
+function aggiornaFondoCassa() {
+  const contanti = parseFloat(ccContantiEffettivi.value) || 0;
+  const versamento = parseFloat(ccVersamento.value) || 0;
+  const lorenzo = parseFloat(ccLorenzo.value) || 0;
+  const elisa = parseFloat(ccElisa.value) || 0;
+  const bonus = parseFloat(ccBonus.value) || 0;
+
+  const fondo =
+    contanti +
+    bonus -
+    versamento -
+    lorenzo -
+    elisa;
+
+  ccFondoCassa.value = fondo.toFixed(2);
+}
+
+/* =====================
+   LISTENER INPUT
+===================== */
+[ccVersamento, ccLorenzo, ccElisa, ccBonus].forEach(input => {
+  if (input) {
+    input.addEventListener("input", aggiornaFondoCassa);
+  }
+});
+
 /* =====================
    CHIUSURA POPUP SETTIMANA
 ===================== */
@@ -68,6 +126,12 @@ if (chiudiPopupSettimana) {
   const listaSettimaneMese = document.getElementById("lista-settimane-mese");
 
   let meseCorrenteMovimenti = [];
+  let saldoSettimanaCorrente = 0;
+  let settimanaCorrenteChiusura = null;
+  
+
+
+
 
   /* =====================
      UTILITY
@@ -129,6 +193,27 @@ if (btnDettaglio) {
     caricaDettaglio(settimanaDaData(new Date()));
   };
 }
+/* =====================
+   APERTURA POPUP CHIUSURA CASSA
+===================== */
+if (btnChiusuraCassa) {
+ btnChiusuraCassa.onclick = () => {
+  popupChiusuraCassa.classList.remove("hidden");
+
+  const settimana = settimanaDaData(new Date());
+  settimanaCorrenteChiusura = settimana;
+
+  const inputContantiEffettivi =
+    document.getElementById("cc-contanti-effettivi");
+
+  if (inputContantiEffettivi) {
+    inputContantiEffettivi.value =
+      saldoSettimanaCorrente.toFixed(2);
+  }
+};
+
+}
+
 
   /* =====================
      RIEPILOGO SETTIMANA HOME
@@ -143,6 +228,9 @@ if (btnDettaglio) {
   let totalePOS = 0;
   let totalePagamenti = 0;
   let saldoContanti = 0;
+
+  saldoContanti += fondoCassaIniziale;
+totaleContanti += fondoCassaIniziale;
 
   movimenti.forEach(m => {
     const d = new Date(m.data);
@@ -182,13 +270,15 @@ if (btnDettaglio) {
 
   document.getElementById("saldo-contanti").textContent =
     saldoContanti.toFixed(2);
+    saldoSettimanaCorrente = saldoContanti;
+
 }
 
 
   /* =====================
-     PRIMA NOTA SETTIMANALE
-  ===================== */
-  function caricaDettaglio({ lunedi, sabato }) {
+   PRIMA NOTA SETTIMANALE
+===================== */
+function caricaDettaglio({ lunedi, sabato }) {
   colEntrate.innerHTML = "";
   colUscite.innerHTML = "";
 
@@ -250,13 +340,12 @@ if (btnDettaglio) {
 
         totaleUscite += m.importo;
 
-const quotaContanti =
-  m.quotaContanti !== undefined
-    ? m.quotaContanti
-    : m.importo;
+        const quotaContanti =
+          m.quotaContanti !== undefined
+            ? m.quotaContanti
+            : m.importo;
 
-saldoContanti -= quotaContanti;
-
+        saldoContanti -= quotaContanti;
 
         const icona = m.documento === "fattura" ? "📄" : "🧾";
 
@@ -283,11 +372,29 @@ saldoContanti -= quotaContanti;
       }
     });
 
-  /* ===== FOOTER ===== */
+  /* ===== FOOTER PRIMA NOTA ===== */
   totContantiPN.textContent = totaleContanti.toFixed(2);
   totPOSPN.textContent = totalePOS.toFixed(2);
   totUscitePN.textContent = totaleUscite.toFixed(2);
   saldoContantiPN.textContent = saldoContanti.toFixed(2);
+
+  /* ✅ SALVA IL SALDO DELLA SETTIMANA VISUALIZZATA */
+  saldoSettimanaCorrente = saldoContanti;
+}
+
+/* =====================
+   CHIUSURA POPUP CHIUSURA CASSA
+===================== */
+function chiudiPopupChiusuraCassa() {
+  popupChiusuraCassa.classList.add("hidden");
+}
+
+if (chiudiChiusuraCassa) {
+  chiudiChiusuraCassa.onclick = chiudiPopupChiusuraCassa;
+}
+
+if (annullaChiusuraCassa) {
+  annullaChiusuraCassa.onclick = chiudiPopupChiusuraCassa;
 }
 
 
@@ -367,6 +474,9 @@ saldoContanti -= quotaContanti;
   });
 
   initFornitori();
+  initSalvaChiusuraCassa(() => settimanaDaData(new Date()));
+
+
 
   initModificaPopup({
     setMovimenti: m => (movimenti = m),

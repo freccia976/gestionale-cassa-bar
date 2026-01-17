@@ -52,6 +52,63 @@
   </div>
 </div>
 
+<!-- ================= POPUP CHIUSURA CASSA ================= -->
+<div id="popup-chiusura-cassa" class="popup hidden">
+  <div class="popup-content">
+
+    <header class="popup-header">
+      <h2>Chiusura Cassa Settimanale</h2>
+      <button id="chiudi-chiusura-cassa">✖</button>
+    </header>
+
+    <div class="pn-row">
+      <label>Contanti effettivi in cassa (€)</label>
+      <input
+  type="number"
+  id="cc-contanti-effettivi"
+  step="0.01"
+  readonly
+>
+
+    </div>
+
+    <div class="pn-row">
+      <label>Versamento in banca (€)</label>
+      <input type="number" id="cc-versamento" step="0.01">
+    </div>
+
+    <div class="pn-row">
+      <label>Compenso Lorenzo (€)</label>
+      <input type="number" id="cc-lorenzo" step="0.01">
+    </div>
+
+    <div class="pn-row">
+      <label>Compenso Elisa (€)</label>
+      <input type="number" id="cc-elisa" step="0.01">
+    </div>
+
+    <div class="pn-row">
+      <label>Bonus contanti extra (€)</label>
+      <input type="number" id="cc-bonus" step="0.01" placeholder="opzionale">
+    </div>
+
+    <div class="pn-row totale">
+      <label>Fondo cassa settimana successiva (€)</label>
+      <input type="number" id="cc-fondo-cassa" step="0.01" readonly>
+    </div>
+
+    <footer class="pn-actions">
+      <button id="btn-salva-chiusura" class="btn-primary">
+        💾 Salva chiusura
+      </button>
+      <button id="btn-annulla-chiusura" class="btn-secondary">
+        ❌ Annulla
+      </button>
+    </footer>
+
+  </div>
+</div>
+
 <!-- ================= POPUP MESE ================= -->
 <div id="popup-mese" class="popup hidden">
   <div class="popup-content">
@@ -208,6 +265,8 @@
 <section class="card">
   <h2>Riepilogo Settimana <span id="periodo-settimana"></span></h2>
   <button id="btn-dettaglio">📋 Dettaglio settimana</button>
+  <button id="btn-chiusura-cassa">🔒 Chiusura cassa</button>
+
   <p>💶 Totale Contanti: <strong id="tot-contanti">0.00</strong> €</p>
   <p>💳 Totale POS: <strong id="tot-pos">0.00</strong> €</p>
   <p>📤 Totale Pagamenti: <strong id="tot-pagamenti">0.00</strong> €</p>

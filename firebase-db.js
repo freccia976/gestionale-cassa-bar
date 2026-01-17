@@ -17,6 +17,7 @@ import {
   getDocs,
   query,
   orderBy,
+  limit,
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
 
@@ -87,6 +88,7 @@ export async function caricaMovimenti() {
     ...d.data()
   }));
 }
+
 /* =====================================================
    FORNITORI API
 ===================================================== */
@@ -112,4 +114,23 @@ export async function salvaFornitore(nome) {
   await addDoc(ref, {
     nome: nome.trim()
   });
+}
+
+/* =====================================================
+   FONDO CASSA (ULTIMA CHIUSURA)
+===================================================== */
+export async function getUltimoFondoCassa() {
+  const user = getCurrentUser();
+  if (!user) return 0;
+
+  const q = query(
+    collection(db, "users", user.uid, "chiusure_settimanali"),
+    orderBy("createdAt", "desc"),
+    limit(1)
+  );
+
+  const snap = await getDocs(q);
+  if (snap.empty) return 0;
+
+  return snap.docs[0].data().fondoCassa || 0;
 }
