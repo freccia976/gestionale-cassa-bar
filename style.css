@@ -584,152 +584,44 @@ button {
 
 .prima-nota {
   width: 100%;
-  max-width: 900px;
+  max-width: 1000px;
 }
-
-.prima-nota-header,
-.prima-nota-row {
-  display: grid;
-  grid-template-columns: 1fr 2fr 1fr;
-  align-items: center;
-  gap: 10px;
-}
-
 .prima-nota-header {
+  display: grid;
+  grid-template-columns: 40% 60%;
+  gap: 16px;
   font-weight: bold;
   border-bottom: 2px solid #ccc;
-  padding: 8px 0;
-  margin-bottom: 10px;
+  padding-bottom: 6px;
 }
-
-.prima-nota-body {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.prima-nota-row {
-  padding: 6px 0;
-  border-bottom: 1px solid #eee;
-}
-
-.prima-nota-row .entrata {
-  text-align: left;
-  color: green;
-  font-weight: bold;
-}
-
-.prima-nota-row .uscita {
-  text-align: right;
-  color: red;
-  font-weight: bold;
-}
-
-.prima-nota-row .descrizione {
-  text-align: center;
-  font-size: 0.9em;
-}
-
-.prima-nota-footer {
-  margin-top: 15px;
-  padding-top: 10px;
-  border-top: 2px solid #ccc;
-  display: flex;
-  justify-content: space-between;
-  font-weight: bold;
-}
-.prima-nota {
-  width: 100%;
-}
-
-.prima-nota-header,
 .prima-nota-body {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 15px;
+  grid-template-columns: 40% 60%; /* ENTRATE | USCITE */
+  gap: 16px;
+  margin-top: 8px;
 }
-
-.prima-nota-header {
-  font-weight: bold;
-  border-bottom: 2px solid #ccc;
-  padding-bottom: 5px;
-}
-
 .prima-nota-col {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-}
-
-.riga-prima-nota {
-  border: 1px solid #eee;
-  padding: 6px;
-  border-radius: 6px;
-  background: #fafafa;
-}
-
-.riga-prima-nota .azioni {
-  margin-top: 5px;
-  display: flex;
-  gap: 5px;
 }
 .pn-riga {
   display: grid;
-  grid-template-columns: 90px 40px 1fr auto;
-  gap: 8px;
   align-items: center;
-  padding: 6px 0;
-  border-bottom: 1px solid #ddd;
-}
-
-.pn-importo {
-  font-weight: bold;
-  text-align: right;
-}
-
-.pn-importo.entrata {
-  color: green;
-}
-
-.pn-importo.uscita {
-  color: red;
-}
-
-.pn-azioni button {
-  margin-left: 4px;
-}
-/* CONTENITORE PRIMA NOTA */
-.prima-nota-body {
-  display: grid;
-  grid-template-columns: 40% 60%; /* ⬅️ ENTRATE | USCITE */
-  gap: 16px;
-}
-
-/* RIGA MOVIMENTO */
-.pn-riga {
-  display: grid;
-  grid-template-columns: 80px 32px 1fr auto;
   gap: 6px;
-  align-items: center;
   padding: 6px 0;
   border-bottom: 1px dashed #ddd;
   font-size: 14px;
 }
-
-/* ENTRATE: più compatte */
 #col-entrate .pn-riga {
   grid-template-columns: 70px 28px auto auto;
 }
-
-/* USCITE: più spazio alla descrizione */
 #col-uscite .pn-riga {
   grid-template-columns: 70px 28px 1fr auto auto;
 }
-
-/* IMPORTI */
 .pn-importo {
   font-weight: bold;
   white-space: nowrap;
+  text-align: right;
 }
 
 .pn-importo.entrata {
@@ -739,14 +631,54 @@ button {
 .pn-importo.uscita {
   color: #c62828;
 }
-
-/* AZIONI */
 .pn-azioni button {
   margin-left: 4px;
   padding: 2px 6px;
 }
+.prima-nota-footer {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 2px solid #000;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  font-weight: bold;
+  font-size: 14px;
+}
+
 .prima-nota-footer .saldo {
   font-size: 16px;
-  font-weight: bold;
   color: #0d47a1;
+}
+@media (max-width: 900px) {
+
+  .prima-nota-header {
+    display: none;
+  }
+
+  .prima-nota-body {
+    grid-template-columns: 1fr;
+  }
+
+  .prima-nota-col::before {
+    font-weight: bold;
+    margin: 10px 0 4px;
+    display: block;
+  }
+
+  #col-entrate::before {
+    content: "ENTRATE";
+  }
+
+  #col-uscite::before {
+    content: "USCITE";
+  }
+
+  .pn-riga {
+    font-size: 15px;
+  }
+
+  .prima-nota-footer {
+    grid-template-columns: 1fr 1fr;
+  }
 }

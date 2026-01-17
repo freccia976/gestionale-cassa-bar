@@ -19,15 +19,14 @@
 <!-- ================= APP ================= -->
 <div id="app" class="hidden">
 
-
-
-<!-- POPUP DETTAGLIO SETTIMANA -->
+<!-- ================= POPUP DETTAGLIO SETTIMANA ================= -->
 <div id="popup-dettaglio" class="popup hidden">
   <div class="popup-content prima-nota">
 
     <header class="popup-header">
       <h2>Prima Nota Settimanale <span id="popup-periodo"></span></h2>
-      <button id="chiudi-popup">✖</button>
+      <button id="chiudi-popup" type="button">✖</button>
+
     </header>
 
     <div class="prima-nota-header">
@@ -40,7 +39,7 @@
       <div id="col-uscite" class="prima-nota-col"></div>
     </div>
 
-       <div class="prima-nota-footer">
+    <div class="prima-nota-footer">
       <div>💶 Totale Contanti: <strong id="tot-contanti-pn">0.00</strong> €</div>
       <div>💳 Totale POS: <strong id="tot-pos-pn">0.00</strong> €</div>
       <div>📤 Totale Uscite: <strong id="tot-uscite-pn">0.00</strong> €</div>
@@ -50,13 +49,10 @@
       </div>
     </div>
 
-  </div> <!-- popup-content -->
-</div> <!-- popup-dettaglio -->
+  </div>
+</div>
 
-
-
-
-<!-- POPUP RIEPILOGO MENSILE -->
+<!-- ================= POPUP MESE ================= -->
 <div id="popup-mese" class="popup hidden">
   <div class="popup-content">
     <header class="popup-header">
@@ -68,7 +64,6 @@
 
     <div class="azioni-pdf">
       <button id="export-mese">📄 Esporta mese</button>
-      <button id="export-settimana">📄 Esporta settimana</button>
     </div>
 
     <hr>
@@ -80,7 +75,7 @@
   </div>
 </div>
 
-<!-- ================= POPUP MODIFICA MOVIMENTO ================= -->
+<!-- ================= POPUP MODIFICA ================= -->
 <div id="popup-modifica" class="popup hidden">
   <div class="popup-content prima-nota">
 
@@ -91,16 +86,13 @@
 
     <input type="hidden" id="mod-id">
 
-    <!-- DATA -->
     <div class="pn-row">
       <label>Data</label>
       <input type="date" id="mod-data">
     </div>
 
-    <!-- ================= ENTRATA ================= -->
     <div id="mod-entrata" class="pn-section hidden">
       <h3>Entrata</h3>
-
       <div class="pn-row">
         <label>Metodo</label>
         <select id="mod-metodo">
@@ -110,7 +102,6 @@
       </div>
     </div>
 
-    <!-- ================= USCITA ================= -->
     <div id="mod-uscita" class="pn-section hidden">
       <h3>Uscita</h3>
 
@@ -133,24 +124,20 @@
       </div>
     </div>
 
-    <!-- IMPORTO -->
     <div class="pn-row totale">
       <label>Importo (€)</label>
       <input type="number" id="mod-importo" step="0.01">
     </div>
 
-    <!-- AZIONI -->
     <footer class="pn-actions">
-      <button id="btn-salva-modifica" class="btn-primary">💾 Salva</button>
-      <button id="btn-annulla-modifica" class="btn-secondary">❌ Annulla</button>
+      <button id="btn-salva-modifica">💾 Salva</button>
+      <button id="btn-annulla-modifica">❌ Annulla</button>
     </footer>
 
   </div>
 </div>
 
-
-
-<!-- HEADER -->
+<!-- ================= HEADER ================= -->
 <header class="header">
   <img src="img/logo.png" alt="Logo Bar" class="logo">
   <h1>Flussi di Cassa</h1>
@@ -160,8 +147,7 @@
   <button id="btn-logout">🚪 Esci</button>
 </div>
 
-
-<!-- AZIONI -->
+<!-- ================= AZIONI ================= -->
 <section class="card">
   <h2>Flussi di Cassa</h2>
   <div class="azioni">
@@ -170,7 +156,7 @@
   </div>
 </section>
 
-<!-- FORM ENTRATA -->
+<!-- ================= FORM ENTRATA ================= -->
 <section class="card hidden" id="form-entrata">
   <h2>Nuova Entrata</h2>
   <form id="form-entrata-dati">
@@ -179,16 +165,17 @@
       <button type="button" class="btn-metodo" data-metodo="contanti">💶 CONTANTI</button>
       <button type="button" class="btn-metodo" data-metodo="pos">💳 POS</button>
     </div>
-    <input type="number" id="importo-entrata" placeholder="Importo €" step="0.01" required>
+    <input type="number" id="importo-entrata" step="0.01" required>
     <button type="submit" class="btn-salva">💾 Salva Entrata</button>
   </form>
 </section>
 
-<!-- FORM USCITA -->
+<!-- ================= FORM USCITA ================= -->
 <section class="card hidden" id="form-uscita">
   <h2>Nuova Uscita</h2>
   <form id="form-uscita-dati">
     <input type="date" id="data-uscita" required>
+
     <input type="text" id="fornitore-input" list="lista-fornitori" placeholder="Nome fornitore" required>
     <datalist id="lista-fornitori"></datalist>
 
@@ -197,15 +184,29 @@
       <button type="button" class="btn-doc" data-doc="scontrino">🧾 SCONTRINO</button>
     </div>
 
-    <input type="text" id="numero-documento" placeholder="Numero documento (opzionale)">
-    <input type="number" id="importo-uscita" placeholder="Importo €" step="0.01" required>
+    <input type="text" id="numero-documento" placeholder="Numero documento">
+    <input type="number" id="importo-uscita" step="0.01" required>
+
+    <!-- QUOTE USCITA -->
+    <div class="quote-uscita">
+      <div class="quota-row">
+        <label>Quota da contanti (€)</label>
+        <input type="number" id="quota-contanti" step="0.01">
+      </div>
+
+      <div class="quota-row">
+        <label>Quota da cassetto (€)</label>
+        <input type="number" id="quota-cassetto" step="0.01" readonly>
+      </div>
+    </div>
+
     <button type="submit" class="btn-salva">💾 Salva Uscita</button>
   </form>
 </section>
 
-<!-- RIEPILOGO SETTIMANA -->
+<!-- ================= RIEPILOGO SETTIMANA ================= -->
 <section class="card">
-  <h2>Riepilogo Settimana <span id="periodo-settimana" class="periodo-settimana"></span></h2>
+  <h2>Riepilogo Settimana <span id="periodo-settimana"></span></h2>
   <button id="btn-dettaglio">📋 Dettaglio settimana</button>
   <p>💶 Totale Contanti: <strong id="tot-contanti">0.00</strong> €</p>
   <p>💳 Totale POS: <strong id="tot-pos">0.00</strong> €</p>
@@ -214,44 +215,16 @@
   <p>💰 <strong>Saldo Contanti:</strong> <span id="saldo-contanti">0.00</span> €</p>
 </section>
 
-<!-- ARCHIVIO MENSILE -->
+<!-- ================= ARCHIVIO MENSILE ================= -->
 <section class="card">
   <h2>Archivio Mensile</h2>
   <div id="lista-mesi"></div>
 </section>
 
-</div><!-- FINE APP -->
-
-<!-- jsPDF -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
-<!-- FIREBASE -->
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
-  import { getAuth } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
-  import { getFirestore } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
-
-  const firebaseConfig = {
-    apiKey: "AIzaSyAuuwzai8Da1S9MsVmeQ78FdYFTffT6HSo",
-    authDomain: "gestionale-cassa-bar.firebaseapp.com",
-    projectId: "gestionale-cassa-bar",
-    storageBucket: "gestionale-cassa-bar.firebasestorage.app",
-    messagingSenderId: "680357723856",
-    appId: "1:680357723856:web:4d84167fa82af2b395e8d5"
-  };
-
-  const app = initializeApp(firebaseConfig);
-  window.firebaseAuth = getAuth(app);
-  window.firebaseDB = getFirestore(app);
-</script>
-  
+</div>
 
 <script src="auth.js" type="module"></script>
 <script src="app.js" type="module"></script>
 
-
 </body>
 </html>
-
-
-
