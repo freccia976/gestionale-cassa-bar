@@ -2,14 +2,18 @@
    IMPORT
 ===================================================== */
 import { initAuth } from "./auth.js";
-import { salvaMovimento, caricaMovimenti } from "./firebase-db.js";
+import {
+  salvaMovimento,
+  caricaMovimenti,
+  getUltimoFondoCassa,
+  getUltimaSettimanaChiusa
+} from "./firebase-db.js";
 import { eliminaMovimento } from "./movimenti-actions.js";
 import { initEntrate } from "./entrate.js";
 import { initUscite } from "./uscite.js";
 import { initFornitori } from "./fornitori.js";
 import { initModificaPopup, apriPopupModifica } from "./modifica-popup.js";
 import { initSalvaChiusuraCassa } from "./chiusura-cassa.js";
-import { getUltimoFondoCassa } from "./firebase-db.js";
 
 /* =====================================================
    DOM READY
@@ -25,11 +29,26 @@ async function inizializzaApp() {
 
   let fondoCassaIniziale = 0;
   let movimenti = await caricaMovimenti();
-  
+  let settimanaAttiva = null;
+  let settimanaFondo = null; // ✅ DICHIARATA CORRETTAMENTE
+
+  // ✅ leggo fondo cassa ultima chiusura
+  fondoCassaIniziale = await getUltimoFondoCassa();
+
+  // ✅ leggo settimana chiusa (lunedi / sabato)
+  settimanaFondo = await getUltimaSettimanaChiusa();
+
+  // 🔧 NORMALIZZA LA SETTIMANA CHIUSA DA FIREBASE
+if (settimanaFondo && settimanaFondo.lunedi) {
+  settimanaFondo = {
+    lunedi: new Date(settimanaFondo.lunedi.seconds * 1000),
+    sabato: new Date(settimanaFondo.sabato.seconds * 1000)
+  };
+}
 
 
-fondoCassaIniziale = await getUltimoFondoCassa();
-console.log("DEBUG fondoCassaIniziale:", fondoCassaIniziale);
+  console.log("DEBUG fondoCassaIniziale:", fondoCassaIniziale);
+  console.log("DEBUG settimanaFondo:", settimanaFondo);
 
 
 
@@ -76,29 +95,33 @@ const ccFondoCassa = document.getElementById("cc-fondo-cassa");
 ===================== */
 function aggiornaFondoCassa() {
   const contanti = parseFloat(ccContantiEffettivi.value) || 0;
-  const versamento = parseFloat(ccVersamento.value) || 0;
-  const lorenzo = parseFloat(ccLorenzo.value) || 0;
-  const elisa = parseFloat(ccElisa.value) || 0;
-  const bonus = parseFloat(ccBonus.value) || 0;
+
+  // ⚠️ SOLO I VALORI BASE ENTRANO NEL FONDO CASSA
+  const versamentoBase = parseFloat(ccVersamento.value) || 0;
+  const lorenzoBase = parseFloat(ccLorenzo.value) || 0;
+  const elisaBase = parseFloat(
+    document.getElementById("cc-elisa").value
+  ) || 0;
 
   const fondo =
-    contanti +
-    bonus -
-    versamento -
-    lorenzo -
-    elisa;
+    contanti -
+    versamentoBase -
+    lorenzoBase -
+    elisaBase;
 
   ccFondoCassa.value = fondo.toFixed(2);
 }
 
+
 /* =====================
    LISTENER INPUT
 ===================== */
-[ccVersamento, ccLorenzo, ccElisa, ccBonus].forEach(input => {
+[ccVersamento, ccLorenzo, document.getElementById("cc-elisa")].forEach(input => {
   if (input) {
     input.addEventListener("input", aggiornaFondoCassa);
   }
 });
+
 
 /* =====================
    CHIUSURA POPUP SETTIMANA
@@ -128,10 +151,7 @@ if (chiudiPopupSettimana) {
   let meseCorrenteMovimenti = [];
   let saldoSettimanaCorrente = 0;
   let settimanaCorrenteChiusura = null;
-  
-
-
-
+ 
 
   /* =====================
      UTILITY
@@ -172,6 +192,39 @@ if (chiudiPopupSettimana) {
     return out;
   }
 
+function calcolaSettimanaAttiva() {
+
+  // 1️⃣ se esiste una settimana chiusa → attiva la successiva
+  if (settimanaFondo) {
+    const lunediNuova = new Date(settimanaFondo.lunedi);
+    lunediNuova.setDate(lunediNuova.getDate() + 7);
+    lunediNuova.setHours(0,0,0,0);
+
+    const sabatoNuova = new Date(lunediNuova);
+    sabatoNuova.setDate(lunediNuova.getDate() + 5);
+    sabatoNuova.setHours(23,59,59,999);
+
+    return {
+      lunedi: lunediNuova,
+      sabato: sabatoNuova,
+      haFondoCassa: true
+    };
+  }
+
+  // 2️⃣ fallback: settimana corrente reale
+  return {
+    ...settimanaDaData(new Date()),
+    haFondoCassa: false
+  };
+}
+
+
+function settimanaSuccessiva({ lunedi }) {
+  const next = new Date(lunedi);
+  next.setDate(next.getDate() + 7);
+  return settimanaDaData(next);
+}
+
   /* =====================
      MOSTRA FORM
   ===================== */
@@ -190,7 +243,10 @@ if (chiudiPopupSettimana) {
 if (btnDettaglio) {
   btnDettaglio.onclick = () => {
     popupSettimana.classList.remove("hidden");
-    caricaDettaglio(settimanaDaData(new Date()));
+    console.log("SETTIMANA ATTIVA:", settimanaAttiva);
+
+    caricaDettaglio(settimanaAttiva);
+
   };
 }
 /* =====================
@@ -219,7 +275,21 @@ if (btnChiusuraCassa) {
      RIEPILOGO SETTIMANA HOME
   ===================== */
   function aggiornaRiepilogoSettimana() {
-  const { lunedi, sabato } = settimanaDaData(new Date());
+  if (!settimanaAttiva) {
+  document
+    .querySelector("#periodo-settimana")
+    .closest(".card")
+    .classList.add("hidden");
+  return;
+}
+
+document
+  .querySelector("#periodo-settimana")
+  .closest(".card")
+  .classList.remove("hidden");
+
+const { lunedi, sabato } = settimanaAttiva;
+
 
   document.getElementById("periodo-settimana").textContent =
     `(Lun ${lunedi.getDate()} - Sab ${sabato.getDate()})`;
@@ -229,8 +299,13 @@ if (btnChiusuraCassa) {
   let totalePagamenti = 0;
   let saldoContanti = 0;
 
+  // ✅ applica fondo cassa SOLO se settimana nuova
+if (settimanaAttiva.haFondoCassa) {
   saldoContanti += fondoCassaIniziale;
-totaleContanti += fondoCassaIniziale;
+  totaleContanti += fondoCassaIniziale;
+}
+
+
 
   movimenti.forEach(m => {
     const d = new Date(m.data);
@@ -371,6 +446,25 @@ function caricaDettaglio({ lunedi, sabato }) {
         colUscite.appendChild(r);
       }
     });
+// ✅ MOSTRA FONDO CASSA COME PRIMA RIGA
+if (settimanaAttiva?.haFondoCassa) {
+  const r = document.createElement("div");
+  r.className = "pn-riga fondo-cassa";
+
+  r.innerHTML = `
+    <span>${formattaData(lunedi)}</span>
+    <span>💰</span>
+    <span>Fondo cassa iniziale</span>
+    <span>€ ${fondoCassaIniziale.toFixed(2)}</span>
+    <span></span>
+  `;
+
+  colEntrate.appendChild(r);
+
+  // entra nel saldo ma NON è un movimento
+  saldoContanti += fondoCassaIniziale;
+  totaleContanti += fondoCassaIniziale;
+}
 
   /* ===== FOOTER PRIMA NOTA ===== */
   totContantiPN.textContent = totaleContanti.toFixed(2);
@@ -484,6 +578,9 @@ if (annullaChiusuraCassa) {
     caricaDettaglio,
     settimanaCorrente: () => settimanaDaData(new Date())
   });
+
+  settimanaAttiva = calcolaSettimanaAttiva();
+
 
   aggiornaUI();
 }

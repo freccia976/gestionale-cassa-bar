@@ -134,3 +134,20 @@ export async function getUltimoFondoCassa() {
 
   return snap.docs[0].data().fondoCassa || 0;
 }
+
+
+export async function getUltimaSettimanaChiusa() {
+  const user = getCurrentUser();
+  if (!user) return null;
+
+  const q = query(
+    collection(db, "users", user.uid, "chiusure_settimanali"),
+    orderBy("createdAt", "desc"),
+    limit(1)
+  );
+
+  const snap = await getDocs(q);
+  if (snap.empty) return null;
+
+  return snap.docs[0].data().settimana || null;
+}

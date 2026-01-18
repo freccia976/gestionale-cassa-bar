@@ -56,7 +56,7 @@ export async function salvaChiusuraCassa(dati) {
 }
 
 /* =====================================================
-   SALVA CHIUSURA CASSA (VERSIONE REALE)
+   SALVA CHIUSURA CASSA (VERSIONE CORRETTA)
 ===================================================== */
 export function initSalvaChiusuraCassa(getSettimanaCorrente) {
   const btnSalva = document.getElementById("btn-salva-chiusura");
@@ -70,24 +70,46 @@ export function initSalvaChiusuraCassa(getSettimanaCorrente) {
       return;
     }
 
+    // valori base
+    const versamentoBase = +document.getElementById("cc-versamento").value || 0;
+    const lorenzoBase = +document.getElementById("cc-lorenzo").value || 0;
+    const elisaBase = +document.getElementById("cc-elisa").value || 0;
+
+    // bonus (NON influiscono sul fondo cassa)
+    const bonusVersamento = +document.getElementById("cc-bonus-versamento").value || 0;
+    const bonusLorenzo = +document.getElementById("cc-bonus-lorenzo").value || 0;
+    const bonusElisa = +document.getElementById("cc-bonus-elisa").value || 0;
+
     const dati = {
       settimana: {
         lunedi: settimana.lunedi,
         sabato: settimana.sabato
       },
-      contantiEffettivi: +document.getElementById("cc-contanti-effettivi").value || 0,
-      versamento: +document.getElementById("cc-versamento").value || 0,
-      lorenzo: +document.getElementById("cc-lorenzo").value || 0,
-      elisa: +document.getElementById("cc-elisa").value || 0,
-      bonus: +document.getElementById("cc-bonus").value || 0,
-      fondoCassa: +document.getElementById("cc-fondo-cassa").value || 0
+
+      contantiEffettivi:
+        +document.getElementById("cc-contanti-effettivi").value || 0,
+
+      // 👇 base + bonus (solo per destinazione)
+      versamento: versamentoBase + bonusVersamento,
+      lorenzo: lorenzoBase + bonusLorenzo,
+      elisa: elisaBase + bonusElisa,
+
+      // 👇 il fondo cassa NON cambia con i bonus
+      fondoCassa:
+        +document.getElementById("cc-fondo-cassa").value || 0,
+
+      // 👇 bonus salvati solo a scopo storico
+      bonus: {
+        versamento: bonusVersamento,
+        lorenzo: bonusLorenzo,
+        elisa: bonusElisa
+      }
     };
 
     console.log("CHIUSURA CASSA:", dati);
 
-   await salvaChiusuraCassa(dati);
+    await salvaChiusuraCassa(dati);
 
-alert("✅ Chiusura cassa salvata correttamente");
-
+    alert("✅ Chiusura cassa salvata correttamente");
   };
 }
