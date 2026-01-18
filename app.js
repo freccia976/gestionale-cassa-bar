@@ -225,6 +225,14 @@ function settimanaSuccessiva({ lunedi }) {
   return settimanaDaData(next);
 }
 
+function stessaSettimana(a, b) {
+  if (!a || !b) return false;
+  return (
+    a.lunedi.getTime() === b.lunedi.getTime() &&
+    a.sabato.getTime() === b.sabato.getTime()
+  );
+}
+
   /* =====================
      MOSTRA FORM
   ===================== */
@@ -365,13 +373,39 @@ function caricaDettaglio({ lunedi, sabato }) {
   popupPeriodo.textContent =
     `(Lun ${lunedi.getDate()} - Sab ${sabato.getDate()})`;
 
-  movimenti
-    .filter(m => {
-      const d = new Date(m.data);
-      return d >= lunedi && d <= sabato;
-    })
-    .sort((a, b) => new Date(a.data) - new Date(b.data))
-    .forEach(m => {
+  // ✅ FONDO CASSA SOLO SE È LA SETTIMANA ATTIVA
+  const isSettimanaAttiva =
+    stessaSettimana({ lunedi, sabato }, settimanaAttiva);
+
+  if (isSettimanaAttiva && settimanaAttiva.haFondoCassa) {
+    const r = document.createElement("div");
+    r.className = "pn-riga fondo-cassa";
+    r.innerHTML = `
+      <span></span>
+      <span>💰</span>
+      <span>Fondo cassa iniziale</span>
+      <span>€ ${fondoCassaIniziale.toFixed(2)}</span>
+      <span></span>
+    `;
+    colEntrate.appendChild(r);
+
+    saldoContanti += fondoCassaIniziale;
+    totaleContanti += fondoCassaIniziale;
+  }
+
+  popupPeriodo.textContent =
+    `(Lun ${lunedi.getDate()} - Sab ${sabato.getDate()})`;
+
+ movimenti
+  .map(m => ({
+    ...m,
+    _data: m.data?.seconds
+      ? new Date(m.data.seconds * 1000)
+      : new Date(m.data)
+  }))
+  .filter(m => m._data >= lunedi && m._data <= sabato)
+  .sort((a, b) => a._data - b._data)
+  .forEach(m => {
 
       /* ===== ENTRATE ===== */
       if (m.tipo === "entrata") {
@@ -388,7 +422,7 @@ function caricaDettaglio({ lunedi, sabato }) {
         }
 
         r.innerHTML = `
-          <span>${formattaData(m.data)}</span>
+          <span>${formattaData(m._data)}</span>
           <span>${icona}</span>
           <span>€ ${m.importo.toFixed(2)}</span>
           <span>
@@ -425,7 +459,7 @@ function caricaDettaglio({ lunedi, sabato }) {
         const icona = m.documento === "fattura" ? "📄" : "🧾";
 
         r.innerHTML = `
-          <span>${formattaData(m.data)}</span>
+          <span>${formattaData(m._data)}</span>
           <span>${icona}</span>
           <span>${m.fornitore || ""}</span>
           <span>€ ${m.importo.toFixed(2)}</span>
@@ -446,25 +480,8 @@ function caricaDettaglio({ lunedi, sabato }) {
         colUscite.appendChild(r);
       }
     });
-// ✅ MOSTRA FONDO CASSA COME PRIMA RIGA
-if (settimanaAttiva?.haFondoCassa) {
-  const r = document.createElement("div");
-  r.className = "pn-riga fondo-cassa";
 
-  r.innerHTML = `
-    <span>${formattaData(lunedi)}</span>
-    <span>💰</span>
-    <span>Fondo cassa iniziale</span>
-    <span>€ ${fondoCassaIniziale.toFixed(2)}</span>
-    <span></span>
-  `;
 
-  colEntrate.appendChild(r);
-
-  // entra nel saldo ma NON è un movimento
-  saldoContanti += fondoCassaIniziale;
-  totaleContanti += fondoCassaIniziale;
-}
 
   /* ===== FOOTER PRIMA NOTA ===== */
   totContantiPN.textContent = totaleContanti.toFixed(2);
@@ -558,14 +575,20 @@ if (annullaChiusuraCassa) {
     aggiornaUI
   });
 
-  initUscite({
-    salvaMovimento,
-    caricaMovimenti: async () => {
-      movimenti = await caricaMovimenti();
-      aggiornaUI();
-    },
-    aggiornaUI
-  });
+ initUscite({
+  salvaMovimento,
+  caricaMovimenti: async () => {
+    movimenti = await caricaMovimenti();
+    aggiornaUI();
+
+    // 🔁 SE IL DETTAGLIO È APERTO, RICARICA
+    if (!popupSettimana.classList.contains("hidden")) {
+      caricaDettaglio(settimanaAttiva);
+    }
+  },
+  aggiornaUI
+});
+
 
   initFornitori();
   initSalvaChiusuraCassa(() => settimanaDaData(new Date()));
