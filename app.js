@@ -14,6 +14,12 @@ import { initUscite } from "./uscite.js";
 import { initFornitori } from "./fornitori.js";
 import { initModificaPopup, apriPopupModifica } from "./modifica-popup.js";
 import { initSalvaChiusuraCassa } from "./chiusura-cassa.js";
+import { generaPDFSettimana } from "./pdf-settimana.js";
+import { getChiusuraBySettimana } from "./firebase-db.js";
+import { caricaChiusureSettimanali } from "./firebase-db.js";
+import { generaPDFMese } from "./pdf-mese.js";
+import { generaPDFFiltro } from "./pdf-filtro.js";
+
 
 /* =====================================================
    DOM READY
@@ -29,8 +35,12 @@ async function inizializzaApp() {
 
   let fondoCassaIniziale = 0;
   let movimenti = await caricaMovimenti();
+ 
   let settimanaAttiva = null;
   let settimanaFondo = null; // ✅ DICHIARATA CORRETTAMENTE
+  let chiusureSettimanali = [];
+ chiusureSettimanali = await caricaChiusureSettimanali();
+ console.log("DEBUG chiusureSettimanali:", chiusureSettimanali);
 
   // ✅ leggo fondo cassa ultima chiusura
   fondoCassaIniziale = await getUltimoFondoCassa();
@@ -150,8 +160,28 @@ if (chiudiPopupSettimana) {
 
   let meseCorrenteMovimenti = [];
   let saldoSettimanaCorrente = 0;
+  let totaliSettimanaCorrente = {
+  totaleContanti: 0,
+  totalePOS: 0,
+  totaleUscite: 0
+};
+
   let settimanaCorrenteChiusura = null;
- 
+  /* =====================
+     POPUP FILTRO PDF
+  ===================== */
+const popupPdfFiltro = document.getElementById("popup-pdf-filtro");
+const btnApriPdfFiltro = document.getElementById("export-pdf-filtro");
+const btnChiudiPdfFiltro = document.getElementById("chiudi-pdf-filtro");
+const filtroDettaglioUscite = document.getElementById("filtro-dettaglio-uscite");
+const bloccoFornitore = document.getElementById("blocco-fornitore");
+const pdfMesiBox = document.getElementById("pdf-mesi");
+const pdfSezioniBox = document.getElementById("pdf-sezioni");
+const pdfFornitoriBox = document.getElementById("pdf-fornitori");
+const bloccoFornitori = document.getElementById("blocco-fornitori");
+const btnGeneraPdfFiltro = document.getElementById("btn-genera-pdf-filtro");
+
+
 
   /* =====================
      UTILITY
@@ -233,6 +263,108 @@ function stessaSettimana(a, b) {
   );
 }
 
+function calcolaTotaliMensili(chiusureMese) {
+  let totaleContanti = 0;
+  let totalePOS = 0;
+  let totaleUscite = 0;
+  let saldoContanti = 0;
+
+  chiusureMese.forEach(c => {
+    totaleContanti += c.totaleContantiSettimana || 0;
+    totalePOS += c.totalePOSSettimana || 0;
+    totaleUscite += c.totaleUsciteSettimana || 0;
+  });
+
+  // saldo = ultimo fondo cassa del mese
+  if (chiusureMese.length) {
+    const ultima = chiusureMese
+      .sort((a, b) =>
+        a.settimana.lunedi.seconds - b.settimana.lunedi.seconds
+      )
+      .at(-1);
+
+    saldoContanti = ultima.fondoCassa || 0;
+  }
+
+  return {
+    totaleContanti,
+    totalePOS,
+    totaleUscite,
+    saldoContanti
+  };
+}
+function toggleBox(el) {
+  el.classList.toggle("attivo");
+}
+function popolaMesiPDF(chiusureSettimanali) {
+  pdfMesiBox.innerHTML = "";
+
+  const mesiMap = new Map();
+
+  chiusureSettimanali.forEach(c => {
+    const d = c.settimana.lunedi.seconds
+      ? new Date(c.settimana.lunedi.seconds * 1000)
+      : new Date(c.settimana.lunedi);
+
+    const key = `${d.getFullYear()}-${d.getMonth()}`;
+    if (!mesiMap.has(key)) {
+      mesiMap.set(key, {
+        anno: d.getFullYear(),
+        mese: d.getMonth()
+      });
+    }
+  });
+
+  mesiMap.forEach(({ anno, mese }) => {
+    const box = document.createElement("div");
+    box.className = "box-toggle";
+    box.dataset.anno = anno;
+    box.dataset.mese = mese;
+    box.textContent = `${mesi[mese]} ${anno}`;
+
+    box.onclick = () => toggleBox(box);
+
+    pdfMesiBox.appendChild(box);
+  });
+}
+pdfSezioniBox.querySelectorAll(".box-toggle").forEach(box => {
+  box.onclick = () => {
+    toggleBox(box);
+
+    // mostra fornitori solo se dettaglio uscite è attivo
+    if (box.dataset.sezione === "dettaglio-uscite") {
+      if (box.classList.contains("attivo")) {
+        bloccoFornitori.classList.remove("hidden");
+      } else {
+        bloccoFornitori.classList.add("hidden");
+      }
+    }
+  };
+});
+function popolaFornitoriPDF(movimenti) {
+  pdfFornitoriBox.innerHTML = "";
+
+  const fornitori = [
+    ...new Set(
+      movimenti
+        .filter(m => m.tipo === "uscita" && m.fornitore)
+        .map(m => m.fornitore)
+    )
+  ];
+
+  fornitori.forEach(nome => {
+    const box = document.createElement("div");
+    box.className = "box-toggle";
+    box.dataset.fornitore = nome;
+    box.textContent = nome;
+
+    box.onclick = () => toggleBox(box);
+
+    pdfFornitoriBox.appendChild(box);
+  });
+}
+
+
   /* =====================
      MOSTRA FORM
   ===================== */
@@ -260,8 +392,11 @@ if (btnDettaglio) {
 /* =====================
    APERTURA POPUP CHIUSURA CASSA
 ===================== */
+
 if (btnChiusuraCassa) {
  btnChiusuraCassa.onclick = () => {
+  aggiornaRiepilogoSettimana(); // 🔑 forza il ricalcolo dei totali
+
   popupChiusuraCassa.classList.remove("hidden");
 
   const settimana = settimanaDaData(new Date());
@@ -354,6 +489,12 @@ if (settimanaAttiva.haFondoCassa) {
   document.getElementById("saldo-contanti").textContent =
     saldoContanti.toFixed(2);
     saldoSettimanaCorrente = saldoContanti;
+    totaliSettimanaCorrente = {
+  totaleContanti,
+  totalePOS,
+  totaleUscite: totalePagamenti
+};
+
 
 }
 
@@ -540,20 +681,305 @@ if (annullaChiusuraCassa) {
     listaSettimaneMese.innerHTML = "";
     meseCorrenteMovimenti = movs;
 
-    calcolaSettimane(movs).forEach(s => {
-      const btn = document.createElement("button");
-      btn.textContent = `Settimana Lun ${s.lunedi.getDate()}`;
-      btn.onclick = () => {
-        popupMese.classList.add("hidden");
-        popupSettimana.classList.remove("hidden");
-        caricaDettaglio(s);
-      };
-      listaSettimaneMese.appendChild(btn);
-    });
+    // 🔹 Bottone PDF mensile
+const btnExport = document.getElementById("export-mese");
+
+btnExport.onclick = () => {
+  const chiusureMese = chiusureSettimanali.filter(c => {
+    let d;
+
+    if (c.settimana.lunedi instanceof Date) {
+      d = c.settimana.lunedi;
+    } else if (c.settimana.lunedi?.seconds) {
+      d = new Date(c.settimana.lunedi.seconds * 1000);
+    } else {
+      return false;
+    }
+
+    return (
+      d.getMonth() === Number(mese) &&
+      d.getFullYear() === Number(anno)
+    );
+  });
+
+  if (!chiusureMese.length) {
+    alert("Nessuna settimana chiusa in questo mese");
+    return;
+  }
+
+  generaPDFMese({
+    anno: Number(anno),
+    mese: mesi[Number(mese)],
+    chiusureMese
+  });
+};
+
+
+
+   calcolaSettimane(movs).forEach(s => {
+  const wrapper = document.createElement("div");
+  wrapper.className = "riga-settimana";
+
+  // recupera solo le chiusure del mese
+const chiusureMese = chiusureSettimanali.filter(c => {
+  const d = new Date(c.settimana.lunedi.seconds * 1000);
+  return d.getMonth() == mese && d.getFullYear() == anno;
+});
+
+const totali = calcolaTotaliMensili(chiusureMese);
+
+document.getElementById("mese-contanti").textContent =
+  totali.totaleContanti.toFixed(2);
+
+document.getElementById("mese-pagamenti").textContent =
+  totali.totaleUscite.toFixed(2);
+
+document.getElementById("mese-saldo").textContent =
+  totali.saldoContanti.toFixed(2);
+
+  document.getElementById("mese-pos").textContent =
+  totali.totalePOS.toFixed(2);
+
+
+  // 🔹 BOTTONE APRI SETTIMANA
+  const btnApri = document.createElement("button");
+  btnApri.textContent = `📘 Settimana Lun ${s.lunedi.getDate()}`;
+  btnApri.onclick = () => {
+    popupMese.classList.add("hidden");
+    popupSettimana.classList.remove("hidden");
+    caricaDettaglio(s);
+  };
+
+  // 🔹 BOTTONE PDF SETTIMANA
+  const btnPdf = document.createElement("button");
+  btnPdf.textContent = "🧾 PDF";
+  btnPdf.className = "btn-pdf";
+
+btnPdf.onclick = async () => {
+  const movsSettimana = movs.filter(m => {
+    const d = m.data?.seconds
+      ? new Date(m.data.seconds * 1000)
+      : new Date(m.data);
+    return d >= s.lunedi && d <= s.sabato;
+  });
+
+  const isSettimanaAttiva =
+    settimanaAttiva &&
+    s.lunedi.getTime() === settimanaAttiva.lunedi.getTime();
+
+  const chiusura = await getChiusuraBySettimana(s);
+
+  generaPDFSettimana({
+    settimana: s,
+    movimenti: movsSettimana,
+    fondoCassaIniziale: isSettimanaAttiva ? fondoCassaIniziale : 0,
+    chiusura: chiusura
+  });
+};
+
+
+  wrapper.appendChild(btnApri);
+  wrapper.appendChild(btnPdf);
+  listaSettimaneMese.appendChild(wrapper);
+});
+
   }
 
   chiudiPopupMese.onclick = () =>
     popupMese.classList.add("hidden");
+
+
+if (btnApriPdfFiltro) {
+ btnApriPdfFiltro.onclick = () => {
+  popupPdfFiltro.classList.remove("hidden");
+
+  popolaMesiPDF(chiusureSettimanali);
+  popolaFornitoriPDF(movimenti);
+};
+
+}
+if (btnChiudiPdfFiltro) {
+  btnChiudiPdfFiltro.onclick = () => {
+    popupPdfFiltro.classList.add("hidden");
+  };
+}
+if (filtroDettaglioUscite) {
+  filtroDettaglioUscite.onchange = () => {
+    if (filtroDettaglioUscite.checked) {
+      bloccoFornitore.classList.remove("hidden");
+    } else {
+      bloccoFornitore.classList.add("hidden");
+    }
+  };
+}
+
+const mesiNomi = [
+  "Gennaio",
+  "Febbraio",
+  "Marzo",
+  "Aprile",
+  "Maggio",
+  "Giugno",
+  "Luglio",
+  "Agosto",
+  "Settembre",
+  "Ottobre",
+  "Novembre",
+  "Dicembre"
+];
+
+/* =====================
+   PDF FILTRO – COSTRUZIONE FILTRO
+===================== */
+if (btnGeneraPdfFiltro) {
+  btnGeneraPdfFiltro.onclick = () => {
+
+    /* ===== MESI SELEZIONATI ===== */
+    const mesi = [
+      ...document.querySelectorAll("#pdf-mesi .box-toggle.attivo")
+    ].map(box => ({
+      anno: parseInt(box.dataset.anno),
+      mese: parseInt(box.dataset.mese)
+    }));
+
+    if (!mesi.length) {
+      alert("Seleziona almeno un mese");
+      return;
+    }
+
+    /* ===== SEZIONI SELEZIONATE ===== */
+    const sezioni = {};
+    document
+      .querySelectorAll("#pdf-sezioni .box-toggle")
+      .forEach(box => {
+        sezioni[box.dataset.sezione] =
+          box.classList.contains("attivo");
+      });
+
+    /* ===== FORNITORI SELEZIONATI ===== */
+    let fornitori = [];
+    if (sezioni["dettaglio-uscite"]) {
+      fornitori = [
+        ...document.querySelectorAll("#pdf-fornitori .box-toggle.attivo")
+      ].map(box => box.dataset.fornitore);
+
+      if (!fornitori.length) {
+        alert("Seleziona almeno un fornitore");
+        return;
+      }
+    }
+
+    /* ===== OGGETTO FILTRO ===== */
+    const filtroPDF = { mesi, sezioni, fornitori };
+    console.log("FILTRO PDF:", filtroPDF);
+
+    /* =====================
+       FILTRO CHIUSURE SETTIMANALI
+    ===================== */
+    const chiusureFiltrate = chiusureSettimanali.filter(c => {
+      const d = c.settimana.lunedi?.seconds
+        ? new Date(c.settimana.lunedi.seconds * 1000)
+        : new Date(c.settimana.lunedi);
+
+      return mesi.some(
+        m => d.getFullYear() === m.anno && d.getMonth() === m.mese
+      );
+    });
+
+    console.log("CHIUSURE FILTRATE:", chiusureFiltrate);
+
+    /* =====================
+       FILTRO USCITE (DETTAGLIO)
+    ===================== */
+    let usciteFiltrate = [];
+
+    if (sezioni["dettaglio-uscite"]) {
+      usciteFiltrate = movimenti.filter(m => {
+        if (m.tipo !== "uscita") return false;
+        if (!m.fornitore) return false;
+
+        const d = new Date(m.data);
+
+        const meseValido = mesi.some(
+          mm => d.getFullYear() === mm.anno && d.getMonth() === mm.mese
+        );
+
+        return meseValido && fornitori.includes(m.fornitore);
+      });
+    }
+
+    console.log("USCITE FILTRATE:", usciteFiltrate);
+
+    /* =====================
+       CALCOLO TOTALI
+    ===================== */
+    const totali = {
+      contanti: 0,
+      pos: 0,
+      uscite: 0,
+      versamenti: 0,
+      lorenzo: 0,
+      elisa: 0
+    };
+
+    chiusureFiltrate.forEach(c => {
+      if (sezioni.contanti)
+        totali.contanti += c.totaleContantiSettimana || 0;
+
+      if (sezioni.pos)
+        totali.pos += c.totalePOSSettimana || 0;
+
+      if (sezioni.uscite)
+        totali.uscite += c.totaleUsciteSettimana || 0;
+
+      if (sezioni.versamenti)
+        totali.versamenti += c.versamento || 0;
+
+      if (sezioni.lorenzo)
+        totali.lorenzo += c.lorenzo || 0;
+
+      if (sezioni.elisa)
+        totali.elisa += c.elisa || 0;
+    });
+
+    console.log("TOTALI AGGREGATI:", totali);
+
+    /* =====================
+       TOTALI PER FORNITORE
+    ===================== */
+    const totaliFornitori = {};
+
+    usciteFiltrate.forEach(u => {
+      if (!totaliFornitori[u.fornitore]) {
+        totaliFornitori[u.fornitore] = {
+          totale: 0,
+          righe: []
+        };
+      }
+
+      totaliFornitori[u.fornitore].totale += u.importo;
+      totaliFornitori[u.fornitore].righe.push(u);
+    });
+
+    console.log("TOTALI FORNITORI:", totaliFornitori);
+
+    /* =====================
+       GENERAZIONE PDF
+    ===================== */
+    const mesiLabel = filtroPDF.mesi.map(m => ({
+  nome: `${mesiNomi[m.mese]} ${m.anno}`
+}));
+
+
+    generaPDFFiltro({
+      mesi: mesiLabel,
+      sezioni: filtroPDF.sezioni,
+      totali,
+      totaliFornitori
+    });
+  };
+}
+
 
   /* =====================
      UI UPDATE
@@ -567,18 +993,21 @@ if (annullaChiusuraCassa) {
      INIT MODULI
   ===================== */
   initEntrate({
-    salvaMovimento,
-    caricaMovimenti: async () => {
-      movimenti = await caricaMovimenti();
-      aggiornaUI();
-    },
-    aggiornaUI
-  });
-
- initUscite({
   salvaMovimento,
   caricaMovimenti: async () => {
     movimenti = await caricaMovimenti();
+    aggiornaRiepilogoSettimana(); // 🔑
+    aggiornaUI();
+  },
+  aggiornaUI
+});
+
+
+initUscite({
+  salvaMovimento,
+  caricaMovimenti: async () => {
+    movimenti = await caricaMovimenti();
+    aggiornaRiepilogoSettimana(); // 🔑
     aggiornaUI();
 
     // 🔁 SE IL DETTAGLIO È APERTO, RICARICA
@@ -591,7 +1020,11 @@ if (annullaChiusuraCassa) {
 
 
   initFornitori();
-  initSalvaChiusuraCassa(() => settimanaDaData(new Date()));
+  initSalvaChiusuraCassa(() => settimanaDaData(new Date()), () => ({
+  ...totaliSettimanaCorrente,
+  saldoContanti: saldoSettimanaCorrente
+}));
+
 
 
 

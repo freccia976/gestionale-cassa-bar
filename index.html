@@ -135,18 +135,31 @@
       <button id="chiudi-popup-mese">✖</button>
     </header>
 
-    <div id="lista-settimane-mese"></div>
+    <div class="sezione-mese">
+  <h3>Settimane</h3>
+  <div id="lista-settimane-mese"></div>
+</div>
 
-    <div class="azioni-pdf">
-      <button id="export-mese">📄 Esporta mese</button>
-    </div>
+<div class="sezione-mese azioni-pdf">
+  <button id="export-mese">📄 Esporta mese</button>
+  <button id="export-pdf-filtro">📄 PDF filtrato</button>
 
-    <hr>
+</div>
 
-    <p>💶 Totale Contanti: <strong id="mese-contanti">0.00</strong> €</p>
-    <p>💳 Totale POS: <strong id="mese-pos">0.00</strong> €</p>
-    <p>📤 Totale Pagamenti: <strong id="mese-pagamenti">0.00</strong> €</p>
-    <p>💰 <strong>Saldo Contanti:</strong> <span id="mese-saldo">0.00</span> €</p>
+<hr>
+
+<div class="sezione-mese riepilogo-mese">
+  <h3>Riepilogo mensile</h3>
+
+  <p>💶 Totale Contanti: <strong id="mese-contanti">0.00</strong> €</p>
+  <p>💳 Totale POS: <strong id="mese-pos">0.00</strong> €</p>
+  <p>📤 Totale Uscite: <strong id="mese-pagamenti">0.00</strong> €</p>
+  <p class="saldo">
+    💰 <strong>Saldo Contanti:</strong>
+    <span id="mese-saldo">0.00</span> €
+  </p>
+</div>
+
   </div>
 </div>
 
@@ -299,6 +312,63 @@
 </section>
 
 </div>
+
+<!-- ================= POPUP PDF FILTRATO ================= -->
+<div id="popup-pdf-filtro" class="popup hidden">
+  <div class="popup-content pdf-filtro">
+
+    <header class="popup-header">
+      <h2>PDF filtrato</h2>
+      <button id="chiudi-pdf-filtro">✖</button>
+    </header>
+
+    <!-- ================= MESI ================= -->
+    <h3>Mesi da analizzare</h3>
+    <div id="pdf-mesi" class="box-grid">
+      <!-- box mese generati via JS -->
+    </div>
+
+    <hr>
+
+    <!-- ================= SEZIONI ================= -->
+    <h3>Dati da includere</h3>
+    <div id="pdf-sezioni" class="box-grid">
+      <div class="box-toggle" data-sezione="contanti">Totale contanti</div>
+      <div class="box-toggle" data-sezione="pos">Totale POS</div>
+      <div class="box-toggle" data-sezione="uscite">Totale uscite</div>
+      <div class="box-toggle" data-sezione="dettaglio-uscite">Dettaglio uscite</div>
+      <div class="box-toggle" data-sezione="versamenti">Versamenti banca</div>
+      <div class="box-toggle" data-sezione="lorenzo">Compenso Lorenzo</div>
+      <div class="box-toggle" data-sezione="elisa">Compenso Elisa</div>
+    </div>
+
+    <hr>
+
+    <!-- ================= FORNITORI ================= -->
+    <div id="blocco-fornitori" class="hidden">
+      <h3>Fornitori</h3>
+      <div id="pdf-fornitori" class="box-grid">
+        <!-- box fornitori generati via JS -->
+      </div>
+    </div>
+
+    <footer class="pn-actions">
+      <button id="btn-genera-pdf-filtro" class="btn-primary">
+        📄 Genera PDF
+      </button>
+    </footer>
+
+  </div>
+</div>
+
+
+
+<!-- jsPDF (globale) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<!-- jsPDF AutoTable -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
+
 
 <script src="auth.js" type="module"></script>
 <script src="app.js" type="module"></script>

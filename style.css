@@ -682,3 +682,80 @@ button {
     grid-template-columns: 1fr 1fr;
   }
 }
+.sezione-mese {
+  margin-bottom: 20px;
+}
+
+.sezione-mese h3 {
+  margin-bottom: 10px;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 4px;
+}
+
+#lista-settimane-mese .riga-settimana {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+}
+
+.riepilogo-mese p {
+  margin: 6px 0;
+}
+
+.riepilogo-mese .saldo {
+  margin-top: 10px;
+  font-size: 1.1em;
+}
+/* ================= GRID ================= */
+.box-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
+
+/* ================= BOX BASE ================= */
+.box-toggle {
+  padding: 12px 10px;
+  border-radius: 10px;
+  text-align: center;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  user-select: none;
+
+  background-color: #d32f2f; /* rosso acceso */
+  color: #ffffff;
+
+  box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+  transition: all 0.2s ease;
+}
+
+/* ================= HOVER ================= */
+.box-toggle:hover {
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+  opacity: 0.95;
+}
+
+/* ================= STATO ATTIVO ================= */
+.box-toggle.attivo {
+  background-color: #2e7d32; /* verde acceso */
+  color: #ffffff;
+}
+
+/* ================= TESTI POPUP ================= */
+.popup-content.pdf-filtro h3 {
+  margin-top: 24px;
+  font-size: 15px;
+  font-weight: 700;
+  color: #333;
+}
+
+.popup-content.pdf-filtro hr {
+  margin: 24px 0;
+  border: none;
+  height: 1px;
+  background-color: #ddd;
+}

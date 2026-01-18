@@ -151,3 +151,53 @@ export async function getUltimaSettimanaChiusa() {
 
   return snap.docs[0].data().settimana || null;
 }
+export async function getChiusuraBySettimana(settimana) {
+  const { lunedi, sabato } = settimana;
+
+  const snapshot = await getDocs(
+    collection(db, "users", auth.currentUser.uid, "chiusure_settimanali")
+  );
+
+  let trovata = null;
+
+  snapshot.forEach(doc => {
+    const c = doc.data();
+
+    if (!c.settimana?.lunedi || !c.settimana?.sabato) return;
+
+   const lun = new Date(c.settimana.lunedi.seconds * 1000);
+const sab = new Date(c.settimana.sabato.seconds * 1000);
+
+// 🔑 normalizza SOLO la data (ignora ore)
+lun.setHours(0, 0, 0, 0);
+sab.setHours(0, 0, 0, 0);
+
+const l = new Date(lunedi);
+const s = new Date(sabato);
+l.setHours(0, 0, 0, 0);
+s.setHours(0, 0, 0, 0);
+
+if (lun.getTime() === l.getTime() && sab.getTime() === s.getTime()) {
+  trovata = c;
+}
+
+  });
+
+  return trovata;
+}
+export async function caricaChiusureSettimanali() {
+  const snapshot = await getDocs(
+    collection(db, "users", auth.currentUser.uid, "chiusure_settimanali")
+  );
+
+  const out = [];
+
+  snapshot.forEach(doc => {
+    out.push({
+      id: doc.id,
+      ...doc.data()
+    });
+  });
+
+  return out;
+}
