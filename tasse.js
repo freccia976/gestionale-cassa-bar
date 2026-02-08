@@ -1,18 +1,18 @@
 /* =====================================================
-   IMPORT (DEVONO STARE IN CIMA)
+   IMPORT (TUTTI IN CIMA)
 ===================================================== */
 import {
   getFirestore,
   collection,
   addDoc,
   getDocs,
+  doc,
+  getDoc,
+  updateDoc,
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
 
-import { getCurrentUser } from "./firebase-db.js";
-import { doc, updateDoc } from
-"https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
-
+import { getCurrentUser, onUserChanged } from "./firebase-db.js";
 
 /* =====================================================
    SETUP FIREBASE
@@ -20,27 +20,31 @@ import { doc, updateDoc } from
 const db = getFirestore();
 
 /* =====================================================
-   POPUP NUOVA TASSA
+   ELEMENTI DOM
 ===================================================== */
 const btnNuovaTassa = document.getElementById("btn-nuova-tassa");
 const popupNuovaTassa = document.getElementById("popup-nuova-tassa");
 const chiudiNuovaTassa = document.getElementById("chiudi-nuova-tassa");
+const btnSalvaTassa = document.getElementById("salva-tassa");
+const listaAnni = document.getElementById("lista-anni-tasse");
 
-/* ===== APERTURA / CHIUSURA POPUP ===== */
+/* =====================================================
+   POPUP APERTURA / CHIUSURA
+===================================================== */
 if (btnNuovaTassa && popupNuovaTassa) {
-  btnNuovaTassa.addEventListener("click", () => {
+  btnNuovaTassa.onclick = () => {
     popupNuovaTassa.classList.remove("hidden");
-  });
+  };
 }
 
 if (chiudiNuovaTassa && popupNuovaTassa) {
-  chiudiNuovaTassa.addEventListener("click", () => {
+  chiudiNuovaTassa.onclick = () => {
     popupNuovaTassa.classList.add("hidden");
-  });
+  };
 }
 
 /* =====================================================
-   SELEZIONE BOX (UNO SOLO ATTIVO)
+   BOX TOGGLE (UNO SOLO ATTIVO)
 ===================================================== */
 function initBoxToggle(containerId) {
   const container = document.getElementById(containerId);
@@ -49,23 +53,21 @@ function initBoxToggle(containerId) {
   const boxes = container.querySelectorAll(".box-toggle");
 
   boxes.forEach(box => {
-    box.addEventListener("click", () => {
+    box.onclick = () => {
       boxes.forEach(b => b.classList.remove("attivo"));
       box.classList.add("attivo");
-    });
+    };
   });
 }
 
-initBoxToggle("tassa-riferita");   // BAR / LORENZO / ELISA
-initBoxToggle("tassa-pagamento");  // CONTANTI / BONIFICO / ecc.
+initBoxToggle("tassa-riferita");
+initBoxToggle("tassa-pagamento");
 
 /* =====================================================
-   SALVATAGGIO NUOVA TASSA
+   SALVATAGGIO TASSA (NUOVA o MODIFICA)
 ===================================================== */
-const btnSalvaTassa = document.getElementById("salva-tassa");
-
 if (btnSalvaTassa) {
-  btnSalvaTassa.addEventListener("click", async () => {
+  btnSalvaTassa.onclick = async () => {
     const user = getCurrentUser();
     if (!user) {
       alert("Utente non loggato");
@@ -80,13 +82,11 @@ if (btnSalvaTassa) {
       "#tassa-pagamento .box-toggle.attivo"
     )?.dataset.pagamento;
 
-    const tipoInput = document.getElementById("tassa-tipo");
-    const importoInput = document.getElementById("tassa-importo");
-    const dataInput = document.getElementById("tassa-data");
-
-    const tipo = tipoInput?.value.trim();
-    const importo = parseFloat(importoInput?.value);
-    const dataPagamento = dataInput?.value;
+    const tipo = document.getElementById("tassa-tipo").value.trim();
+    const importo = parseFloat(
+      document.getElementById("tassa-importo").value
+    );
+    const dataPagamento = document.getElementById("tassa-data").value;
 
     if (!soggetto || !pagamento || !tipo || !importo || !dataPagamento) {
       alert("Compila tutti i campi");
@@ -94,73 +94,46 @@ if (btnSalvaTassa) {
     }
 
     const anno = new Date(dataPagamento).getFullYear();
-
-    const dati = {
-      anno,
-      soggetto,
-      tipo,
-      pagamento,
-      importo,
-      dataPagamento,
-      createdAt: serverTimestamp()
-    };
-
     const tassaId = document.getElementById("tassa-id").value;
 
-if (tassaId) {
-  // MODIFICA
-  await updateDoc(
-    doc(db, "users", user.uid, "tasse", tassaId),
-    {
+    const payload = {
       anno,
       soggetto,
       tipo,
       pagamento,
       importo,
       dataPagamento
-    }
-  );
-} else {
-  // NUOVA
-  await addDoc(
-    collection(db, "users", user.uid, "tasse"),
-    {
-      anno,
-      soggetto,
-      tipo,
-      pagamento,
-      importo,
-      dataPagamento,
-      createdAt: serverTimestamp()
-    }
-  );
-}
+    };
 
-document.getElementById("tassa-id").value = "";
-popupNuovaTassa.classList.add("hidden");
-
-    alert("✅ Tassa salvata correttamente");
+    if (tassaId) {
+      await updateDoc(
+        doc(db, "users", user.uid, "tasse", tassaId),
+        payload
+      );
+    } else {
+      await addDoc(
+        collection(db, "users", user.uid, "tasse"),
+        {
+          ...payload,
+          createdAt: serverTimestamp()
+        }
+      );
+    }
 
     popupNuovaTassa.classList.add("hidden");
-
-    // reset campi (opzionale ma consigliato)
-    tipoInput.value = "";
-    importoInput.value = "";
-    dataInput.value = "";
-    document
-      .querySelectorAll(".box-toggle.attivo")
-      .forEach(b => b.classList.remove("attivo"));
+    document.getElementById("tassa-id").value = "";
 
     caricaAnniTasse();
-  });
+    alert("✅ Tassa salvata correttamente");
+  };
 }
 
 /* =====================================================
-   RIEPILOGO ANNI TASSE
+   RIEPILOGO ANNI
 ===================================================== */
 async function caricaAnniTasse() {
   const user = getCurrentUser();
-  if (!user) return;
+  if (!user || !listaAnni) return;
 
   const snapshot = await getDocs(
     collection(db, "users", user.uid, "tasse")
@@ -168,15 +141,11 @@ async function caricaAnniTasse() {
 
   const anni = new Set();
 
-  snapshot.forEach(doc => {
-    const d = doc.data();
-    if (d.anno) anni.add(d.anno);
+  snapshot.forEach(d => {
+    if (d.data().anno) anni.add(d.data().anno);
   });
 
-  const cont = document.getElementById("lista-anni-tasse");
-  if (!cont) return;
-
-  cont.innerHTML = "";
+  listaAnni.innerHTML = "";
 
   [...anni]
     .sort((a, b) => b - a)
@@ -184,26 +153,18 @@ async function caricaAnniTasse() {
       const box = document.createElement("div");
       box.className = "box-toggle";
       box.textContent = `Tasse ${anno}`;
-      box.addEventListener("click", () => {
+      box.onclick = () => {
         window.location.href = `tasse-anno.html?anno=${anno}`;
-      });
-      cont.appendChild(box);
+      };
+      listaAnni.appendChild(box);
     });
 }
 
-import { onUserChanged } from "./firebase-db.js";
-
-onUserChanged(user => {
-  if (!user) {
-    window.location.href = "tasse.html";
-    return;
-  }
-
-});
-
+/* =====================================================
+   MODIFICA TASSA DA URL
+===================================================== */
 function getIdModificaDaUrl() {
-  const params = new URLSearchParams(window.location.search);
-  return params.get("modifica");
+  return new URLSearchParams(window.location.search).get("modifica");
 }
 
 async function caricaTassaDaModificare() {
@@ -213,14 +174,14 @@ async function caricaTassaDaModificare() {
   const user = getCurrentUser();
   if (!user) return;
 
-  const ref = doc(db, "users", user.uid, "tasse", tassaId);
-  const snap = await getDoc(ref);
+  const snap = await getDoc(
+    doc(db, "users", user.uid, "tasse", tassaId)
+  );
 
   if (!snap.exists()) return;
 
   const t = snap.data();
 
-  // apri popup
   popupNuovaTassa.classList.remove("hidden");
   document.querySelector("#popup-nuova-tassa h2").textContent =
     "Modifica tassa / imposta";
@@ -242,4 +203,12 @@ async function caricaTassaDaModificare() {
       b.classList.toggle("attivo", b.dataset.pagamento === t.pagamento)
     );
 }
-caricaTassaDaModificare();
+
+/* =====================================================
+   AUTH + INIT
+===================================================== */
+onUserChanged(user => {
+  if (!user) return;
+  caricaAnniTasse();
+  caricaTassaDaModificare();
+});
