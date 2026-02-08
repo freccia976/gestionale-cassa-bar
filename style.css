@@ -1017,3 +1017,48 @@ button {
 .autocomplete div:hover {
   background: #f3f4f6;
 }
+/* ===============================
+   AUTOCOMPLETE TIPO TASSA
+================================ */
+
+.autocomplete-list {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+
+  max-height: 180px;
+  overflow-y: auto;
+
+  box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+  z-index: 100;
+}
+
+/* singola voce */
+.autocomplete-list div {
+  padding: 8px 12px;
+  font-size: 14px;
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* hover */
+.autocomplete-list div:hover {
+  background: #f3f4f6;
+}
+
+/* nascondi */
+.autocomplete-list.hidden {
+  display: none;
+}
+
+/* contenitore input deve essere relativo */
+.pn-row {
+  position: relative;
+}
