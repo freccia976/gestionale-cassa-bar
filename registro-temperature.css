@@ -26,3 +26,37 @@
   padding: 18px;
   text-align: center;
 }
+/* ===============================
+   TABELLA TEMPERATURE
+================================ */
+
+.tabella-temperature {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 16px;
+  font-size: 15px;
+}
+
+.tabella-temperature th,
+.tabella-temperature td {
+  border: 1px solid #ddd;
+  padding: 10px;
+  text-align: center;
+}
+
+.tabella-temperature th {
+  background: #1f2937;
+  color: #fff;
+}
+
+.tabella-temperature td:first-child {
+  text-align: left;
+  font-weight: 600;
+}
+
+.tabella-temperature input {
+  width: 70px;
+  padding: 6px;
+  text-align: center;
+  font-size: 14px;
+}
