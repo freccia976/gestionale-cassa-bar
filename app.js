@@ -1040,3 +1040,10 @@ initUscite({
 
   aggiornaUI();
 }
+const btnTasse = document.getElementById("btn-tasse");
+
+if (btnTasse) {
+  btnTasse.onclick = () => {
+    window.location.href = "tasse.html";
+  };
+}

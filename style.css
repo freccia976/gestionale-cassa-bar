@@ -759,3 +759,7 @@ button {
   height: 1px;
   background-color: #ddd;
 }
+.box-azione.tasse {
+  background: linear-gradient(135deg, #5c6bc0, #3949ab);
+  color: white;
+}
