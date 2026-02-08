@@ -4,32 +4,41 @@
   <meta charset="UTF-8">
   <title>Registro Temperature</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- CSS globali -->
   <link rel="stylesheet" href="style.css">
+
+  <!-- CSS dedicato registro -->
   <link rel="stylesheet" href="registro-temperature.css">
 </head>
-<body>
+
+<body class="page-full">
 
 <header class="header">
   <img src="img/logo.png" class="logo">
   <h1>Registro Temperature</h1>
 </header>
 
+<!-- NAV -->
 <section class="card">
   <button onclick="window.location.href='index.html'">
     ⬅ Torna alla Home
   </button>
 </section>
 
+<!-- ANNI -->
 <section class="card">
   <h2>Anni</h2>
   <div id="lista-anni" class="box-grid"></div>
 </section>
 
+<!-- MESI -->
 <section class="card hidden" id="card-mesi">
   <h2 id="titolo-anno"></h2>
   <div id="lista-mesi" class="box-grid"></div>
 </section>
 
+<!-- TABELLA FULL WIDTH -->
 <section class="card card-full hidden" id="card-tabella">
   <h2 id="titolo-mese"></h2>
 
@@ -40,9 +49,6 @@
     </table>
   </div>
 </section>
-
-
-
 
 <script src="auth.js" type="module"></script>
 <script src="registro-temperature.js" type="module"></script>

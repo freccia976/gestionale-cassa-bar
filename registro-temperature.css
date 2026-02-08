@@ -1,19 +1,22 @@
-/* ===============================
-   REGISTRO TEMPERATURE
-================================ */
+/* =====================================================
+   PAGINA FULL WIDTH
+===================================================== */
 
-#lista-anni {
-  margin-top: 16px;
+.page-full .card {
+  max-width: none;
+  width: 100%;
+  margin-left: 0;
+  margin-right: 0;
 }
 
-#lista-anni .box-toggle {
-  font-size: 18px;
-  padding: 20px;
-  text-align: center;
+.page-full .card:not(.card-full) {
+  padding-left: 24px;
+  padding-right: 24px;
 }
-/* ===============================
-   REGISTRO TEMPERATURE
-================================ */
+
+/* =====================================================
+   LISTE ANNI / MESI
+===================================================== */
 
 #lista-anni,
 #lista-mesi {
@@ -25,44 +28,31 @@
   font-size: 16px;
   padding: 18px;
   text-align: center;
+  cursor: pointer;
 }
-/* ===============================
-   TABELLA TEMPERATURE
-================================ */
 
-.tabella-temperature {
+/* =====================================================
+   CARD FULL (TABELLA)
+===================================================== */
+
+.card-full {
   width: 100%;
-  border-collapse: collapse;
-  margin-top: 16px;
-  font-size: 15px;
+  padding: 20px 24px;
 }
 
-.tabella-temperature th,
-.tabella-temperature td {
-  border: 1px solid #ddd;
-  padding: 10px;
-  text-align: center;
-}
+/* =====================================================
+   WRAPPER TABELLA
+===================================================== */
 
-.tabella-temperature th {
-  background: #1f2937;
-  color: #fff;
-}
-
-.tabella-temperature td:first-child {
-  text-align: left;
-  font-weight: 600;
-}
-
-.tabella-temperature input {
-  width: 70px;
-  padding: 6px;
-  text-align: center;
-  font-size: 14px;
-}
 .tabella-wrapper {
+  width: 100%;
   overflow-x: auto;
+  margin-top: 16px;
 }
+
+/* =====================================================
+   TABELLA TEMPERATURE
+===================================================== */
 
 .tabella-temperature {
   width: 100%;
@@ -70,6 +60,7 @@
   font-size: 13px;
 }
 
+/* celle */
 .tabella-temperature th,
 .tabella-temperature td {
   border: 1px solid #ddd;
@@ -77,25 +68,36 @@
   text-align: center;
 }
 
+/* header */
 .tabella-temperature th {
   background: #1f2937;
   color: #fff;
   position: sticky;
   top: 0;
-  z-index: 2;
+  z-index: 3;
+  font-weight: 600;
 }
 
-.tabella-temperature th.data {
+/* colonna DATA fissa */
+.tabella-temperature th:first-child,
+.tabella-temperature td:first-child {
+  position: sticky;
+  left: 0;
+  background: #f9fafb;
+  z-index: 2;
+  font-weight: 600;
   min-width: 90px;
 }
 
-.tabella-temperature td input {
+/* input temperatura */
+.tabella-temperature input {
   width: 50px;
   padding: 4px;
   font-size: 12px;
   text-align: center;
 }
 
+/* cella mattina / pomeriggio */
 .cella-temp {
   display: flex;
   flex-direction: column;
@@ -106,30 +108,17 @@
   font-size: 10px;
   color: #555;
 }
-/* ===============================
-   CARD FULL WIDTH (REGISTRO)
-================================ */
 
-.card-full {
-  max-width: none;
-  width: calc(100vw - 40px);
-  margin-left: 20px;
-  margin-right: 20px;
-}
+/* =====================================================
+   RESPONSIVE
+===================================================== */
 
-/* su schermi molto grandi */
-@media (min-width: 1400px) {
-  .card-full {
-    width: 95vw;
-    margin-left: auto;
-    margin-right: auto;
+@media (max-width: 900px) {
+  .tabella-temperature {
+    font-size: 12px;
   }
-}
-.tabella-temperature td:first-child,
-.tabella-temperature th:first-child {
-  position: sticky;
-  left: 0;
-  background: #f9fafb;
-  z-index: 1;
-  font-weight: 600;
+
+  .tabella-temperature input {
+    width: 46px;
+  }
 }
