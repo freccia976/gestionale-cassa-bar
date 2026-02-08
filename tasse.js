@@ -16,54 +16,53 @@ import { getCurrentUser } from "./firebase-db.js";
 ===================================================== */
 const db = getFirestore();
 
-/* =====================
+/* =====================================================
    POPUP NUOVA TASSA
-===================== */
+===================================================== */
 const btnNuovaTassa = document.getElementById("btn-nuova-tassa");
 const popupNuovaTassa = document.getElementById("popup-nuova-tassa");
 const chiudiNuovaTassa = document.getElementById("chiudi-nuova-tassa");
 
-/* ===== APERTURA / CHIUSURA ===== */
+/* ===== APERTURA / CHIUSURA POPUP ===== */
 if (btnNuovaTassa && popupNuovaTassa) {
-  btnNuovaTassa.onclick = () => {
+  btnNuovaTassa.addEventListener("click", () => {
     popupNuovaTassa.classList.remove("hidden");
-  };
+  });
 }
 
 if (chiudiNuovaTassa && popupNuovaTassa) {
-  chiudiNuovaTassa.onclick = () => {
+  chiudiNuovaTassa.addEventListener("click", () => {
     popupNuovaTassa.classList.add("hidden");
-  };
+  });
 }
 
-/* =====================
-   SELEZIONE A BOX (UNO SOLO ATTIVO)
-===================== */
+/* =====================================================
+   SELEZIONE BOX (UNO SOLO ATTIVO)
+===================================================== */
 function initBoxToggle(containerId) {
   const container = document.getElementById(containerId);
   if (!container) return;
 
-  container.querySelectorAll(".box-toggle").forEach(box => {
-    box.onclick = () => {
-      container
-        .querySelectorAll(".box-toggle")
-        .forEach(b => b.classList.remove("attivo"));
+  const boxes = container.querySelectorAll(".box-toggle");
 
+  boxes.forEach(box => {
+    box.addEventListener("click", () => {
+      boxes.forEach(b => b.classList.remove("attivo"));
       box.classList.add("attivo");
-    };
+    });
   });
 }
 
-initBoxToggle("tassa-riferita");
-initBoxToggle("tassa-pagamento");
+initBoxToggle("tassa-riferita");   // BAR / LORENZO / ELISA
+initBoxToggle("tassa-pagamento");  // CONTANTI / BONIFICO / ecc.
 
-/* =====================
-   SALVATAGGIO TASSA
-===================== */
+/* =====================================================
+   SALVATAGGIO NUOVA TASSA
+===================================================== */
 const btnSalvaTassa = document.getElementById("salva-tassa");
 
 if (btnSalvaTassa) {
-  btnSalvaTassa.onclick = async () => {
+  btnSalvaTassa.addEventListener("click", async () => {
     const user = getCurrentUser();
     if (!user) {
       alert("Utente non loggato");
@@ -78,11 +77,13 @@ if (btnSalvaTassa) {
       "#tassa-pagamento .box-toggle.attivo"
     )?.dataset.pagamento;
 
-    const tipo = document.getElementById("tassa-tipo")?.value.trim();
-    const importo = parseFloat(
-      document.getElementById("tassa-importo")?.value
-    );
-    const dataPagamento = document.getElementById("tassa-data")?.value;
+    const tipoInput = document.getElementById("tassa-tipo");
+    const importoInput = document.getElementById("tassa-importo");
+    const dataInput = document.getElementById("tassa-data");
+
+    const tipo = tipoInput?.value.trim();
+    const importo = parseFloat(importoInput?.value);
+    const dataPagamento = dataInput?.value;
 
     if (!soggetto || !pagamento || !tipo || !importo || !dataPagamento) {
       alert("Compila tutti i campi");
@@ -91,28 +92,40 @@ if (btnSalvaTassa) {
 
     const anno = new Date(dataPagamento).getFullYear();
 
+    const dati = {
+      anno,
+      soggetto,
+      tipo,
+      pagamento,
+      importo,
+      dataPagamento,
+      createdAt: serverTimestamp()
+    };
+
     await addDoc(
       collection(db, "users", user.uid, "tasse"),
-      {
-        anno,
-        soggetto,
-        tipo,
-        pagamento,
-        importo,
-        dataPagamento,
-        createdAt: serverTimestamp()
-      }
+      dati
     );
 
     alert("✅ Tassa salvata correttamente");
 
     popupNuovaTassa.classList.add("hidden");
-  };
+
+    // reset campi (opzionale ma consigliato)
+    tipoInput.value = "";
+    importoInput.value = "";
+    dataInput.value = "";
+    document
+      .querySelectorAll(".box-toggle.attivo")
+      .forEach(b => b.classList.remove("attivo"));
+
+    caricaAnniTasse();
+  });
 }
 
-/* =====================
+/* =====================================================
    RIEPILOGO ANNI TASSE
-===================== */
+===================================================== */
 async function caricaAnniTasse() {
   const user = getCurrentUser();
   if (!user) return;
@@ -139,9 +152,9 @@ async function caricaAnniTasse() {
       const box = document.createElement("div");
       box.className = "box-toggle";
       box.textContent = `Tasse ${anno}`;
-      box.onclick = () => {
+      box.addEventListener("click", () => {
         window.location.href = `tasse-anno.html?anno=${anno}`;
-      };
+      });
       cont.appendChild(box);
     });
 }
