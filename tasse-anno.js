@@ -53,25 +53,26 @@ async function caricaTasseAnno() {
     collection(db, "users", user.uid, "tasse")
   );
 
-  tutteLeTasse = [];
+  // ✅ QUESTA RIGA MANCAVA
+  let tasse = [];
 
- snapshot.forEach(doc => {
-  const d = doc.data();
-  if (d.anno === anno) {
-    tasse.push({
-      id: doc.id,
-      ...d
-    });
-  }
-});
-
+  snapshot.forEach(doc => {
+    const d = doc.data();
+    if (d.anno === anno) {
+      tasse.push({
+        id: doc.id,
+        ...d
+      });
+    }
+  });
 
   // ordine cronologico
-  tutteLeTasse.sort(
-    (a, b) => new Date(a.dataPagamento) - new Date(b.dataPagamento)
+  tasse.sort(
+    (a, b) =>
+      new Date(a.dataPagamento) - new Date(b.dataPagamento)
   );
 
-  renderLista(tutteLeTasse);
+  renderLista(tasse);
 }
 
 /* =====================================================
