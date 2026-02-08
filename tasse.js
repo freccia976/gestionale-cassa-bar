@@ -159,4 +159,9 @@ async function caricaAnniTasse() {
     });
 }
 
-caricaAnniTasse();
+import { initAuth } from "./auth.js";
+
+initAuth(() => {
+  caricaAnniTasse();
+});
+
