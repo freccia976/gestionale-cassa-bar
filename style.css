@@ -798,7 +798,7 @@ button {
 /* =====================
    LISTA TASSE
 ===================== */
-#lista-tasse {
+.lista-tasse {
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -808,55 +808,79 @@ button {
   display: flex;
   justify-content: space-between;
   align-items: center;
-
-  padding: 14px 16px;
-  border-radius: 14px;
-  background: #fafafa;
-  border: 1px solid #e0e0e0;
+  padding: 14px;
+  border-radius: 10px;
+  background: #f9fafb;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
 }
 
-.riga-tassa:hover {
-  background: #f2f2f2;
-}
-
-.tassa-info {
+.tassa-sx {
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
 
-.tassa-info .data {
-  font-size: 0.85em;
-  color: #666;
+.tassa-titolo {
+  font-weight: 700;
+  font-size: 15px;
 }
 
-.tassa-info .tipo {
-  font-weight: 600;
-}
-
-.tassa-info .meta {
-  font-size: 0.85em;
+.tassa-meta {
+  font-size: 13px;
   color: #555;
 }
 
-.tassa-destra {
+.tassa-dx {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 10px;
 }
 
 .tassa-importo {
   font-weight: 700;
-  font-size: 1.1em;
+  font-size: 15px;
+  margin-right: 8px;
 }
 
-.azioni-tassa button {
-  background: none;
+/* =====================
+   AZIONI
+===================== */
+.btn-azione {
   border: none;
+  background: none;
   cursor: pointer;
-  font-size: 1.2em;
+  font-size: 16px;
 }
 
-.azioni-tassa button:hover {
+.btn-azione:hover {
   transform: scale(1.15);
+}
+
+/* =====================
+   TOTALE
+===================== */
+.card-totale {
+  text-align: center;
+}
+
+.totale-box {
+  font-size: 18px;
+}
+
+.totale-box strong {
+  font-size: 22px;
+  margin: 0 6px;
+}
+
+/* =====================
+   CARD VARIANTI
+===================== */
+.card-nav {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.card-filtri h2,
+.card-lista h2 {
+  margin-bottom: 10px;
 }

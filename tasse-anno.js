@@ -19,6 +19,8 @@ const lista = document.getElementById("lista-tasse");
 const totaleBox = document.getElementById("totale-tasse");
 const titoloAnno = document.getElementById("titolo-anno");
 
+let tutteLeTasse = [];
+
 /* =====================================================
    UTILS
 ===================================================== */
@@ -51,21 +53,24 @@ async function caricaTasseAnno() {
     collection(db, "users", user.uid, "tasse")
   );
 
-  let tasse = [];
+  tutteLeTasse = [];
 
   snapshot.forEach(doc => {
     const d = doc.data();
     if (d.anno === anno) {
-      tasse.push(d);
+      tutteLeTasse.push({
+        id: doc.id,
+        ...d
+      });
     }
   });
 
   // ordine cronologico
-  tasse.sort(
+  tutteLeTasse.sort(
     (a, b) => new Date(a.dataPagamento) - new Date(b.dataPagamento)
   );
 
-  renderLista(tasse);
+  renderLista(tutteLeTasse);
 }
 
 /* =====================================================
@@ -86,27 +91,29 @@ function renderLista(tasse) {
 
     const riga = document.createElement("div");
     riga.className = "riga-tassa";
+    riga.dataset.soggetto = t.soggetto;
 
     riga.innerHTML = `
-      <span>${formatData(t.dataPagamento)}</span>
-      <span>${t.tipo}</span>
-      <span>${t.soggetto}</span>
-      <span>${t.pagamento}</span>
-      <span>€ ${formatEuro(t.importo)}</span>
-      <span class="azioni-tassa">
-        <button class="btn-modifica">✏️</button>
-        <button class="btn-elimina">🗑️</button>
-      </span>
+      <div class="tassa-sx">
+        <div class="tassa-titolo">${t.tipo}</div>
+        <div class="tassa-meta">
+          ${formatData(t.dataPagamento)} • ${t.soggetto} • ${t.pagamento}
+        </div>
+      </div>
+
+      <div class="tassa-dx">
+        <div class="tassa-importo">€ ${formatEuro(t.importo)}</div>
+        <button class="btn-azione btn-modifica">✏️</button>
+        <button class="btn-azione btn-elimina">🗑️</button>
+      </div>
     `;
 
-    // AZIONE MODIFICA (placeholder)
     riga.querySelector(".btn-modifica").onclick = () => {
-      alert("Modifica tassa – step successivo");
+      alert("Modifica tassa (step successivo)");
     };
 
-    // AZIONE ELIMINA (placeholder)
     riga.querySelector(".btn-elimina").onclick = () => {
-      alert("Elimina tassa – step successivo");
+      alert("Elimina tassa (step successivo)");
     };
 
     lista.appendChild(riga);
@@ -116,8 +123,41 @@ function renderLista(tasse) {
 }
 
 /* =====================================================
+   FILTRI
+===================================================== */
+function initFiltri() {
+  const container = document.getElementById("filtro-soggetto");
+  if (!container) return;
+
+  const boxes = container.querySelectorAll(".box-toggle");
+
+  boxes.forEach(box => {
+    box.onclick = () => {
+      boxes.forEach(b => b.classList.remove("attivo"));
+      box.classList.add("attivo");
+
+      filtraTasse(box.dataset.soggetto);
+    };
+  });
+}
+
+function filtraTasse(soggetto) {
+  const righe = document.querySelectorAll(".riga-tassa");
+
+  righe.forEach(riga => {
+    if (soggetto === "ALL") {
+      riga.style.display = "flex";
+    } else {
+      riga.style.display =
+        riga.dataset.soggetto === soggetto ? "flex" : "none";
+    }
+  });
+}
+
+/* =====================================================
    INIT
 ===================================================== */
 initAuth(() => {
   caricaTasseAnno();
+  initFiltri();
 });

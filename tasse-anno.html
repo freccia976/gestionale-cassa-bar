@@ -15,14 +15,14 @@
 </header>
 
 <!-- ================= NAV ================= -->
-<section class="card">
-  <button onclick="window.location.href='tasse.html'">
+<section class="card card-nav">
+  <button class="btn-secondary" onclick="window.location.href='tasse.html'">
     ⬅ Torna a Tasse & Imposte
   </button>
 </section>
 
 <!-- ================= FILTRI ================= -->
-<section class="card">
+<section class="card card-filtri">
   <h2>Filtra per soggetto</h2>
 
   <div class="box-grid" id="filtro-soggetto">
@@ -34,21 +34,21 @@
 </section>
 
 <!-- ================= LISTA TASSE ================= -->
-<section class="card">
+<section class="card card-lista">
   <h2>Elenco tasse</h2>
 
-  <div id="lista-tasse">
+  <div id="lista-tasse" class="lista-tasse">
     <!-- righe generate via JS -->
   </div>
 </section>
 
 <!-- ================= TOTALE ================= -->
-<section class="card">
-  <h2>Totale</h2>
-  <p>
-    💰 Totale tasse:
-    <strong id="totale-tasse">0.00</strong> €
-  </p>
+<section class="card card-totale">
+  <div class="totale-box">
+    <span>Totale tasse anno</span>
+    <strong id="totale-tasse">0.00</strong>
+    <span>€</span>
+  </div>
 </section>
 
 <!-- ================= SCRIPT ================= -->
