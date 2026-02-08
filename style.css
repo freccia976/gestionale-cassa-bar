@@ -804,20 +804,22 @@ button {
   gap: 12px;
 }
 
+/* =====================
+   RIGHE TASSE
+===================== */
 .riga-tassa {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 14px;
-  border-radius: 10px;
-  background: #f9fafb;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  border-radius: 12px;
+  margin-bottom: 12px;
+  transition: all 0.2s ease;
 }
 
 .tassa-sx {
   display: flex;
   flex-direction: column;
-  gap: 4px;
 }
 
 .tassa-titolo {
@@ -827,7 +829,7 @@ button {
 
 .tassa-meta {
   font-size: 13px;
-  color: #555;
+  opacity: 0.75;
 }
 
 .tassa-dx {
@@ -838,8 +840,28 @@ button {
 
 .tassa-importo {
   font-weight: 700;
-  font-size: 15px;
-  margin-right: 8px;
+  font-size: 16px;
+}
+
+/* =====================
+   STATO PAGAMENTO
+===================== */
+.tassa-pagata {
+  background: #e8f5e9;
+  border-left: 6px solid #2e7d32;
+}
+
+.tassa-pagata .tassa-importo {
+  color: #1b5e20;
+}
+
+.tassa-da-pagare {
+  background: #fdecea;
+  border-left: 6px solid #c62828;
+}
+
+.tassa-da-pagare .tassa-importo {
+  color: #b71c1c;
 }
 
 /* =====================
@@ -847,13 +869,13 @@ button {
 ===================== */
 .btn-azione {
   border: none;
-  background: none;
+  background: transparent;
   cursor: pointer;
   font-size: 16px;
 }
 
 .btn-azione:hover {
-  transform: scale(1.15);
+  transform: scale(1.1);
 }
 
 /* =====================

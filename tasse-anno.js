@@ -29,11 +29,17 @@ function getAnnoFromUrl() {
 }
 
 function formatEuro(n) {
-  return n.toFixed(2);
+  return Number(n || 0).toFixed(2);
 }
 
 function formatData(d) {
+  if (!d) return "-";
   return new Date(d).toLocaleDateString("it-IT");
+}
+
+function getDataRiferimento(t) {
+  // 👉 REGOLA CHIAVE ANTI-1970
+  return t.pagata ? t.dataPagamento : t.dataScadenza;
 }
 
 /* =====================================================
@@ -64,8 +70,11 @@ async function caricaTasseAnno() {
     }
   });
 
+  // ✅ ordinamento per data VISIBILE
   tasse.sort(
-    (a, b) => new Date(a.dataPagamento) - new Date(b.dataPagamento)
+    (a, b) =>
+      new Date(getDataRiferimento(a)) -
+      new Date(getDataRiferimento(b))
   );
 
   renderLista(tasse);
@@ -88,14 +97,21 @@ function renderLista(tasse) {
     totale += t.importo;
 
     const riga = document.createElement("div");
-    riga.className = "riga-tassa";
+
+    // ✅ classe stato
+    riga.className = `riga-tassa ${
+      t.pagata ? "tassa-pagata" : "tassa-da-pagare"
+    }`;
+
     riga.dataset.soggetto = t.soggetto;
+
+    const dataLabel = formatData(getDataRiferimento(t));
 
     riga.innerHTML = `
       <div class="tassa-sx">
         <div class="tassa-titolo">${t.tipo}</div>
         <div class="tassa-meta">
-          ${formatData(t.dataPagamento)} • ${t.soggetto} • ${t.pagamento}
+          ${dataLabel} • ${t.soggetto} • ${t.pagamento}
         </div>
       </div>
 
@@ -106,17 +122,16 @@ function renderLista(tasse) {
       </div>
     `;
 
-    // MODIFICA → redirect
+    // MODIFICA
     riga.querySelector(".btn-modifica").onclick = () => {
       window.location.href = `tasse.html?modifica=${t.id}`;
     };
 
-    // ELIMINAZIONE
+    // ELIMINA
     riga.querySelector(".btn-elimina").onclick = async () => {
       const conferma = confirm(
-        `Vuoi eliminare la tassa "${t.tipo}" del ${formatData(t.dataPagamento)}?`
+        `Vuoi eliminare la tassa "${t.tipo}" del ${dataLabel}?`
       );
-
       if (!conferma) return;
 
       const user = getCurrentUser();
