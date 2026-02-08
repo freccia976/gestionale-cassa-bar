@@ -1,26 +1,43 @@
+/* =====================================================
+   IMPORT (DEVONO STARE IN CIMA)
+===================================================== */
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  getDocs,
+  serverTimestamp
+} from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
+
+import { getCurrentUser } from "./firebase-db.js";
+
+/* =====================================================
+   SETUP FIREBASE
+===================================================== */
+const db = getFirestore();
+
 /* =====================
    POPUP NUOVA TASSA
 ===================== */
-
 const btnNuovaTassa = document.getElementById("btn-nuova-tassa");
 const popupNuovaTassa = document.getElementById("popup-nuova-tassa");
 const chiudiNuovaTassa = document.getElementById("chiudi-nuova-tassa");
 
 /* ===== APERTURA / CHIUSURA ===== */
-if (btnNuovaTassa) {
+if (btnNuovaTassa && popupNuovaTassa) {
   btnNuovaTassa.onclick = () => {
     popupNuovaTassa.classList.remove("hidden");
   };
 }
 
-if (chiudiNuovaTassa) {
+if (chiudiNuovaTassa && popupNuovaTassa) {
   chiudiNuovaTassa.onclick = () => {
     popupNuovaTassa.classList.add("hidden");
   };
 }
 
 /* =====================
-   SELEZIONE A BOX (SOLO UNO ATTIVO)
+   SELEZIONE A BOX (UNO SOLO ATTIVO)
 ===================== */
 function initBoxToggle(containerId) {
   const container = document.getElementById(containerId);
@@ -40,17 +57,9 @@ function initBoxToggle(containerId) {
 initBoxToggle("tassa-riferita");
 initBoxToggle("tassa-pagamento");
 
-import {
-  getFirestore,
-  collection,
-  addDoc,
-  serverTimestamp
-} from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
-
-import { getCurrentUser } from "./firebase-db.js";
-
-const db = getFirestore();
-
+/* =====================
+   SALVATAGGIO TASSA
+===================== */
 const btnSalvaTassa = document.getElementById("salva-tassa");
 
 if (btnSalvaTassa) {
@@ -69,43 +78,41 @@ if (btnSalvaTassa) {
       "#tassa-pagamento .box-toggle.attivo"
     )?.dataset.pagamento;
 
-    const tipo = document.getElementById("tassa-tipo").value.trim();
+    const tipo = document.getElementById("tassa-tipo")?.value.trim();
     const importo = parseFloat(
-      document.getElementById("tassa-importo").value
+      document.getElementById("tassa-importo")?.value
     );
-    const dataPagamento = document.getElementById("tassa-data").value;
+    const dataPagamento = document.getElementById("tassa-data")?.value;
 
-    if (!tipo || !importo || !dataPagamento) {
+    if (!soggetto || !pagamento || !tipo || !importo || !dataPagamento) {
       alert("Compila tutti i campi");
       return;
     }
 
     const anno = new Date(dataPagamento).getFullYear();
 
-    const dati = {
-      anno,
-      soggetto,
-      tipo,
-      pagamento,
-      importo,
-      dataPagamento,
-      createdAt: serverTimestamp()
-    };
-
     await addDoc(
       collection(db, "users", user.uid, "tasse"),
-      dati
+      {
+        anno,
+        soggetto,
+        tipo,
+        pagamento,
+        importo,
+        dataPagamento,
+        createdAt: serverTimestamp()
+      }
     );
 
     alert("✅ Tassa salvata correttamente");
 
-    document.getElementById("popup-nuova-tassa").classList.add("hidden");
+    popupNuovaTassa.classList.add("hidden");
   };
 }
-import {
-  getDocs
-} from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
 
+/* =====================
+   RIEPILOGO ANNI TASSE
+===================== */
 async function caricaAnniTasse() {
   const user = getCurrentUser();
   if (!user) return;
@@ -122,6 +129,8 @@ async function caricaAnniTasse() {
   });
 
   const cont = document.getElementById("lista-anni-tasse");
+  if (!cont) return;
+
   cont.innerHTML = "";
 
   [...anni]
