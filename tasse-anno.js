@@ -20,6 +20,9 @@ const db = getFirestore();
 const lista = document.getElementById("lista-tasse");
 const totaleBox = document.getElementById("totale-tasse");
 const titoloAnno = document.getElementById("titolo-anno");
+const btnPdfAnno = document.getElementById("btn-pdf-anno");
+
+let tasseAnnoCorrente = [];
 
 /* =====================================================
    UTILS
@@ -34,11 +37,11 @@ function formatEuro(n) {
 
 function formatData(d) {
   if (!d) return "-";
-  return new Date(d).toLocaleDateString("it-IT");
+  const data = d.seconds ? new Date(d.seconds * 1000) : new Date(d);
+  return data.toLocaleDateString("it-IT");
 }
 
 function getDataRiferimento(t) {
-  // 👉 REGOLA CHIAVE ANTI-1970
   return t.pagata ? t.dataPagamento : t.dataScadenza;
 }
 
@@ -70,12 +73,14 @@ async function caricaTasseAnno() {
     }
   });
 
-  // ✅ ordinamento per data VISIBILE
+  // 👉 ordinamento per data VISIBILE
   tasse.sort(
     (a, b) =>
       new Date(getDataRiferimento(a)) -
       new Date(getDataRiferimento(b))
   );
+
+  tasseAnnoCorrente = tasse;
 
   renderLista(tasse);
 }
@@ -97,8 +102,6 @@ function renderLista(tasse) {
     totale += t.importo;
 
     const riga = document.createElement("div");
-
-    // ✅ classe stato
     riga.className = `riga-tassa ${
       t.pagata ? "tassa-pagata" : "tassa-da-pagare"
     }`;
@@ -178,10 +181,54 @@ function filtraTasse(soggetto) {
 }
 
 /* =====================================================
+   PDF TASSE ANNO
+===================================================== */
+function generaPDFTasseAnno() {
+  if (!tasseAnnoCorrente.length) {
+    alert("Nessuna tassa da esportare");
+    return;
+  }
+
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+
+  const anno = tasseAnnoCorrente[0].anno;
+
+  doc.setFontSize(16);
+  doc.text(`Tasse & Imposte ${anno}`, 14, 16);
+
+  const righe = tasseAnnoCorrente.map(t => [
+    t.tipo,
+    t.soggetto,
+    t.pagata ? "PAGATA" : "DA PAGARE",
+    formatData(getDataRiferimento(t)),
+    `€ ${formatEuro(t.importo)}`
+  ]);
+
+  doc.autoTable({
+    startY: 24,
+    head: [["Tipo", "Soggetto", "Stato", "Data", "Importo"]],
+    body: righe,
+    styles: { fontSize: 10 },
+    didParseCell(data) {
+      if (data.section === "body" && data.column.index === 2) {
+        data.cell.styles.textColor =
+          data.cell.raw === "DA PAGARE"
+            ? [220, 38, 38]   // rosso
+            : [22, 163, 74]; // verde
+      }
+    }
+  });
+
+  doc.save(`tasse-${anno}.pdf`);
+}
+
+/* =====================================================
    INIT
 ===================================================== */
 initAuth(() => {
   caricaTasseAnno();
   initFiltri();
-  
+
+  btnPdfAnno?.addEventListener("click", generaPDFTasseAnno);
 });
