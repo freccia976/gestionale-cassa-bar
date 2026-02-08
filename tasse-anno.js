@@ -88,12 +88,26 @@ function renderLista(tasse) {
     riga.className = "riga-tassa";
 
     riga.innerHTML = `
-      <strong>${formatData(t.dataPagamento)}</strong> |
-      ${t.tipo} |
-      ${t.soggetto} |
-      ${t.pagamento} |
-      € ${formatEuro(t.importo)}
+      <span>${formatData(t.dataPagamento)}</span>
+      <span>${t.tipo}</span>
+      <span>${t.soggetto}</span>
+      <span>${t.pagamento}</span>
+      <span>€ ${formatEuro(t.importo)}</span>
+      <span class="azioni-tassa">
+        <button class="btn-modifica">✏️</button>
+        <button class="btn-elimina">🗑️</button>
+      </span>
     `;
+
+    // AZIONE MODIFICA (placeholder)
+    riga.querySelector(".btn-modifica").onclick = () => {
+      alert("Modifica tassa – step successivo");
+    };
+
+    // AZIONE ELIMINA (placeholder)
+    riga.querySelector(".btn-elimina").onclick = () => {
+      alert("Elimina tassa – step successivo");
+    };
 
     lista.appendChild(riga);
   });
