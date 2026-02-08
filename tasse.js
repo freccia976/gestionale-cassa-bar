@@ -263,6 +263,28 @@ async function caricaTassaDaModificare() {
       b.classList.toggle("attivo", b.dataset.pagamento === t.pagamento)
     );
 }
+/* =====================================================
+   CARICA TIPI TASSA (AUTOCOMPLETE)
+===================================================== */
+async function caricaTipiTassa() {
+  const user = getCurrentUser();
+  if (!user) return;
+
+  const datalist = document.getElementById("lista-tipi-tassa");
+  if (!datalist) return;
+
+  datalist.innerHTML = "";
+
+  const snapshot = await getDocs(
+    collection(db, "users", user.uid, "tipi_tasse")
+  );
+
+  snapshot.forEach(docSnap => {
+    const opt = document.createElement("option");
+    opt.value = docSnap.data().nome;
+    datalist.appendChild(opt);
+  });
+}
 
 /* =====================================================
    INIT
@@ -270,5 +292,6 @@ async function caricaTassaDaModificare() {
 onUserChanged(user => {
   if (!user) return;
   caricaAnniTasse();
+  caricaTipiTassa();
   caricaTassaDaModificare();
 });
