@@ -191,9 +191,13 @@ async function caricaAnniTasse() {
     });
 }
 
-import { initAuth } from "./auth.js";
+import { onUserChanged } from "./firebase-db.js";
 
-initAuth(() => {
-  caricaAnniTasse();
+onUserChanged(user => {
+  if (!user) {
+    window.location.href = "tasse.html";
+    return;
+  }
+
+  caricaTasseAnno();
 });
-
