@@ -763,3 +763,100 @@ button {
   background: linear-gradient(135deg, #5c6bc0, #3949ab);
   color: white;
 }
+/* =====================
+   BOX TOGGLE
+===================== */
+.box-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 10px;
+}
+
+.box-toggle {
+  padding: 12px;
+  border-radius: 12px;
+  text-align: center;
+  font-weight: 600;
+  cursor: pointer;
+  user-select: none;
+
+  background: #f44336;
+  color: white;
+
+  transition: all 0.2s ease;
+}
+
+.box-toggle:hover {
+  opacity: 0.9;
+  transform: scale(1.03);
+}
+
+.box-toggle.attivo {
+  background: #2e7d32;
+}
+
+/* =====================
+   LISTA TASSE
+===================== */
+#lista-tasse {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.riga-tassa {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: #fafafa;
+  border: 1px solid #e0e0e0;
+}
+
+.riga-tassa:hover {
+  background: #f2f2f2;
+}
+
+.tassa-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.tassa-info .data {
+  font-size: 0.85em;
+  color: #666;
+}
+
+.tassa-info .tipo {
+  font-weight: 600;
+}
+
+.tassa-info .meta {
+  font-size: 0.85em;
+  color: #555;
+}
+
+.tassa-destra {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.tassa-importo {
+  font-weight: 700;
+  font-size: 1.1em;
+}
+
+.azioni-tassa button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.2em;
+}
+
+.azioni-tassa button:hover {
+  transform: scale(1.15);
+}

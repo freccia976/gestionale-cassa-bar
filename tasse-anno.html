@@ -8,11 +8,13 @@
 </head>
 <body>
 
+<!-- ================= HEADER ================= -->
 <header class="header">
   <img src="img/logo.png" alt="Logo Bar" class="logo">
   <h1 id="titolo-anno">Tasse</h1>
 </header>
 
+<!-- ================= NAV ================= -->
 <section class="card">
   <button onclick="window.location.href='tasse.html'">
     ⬅ Torna a Tasse & Imposte
@@ -21,7 +23,7 @@
 
 <!-- ================= FILTRI ================= -->
 <section class="card">
-  <h2>Filtri</h2>
+  <h2>Filtra per soggetto</h2>
 
   <div class="box-grid" id="filtro-soggetto">
     <div class="box-toggle attivo" data-soggetto="ALL">TUTTI</div>
@@ -34,6 +36,7 @@
 <!-- ================= LISTA TASSE ================= -->
 <section class="card">
   <h2>Elenco tasse</h2>
+
   <div id="lista-tasse">
     <!-- righe generate via JS -->
   </div>
@@ -48,6 +51,7 @@
   </p>
 </section>
 
+<!-- ================= SCRIPT ================= -->
 <script src="auth.js" type="module"></script>
 <script src="tasse-anno.js" type="module"></script>
 
