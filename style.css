@@ -906,3 +906,38 @@ button {
 .card-lista h2 {
   margin-bottom: 10px;
 }
+
+/* =====================
+   BANNER TASSE HOME
+===================== */
+.banner-tasse {
+  border-left: 6px solid #c62828;
+  background: #fdecea;
+}
+
+.banner-tasse h3 {
+  margin-bottom: 10px;
+  color: #b71c1c;
+}
+
+.tassa-scadenza {
+  padding: 10px;
+  border-radius: 8px;
+  background: #fff;
+  margin-bottom: 8px;
+  cursor: pointer;
+  border: 1px solid #f5c6cb;
+}
+
+.tassa-scadenza:hover {
+  background: #fbe9e7;
+}
+
+.tassa-scadenza .titolo {
+  font-weight: 700;
+}
+
+.tassa-scadenza .meta {
+  font-size: 13px;
+  opacity: 0.8;
+}
