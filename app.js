@@ -20,6 +20,17 @@ import { caricaChiusureSettimanali } from "./firebase-db.js";
 import { generaPDFMese } from "./pdf-mese.js";
 import { generaPDFFiltro } from "./pdf-filtro.js";
 
+import {
+  getFirestore,
+  collection,
+  getDocs
+} from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
+
+import { getCurrentUser } from "./firebase-db.js";
+
+const db = getFirestore();
+
+
 
 /* =====================================================
    DOM READY
@@ -71,6 +82,11 @@ if (settimanaFondo && settimanaFondo.lunedi) {
 
   const formEntrata = document.getElementById("form-entrata");
   const formUscita = document.getElementById("form-uscita");
+const bannerTasse = document.getElementById("banner-tasse");
+const listaTasseScadenza = document.getElementById("lista-tasse-scadenza");
+
+
+
 
   /* =====================
      POPUP SETTIMANA (PRIMA NOTA)
@@ -364,6 +380,70 @@ function popolaFornitoriPDF(movimenti) {
   });
 }
 
+async function caricaTasseInScadenza() {
+  const snapshot = await getDocs(
+    collection(db, "users", getCurrentUser().uid, "tasse")
+  );
+
+  const oggi = new Date();
+  oggi.setHours(0, 0, 0, 0);
+
+  const tra7Giorni = new Date(oggi);
+  tra7Giorni.setDate(oggi.getDate() + 7);
+
+  const tasseDaMostrare = [];
+
+  snapshot.forEach(docSnap => {
+    const t = docSnap.data();
+
+    if (t.stato !== "DA_PAGARE") return;
+    if (!t.dataPagamento) return;
+
+    const scadenza = new Date(t.dataPagamento);
+    scadenza.setHours(0, 0, 0, 0);
+
+    if (scadenza <= tra7Giorni) {
+      tasseDaMostrare.push({
+        id: docSnap.id,
+        ...t,
+        scadenza
+      });
+    }
+  });
+
+  if (!tasseDaMostrare.length) {
+    bannerTasse.classList.add("hidden");
+    listaTasseScadenza.innerHTML = "";
+    return;
+  }
+
+  bannerTasse.classList.remove("hidden");
+  listaTasseScadenza.innerHTML = "";
+
+  tasseDaMostrare
+    .sort((a, b) => a.scadenza - b.scadenza)
+    .forEach(t => {
+      const riga = document.createElement("div");
+      riga.className = "tassa-scadenza";
+
+      const scaduta = t.scadenza < oggi;
+
+      riga.innerHTML = `
+        <div class="titolo ${scaduta ? "scaduta" : "in-scadenza"}">
+          ${scaduta ? "🚨 SCADUTA" : "⏰ IN SCADENZA"} – ${t.tipo}
+        </div>
+        <div class="meta">
+          ${t.soggetto} • ${t.scadenza.toLocaleDateString("it-IT")} • € ${t.importo.toFixed(2)}
+        </div>
+      `;
+
+      riga.onclick = () => {
+        window.location.href = `tasse.html?modifica=${t.id}`;
+      };
+
+      listaTasseScadenza.appendChild(riga);
+    });
+}
 
   /* =====================
      MOSTRA FORM
@@ -1039,6 +1119,8 @@ initUscite({
 
 
   aggiornaUI();
+  caricaTasseInScadenza();
+
 }
 const btnTasse = document.getElementById("btn-tasse");
 

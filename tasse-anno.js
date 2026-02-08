@@ -183,4 +183,5 @@ function filtraTasse(soggetto) {
 initAuth(() => {
   caricaTasseAnno();
   initFiltri();
+  
 });
