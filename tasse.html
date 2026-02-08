@@ -19,5 +19,79 @@
   </button>
 </section>
 
+<section class="card">
+  <button id="btn-nuova-tassa" class="btn-primary">
+    ➕ Nuova tassa / imposta
+  </button>
+</section>
+<!-- ================= POPUP NUOVA TASSA ================= -->
+<div id="popup-nuova-tassa" class="popup hidden">
+  <div class="popup-content">
+
+    <header class="popup-header">
+      <h2>Nuova tassa / imposta</h2>
+      <button id="chiudi-nuova-tassa">✖</button>
+    </header>
+
+    <!-- ================= A CHI È RIFERITA ================= -->
+    <h3>A chi è riferita</h3>
+    <div class="box-grid" id="tassa-riferita">
+      <div class="box-toggle attivo" data-soggetto="BAR">BAR</div>
+      <div class="box-toggle" data-soggetto="LORENZO">LORENZO</div>
+      <div class="box-toggle" data-soggetto="ELISA">ELISA</div>
+    </div>
+
+    <hr>
+
+    <!-- ================= TIPO TASSA ================= -->
+    <div class="pn-row">
+      <label>Tipo di tassa / imposta</label>
+      <input
+        type="text"
+        id="tassa-tipo"
+        placeholder="es. IVA 1° trimestre"
+      >
+    </div>
+
+    <!-- ================= MODALITÀ PAGAMENTO ================= -->
+    <h3>Modalità di pagamento</h3>
+    <div class="box-grid" id="tassa-pagamento">
+      <div class="box-toggle attivo" data-pagamento="CONTANTI">
+        💶 Contanti
+      </div>
+      <div class="box-toggle" data-pagamento="BONIFICO_BAR">
+        🏦 Bonifico conto BAR
+      </div>
+      <div class="box-toggle" data-pagamento="BONIFICO_PERSONALE">
+        👤 Bonifico conto personale
+      </div>
+    </div>
+
+    <hr>
+
+    <!-- ================= IMPORTO ================= -->
+    <div class="pn-row">
+      <label>Importo (€)</label>
+      <input type="number" id="tassa-importo" step="0.01">
+    </div>
+
+    <!-- ================= DATA PAGAMENTO ================= -->
+    <div class="pn-row">
+      <label>Data pagamento</label>
+      <input type="date" id="tassa-data">
+    </div>
+
+    <footer class="pn-actions">
+      <button id="salva-tassa" class="btn-primary">
+        💾 Salva tassa
+      </button>
+    </footer>
+
+  </div>
+</div>
+
+<script src="tasse.js"></script>
+
+
 </body>
 </html>
