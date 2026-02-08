@@ -183,42 +183,67 @@ function filtraTasse(soggetto) {
 /* =====================================================
    PDF TASSE ANNO
 ===================================================== */
-function generaPDFTasseAnno() {
-  if (!tasseAnnoCorrente.length) {
-    alert("Nessuna tassa da esportare");
-    return;
-  }
-
+function generaPDFTasseAnno(tasse, anno) {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
 
-  const anno = tasseAnnoCorrente[0].anno;
-
   doc.setFontSize(16);
-  doc.text(`Tasse & Imposte ${anno}`, 14, 16);
+  doc.text(`Tasse e imposte – ${anno}`, 14, 16);
 
-  const righe = tasseAnnoCorrente.map(t => [
-    t.tipo,
-    t.soggetto,
-    t.pagata ? "PAGATA" : "DA PAGARE",
-    formatData(getDataRiferimento(t)),
-    `€ ${formatEuro(t.importo)}`
-  ]);
+  let totale = 0;
+
+  const righe = tasse.map(t => {
+    totale += Number(t.importo || 0);
+
+    const data = t.pagata
+      ? formatData(t.dataPagamento)
+      : formatData(t.dataScadenza);
+
+    return [
+      t.tipo,
+      data,
+      t.soggetto,
+      t.pagamento,
+      `€ ${formatEuro(t.importo)}`
+    ];
+  });
 
   doc.autoTable({
     startY: 24,
-    head: [["Tipo", "Soggetto", "Stato", "Data", "Importo"]],
+    head: [[
+      "Tipo tassa",
+      "Data",
+      "Soggetto",
+      "Pagamento",
+      "Importo"
+    ]],
     body: righe,
-    styles: { fontSize: 10 },
-    didParseCell(data) {
-      if (data.section === "body" && data.column.index === 2) {
-        data.cell.styles.textColor =
-          data.cell.raw === "DA PAGARE"
-            ? [220, 38, 38]   // rosso
-            : [22, 163, 74]; // verde
-      }
+    styles: {
+      fontSize: 10
+    },
+    headStyles: {
+      fillColor: [30, 30, 30]
+    },
+    columnStyles: {
+      4: { halign: "right" }
     }
   });
+
+  /* =====================
+     TOTALE FINALE
+  ===================== */
+  const yFinale = doc.lastAutoTable.finalY + 10;
+
+  doc.setLineWidth(0.5);
+  doc.line(14, yFinale, 196, yFinale);
+
+  doc.setFontSize(12);
+  doc.setFont(undefined, "bold");
+  doc.text(
+    `TOTALE ANNO ${anno}: € ${formatEuro(totale)}`,
+    14,
+    yFinale + 8
+  );
 
   doc.save(`tasse-${anno}.pdf`);
 }
