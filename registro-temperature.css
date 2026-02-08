@@ -2,16 +2,14 @@
    PAGINA FULL WIDTH
 ===================================================== */
 
+body {
+  margin: 0;
+}
+
 .page-full .card {
   max-width: none;
   width: 100%;
-  margin-left: 0;
-  margin-right: 0;
-}
-
-.page-full .card:not(.card-full) {
-  padding-left: 24px;
-  padding-right: 24px;
+  margin: 0;
 }
 
 /* =====================================================
@@ -26,18 +24,18 @@
 #lista-anni .box-toggle,
 #lista-mesi .box-toggle {
   font-size: 16px;
-  padding: 18px;
+  padding: 16px;
   text-align: center;
   cursor: pointer;
 }
 
 /* =====================================================
-   CARD FULL (TABELLA)
+   CARD TABELLA (FULL WIDTH)
 ===================================================== */
 
 .card-full {
   width: 100%;
-  padding: 20px 24px;
+  padding: 16px;
 }
 
 /* =====================================================
@@ -46,8 +44,7 @@
 
 .tabella-wrapper {
   width: 100%;
-  overflow-x: auto;
-  margin-top: 16px;
+  overflow-x: auto;        /* scroll SOLO se serve */
 }
 
 /* =====================================================
@@ -56,15 +53,16 @@
 
 .tabella-temperature {
   width: 100%;
-  table-layout: fixed;
+  border-collapse: collapse;
+  font-size: 14px;
+  white-space: nowrap;     /* evita compressioni */
 }
-
 
 /* celle */
 .tabella-temperature th,
 .tabella-temperature td {
   border: 1px solid #ddd;
-  padding: 6px;
+  padding: 8px;
   text-align: center;
 }
 
@@ -72,62 +70,58 @@
 .tabella-temperature th {
   background: #1f2937;
   color: #fff;
-  position: sticky;
-  top: 0;
-  z-index: 3;
   font-weight: 600;
 }
 
-/* colonna DATA fissa */
+/* colonna DATA */
 .tabella-temperature th:first-child,
 .tabella-temperature td:first-child {
-  position: sticky;
-  left: 0;
   background: #f9fafb;
-  z-index: 2;
   font-weight: 600;
+  text-align: left;
   min-width: 90px;
 }
 
-/* input temperatura */
-.tabella-temperature input {
-  width: 50px;
-  padding: 4px;
-  font-size: 12px;
-  text-align: center;
-}
+/* =====================================================
+   CELLA TEMPERATURE (MATTINA + POMERIGGIO)
+===================================================== */
 
-/* cella mattina / pomeriggio */
 .cella-temp {
   display: flex;
-  gap: 6px;
+  gap: 8px;
   justify-content: center;
 }
 
 .cella-temp input {
-  width: 48px;
+  width: 52px;
   padding: 6px;
-  font-size: 13px;
+  font-size: 14px;
   text-align: center;
+  border: 1px solid #ccc;
+  border-radius: 4px;
 }
 
 /* =====================================================
-   RESPONSIVE
+   DESKTOP LARGE
 ===================================================== */
 
-@media (max-width: 1024px) {
-  .tabella-temperature {
-    min-width: 1100px;
-  }
-}
 @media (min-width: 1200px) {
-  .tabella-temperature th,
-  .tabella-temperature td {
-    padding: 10px;
+  .tabella-temperature {
+    font-size: 15px;
   }
 
   .cella-temp input {
     width: 60px;
     font-size: 15px;
+  }
+}
+
+/* =====================================================
+   TABLET
+===================================================== */
+
+@media (max-width: 1024px) {
+  .tabella-temperature {
+    min-width: 1100px;   /* scroll SOLO su tablet */
   }
 }
