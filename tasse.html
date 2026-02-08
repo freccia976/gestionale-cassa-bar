@@ -63,11 +63,14 @@
   <input
     type="text"
     id="tassa-tipo"
-    list="lista-tipi-tasse"
     placeholder="es. IVA 1° trimestre"
+    autocomplete="off"
   >
-  <datalist id="lista-tipi-tasse"></datalist>
+
+  <!-- 👇 LISTA SUGGERIMENTI -->
+  <div id="lista-tipi-tassa" class="autocomplete hidden"></div>
 </div>
+
 
     <!-- ================= MODALITÀ PAGAMENTO ================= -->
     <h3>Modalità di pagamento</h3>

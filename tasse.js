@@ -290,21 +290,64 @@ async function caricaTipiTassa() {
   const user = getCurrentUser();
   if (!user) return;
 
-  const datalist = document.getElementById("lista-tipi-tassa");
-  if (!datalist) return;
+  const input = document.getElementById("tassa-tipo");
+  const lista = document.getElementById("lista-tipi-tassa");
 
-  datalist.innerHTML = "";
+  if (!input || !lista) return;
 
   const snapshot = await getDocs(
-    collection(db, "users", user.uid, "tipi_tasse")
+    collection(db, "users", user.uid, "tasse")
   );
 
-  snapshot.forEach(docSnap => {
-    const opt = document.createElement("option");
-    opt.value = docSnap.data().nome;
-    datalist.appendChild(opt);
+  const tipi = [
+    ...new Set(
+      snapshot.docs
+        .map(d => d.data().tipo)
+        .filter(Boolean)
+    )
+  ].sort();
+
+  input.addEventListener("focus", () => {
+    lista.innerHTML = "";
+    tipi.forEach(t => {
+      const div = document.createElement("div");
+      div.textContent = t;
+      div.onclick = () => {
+        input.value = t;
+        lista.classList.add("hidden");
+      };
+      lista.appendChild(div);
+    });
+    if (tipi.length) lista.classList.remove("hidden");
+  });
+
+  input.addEventListener("input", () => {
+    const val = input.value.toLowerCase();
+    lista.innerHTML = "";
+
+    tipi
+      .filter(t => t.toLowerCase().includes(val))
+      .forEach(t => {
+        const div = document.createElement("div");
+        div.textContent = t;
+        div.onclick = () => {
+          input.value = t;
+          lista.classList.add("hidden");
+        };
+        lista.appendChild(div);
+      });
+
+    lista.classList.toggle("hidden", lista.children.length === 0);
+  });
+
+  document.addEventListener("click", e => {
+    if (!input.contains(e.target)) {
+      lista.classList.add("hidden");
+    }
   });
 }
+
+
 
 /* =====================================================
    INIT
