@@ -9,18 +9,47 @@
 <body>
 
 <header class="header">
-  <img src="img/logo.png" class="logo">
-  <h1 id="titolo-anno"></h1>
+  <img src="img/logo.png" alt="Logo Bar" class="logo">
+  <h1 id="titolo-anno">Tasse</h1>
 </header>
 
 <section class="card">
-  <div id="lista-tasse-anno"></div>
+  <button onclick="window.location.href='tasse.html'">
+    ⬅ Torna a Tasse & Imposte
+  </button>
 </section>
 
-<button onclick="window.location.href='tasse.html'">
-  ⬅ Torna alle tasse
-</button>
+<!-- ================= FILTRI ================= -->
+<section class="card">
+  <h2>Filtri</h2>
 
-<script type="module" src="tasse-anno.js"></script>
+  <div class="box-grid" id="filtro-soggetto">
+    <div class="box-toggle attivo" data-soggetto="ALL">TUTTI</div>
+    <div class="box-toggle" data-soggetto="BAR">BAR</div>
+    <div class="box-toggle" data-soggetto="LORENZO">LORENZO</div>
+    <div class="box-toggle" data-soggetto="ELISA">ELISA</div>
+  </div>
+</section>
+
+<!-- ================= LISTA TASSE ================= -->
+<section class="card">
+  <h2>Elenco tasse</h2>
+  <div id="lista-tasse">
+    <!-- righe generate via JS -->
+  </div>
+</section>
+
+<!-- ================= TOTALE ================= -->
+<section class="card">
+  <h2>Totale</h2>
+  <p>
+    💰 Totale tasse:
+    <strong id="totale-tasse">0.00</strong> €
+  </p>
+</section>
+
+<script src="auth.js" type="module"></script>
+<script src="tasse-anno.js" type="module"></script>
+
 </body>
 </html>
