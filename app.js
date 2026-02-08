@@ -1125,6 +1125,26 @@ initUscite({
   aggiornaUI();
   caricaTasseInScadenza();
 
+  /* =====================
+   REGISTRI – HOME
+===================== */
+const boxRegistri = document.getElementById("box-registri");
+const btnTemp = document.getElementById("btn-registro-temperature");
+const btnSan = document.getElementById("btn-registro-sanificazione");
+
+// mostra i box
+boxRegistri?.classList.remove("hidden");
+
+// click → pagine dedicate
+btnTemp?.addEventListener("click", () => {
+  window.location.href = "registro-temperature.html";
+});
+
+btnSan?.addEventListener("click", () => {
+  window.location.href = "registro-sanificazione.html";
+});
+
+
 }
 const btnTasse = document.getElementById("btn-tasse");
 
