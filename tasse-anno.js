@@ -110,9 +110,10 @@ function renderLista(tasse) {
       </div>
     `;
 
-  riga.querySelector(".btn-modifica").onclick = () => {
-  apriPopupModificaTassa(t);
+riga.querySelector(".btn-modifica").onclick = () => {
+  window.location.href = `tasse.html?modifica=${t.id}`;
 };
+
 
 
     riga.querySelector(".btn-elimina").onclick = () => {

@@ -201,3 +201,46 @@ onUserChanged(user => {
 
   caricaTasseAnno();
 });
+
+function getIdModificaDaUrl() {
+  const params = new URLSearchParams(window.location.search);
+  return params.get("modifica");
+}
+
+async function caricaTassaDaModificare() {
+  const tassaId = getIdModificaDaUrl();
+  if (!tassaId) return;
+
+  const user = getCurrentUser();
+  if (!user) return;
+
+  const ref = doc(db, "users", user.uid, "tasse", tassaId);
+  const snap = await getDoc(ref);
+
+  if (!snap.exists()) return;
+
+  const t = snap.data();
+
+  // apri popup
+  popupNuovaTassa.classList.remove("hidden");
+  document.querySelector("#popup-nuova-tassa h2").textContent =
+    "Modifica tassa / imposta";
+
+  document.getElementById("tassa-id").value = tassaId;
+  document.getElementById("tassa-tipo").value = t.tipo;
+  document.getElementById("tassa-importo").value = t.importo;
+  document.getElementById("tassa-data").value = t.dataPagamento;
+
+  document
+    .querySelectorAll("#tassa-riferita .box-toggle")
+    .forEach(b =>
+      b.classList.toggle("attivo", b.dataset.soggetto === t.soggetto)
+    );
+
+  document
+    .querySelectorAll("#tassa-pagamento .box-toggle")
+    .forEach(b =>
+      b.classList.toggle("attivo", b.dataset.pagamento === t.pagamento)
+    );
+}
+caricaTassaDaModificare();
