@@ -60,21 +60,49 @@ function apriAnno(anno) {
 function apriMese(anno, meseIndex, nomeMese) {
   titoloMese.textContent = `${nomeMese} ${anno}`;
   cardTabella.classList.remove("hidden");
+
+  const thead = document.getElementById("thead-temperature");
+  const tbody = document.getElementById("tbody-temperature");
+
+  thead.innerHTML = "";
   tbody.innerHTML = "";
 
-  frigoriferi.forEach(frigo => {
-    const tr = document.createElement("tr");
+  /* === intestazione === */
+  const trHead = document.createElement("tr");
 
-    tr.innerHTML = `
-      <td>${frigo}</td>
-      <td><input type="number" step="0.1" placeholder="°C"></td>
-      <td><input type="number" step="0.1" placeholder="°C"></td>
-    `;
+  trHead.innerHTML = `<th class="data">Data</th>`;
 
-    tbody.appendChild(tr);
+  frigoriferi.forEach(nome => {
+    trHead.innerHTML += `<th>${nome}</th>`;
   });
 
-  console.log("REGISTRO APERTO:", anno, meseIndex + 1);
+  thead.appendChild(trHead);
+
+  /* === giorni del mese === */
+  const giorniNelMese = new Date(anno, meseIndex + 1, 0).getDate();
+
+  for (let giorno = 1; giorno <= giorniNelMese; giorno++) {
+    const tr = document.createElement("tr");
+
+    const dataLabel = `${String(giorno).padStart(2, "0")}/${String(meseIndex + 1).padStart(2, "0")}/${anno}`;
+
+    tr.innerHTML = `<td>${dataLabel}</td>`;
+
+    frigoriferi.forEach(() => {
+      tr.innerHTML += `
+        <td>
+          <div class="cella-temp">
+            <input type="number" step="0.1" placeholder="M">
+            <input type="number" step="0.1" placeholder="P">
+          </div>
+        </td>
+      `;
+    });
+
+    tbody.appendChild(tr);
+  }
+
+  console.log("REGISTRO MESE:", nomeMese, anno);
 }
 
 initAuth(() => {

@@ -60,3 +60,49 @@
   text-align: center;
   font-size: 14px;
 }
+.tabella-wrapper {
+  overflow-x: auto;
+}
+
+.tabella-temperature {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.tabella-temperature th,
+.tabella-temperature td {
+  border: 1px solid #ddd;
+  padding: 6px;
+  text-align: center;
+}
+
+.tabella-temperature th {
+  background: #1f2937;
+  color: #fff;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+.tabella-temperature th.data {
+  min-width: 90px;
+}
+
+.tabella-temperature td input {
+  width: 50px;
+  padding: 4px;
+  font-size: 12px;
+  text-align: center;
+}
+
+.cella-temp {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.cella-temp span {
+  font-size: 10px;
+  color: #555;
+}
