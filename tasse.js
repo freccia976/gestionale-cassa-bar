@@ -199,7 +199,6 @@ onUserChanged(user => {
     return;
   }
 
-  caricaTasseAnno();
 });
 
 function getIdModificaDaUrl() {
