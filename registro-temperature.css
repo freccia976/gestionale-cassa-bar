@@ -6,11 +6,18 @@ body {
   margin: 0;
 }
 
+/* =====================================================
+   PAGINA FULL WIDTH (CENTRATA)
+===================================================== */
+
 .page-full .card {
-  max-width: none;
+  max-width: 1600px;   /* larghezza desktop */
   width: 100%;
-  margin: 0;
+  margin: 0 auto;     /* 🔑 CENTRATA */
+  padding-left: 16px;
+  padding-right: 16px;
 }
+
 
 /* =====================================================
    LISTE ANNI / MESI
