@@ -10,6 +10,9 @@ import {
 } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
 
 import { getCurrentUser } from "./firebase-db.js";
+import { doc, updateDoc } from
+"https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
+
 
 /* =====================================================
    SETUP FIREBASE
@@ -102,10 +105,39 @@ if (btnSalvaTassa) {
       createdAt: serverTimestamp()
     };
 
-    await addDoc(
-      collection(db, "users", user.uid, "tasse"),
-      dati
-    );
+    const tassaId = document.getElementById("tassa-id").value;
+
+if (tassaId) {
+  // MODIFICA
+  await updateDoc(
+    doc(db, "users", user.uid, "tasse", tassaId),
+    {
+      anno,
+      soggetto,
+      tipo,
+      pagamento,
+      importo,
+      dataPagamento
+    }
+  );
+} else {
+  // NUOVA
+  await addDoc(
+    collection(db, "users", user.uid, "tasse"),
+    {
+      anno,
+      soggetto,
+      tipo,
+      pagamento,
+      importo,
+      dataPagamento,
+      createdAt: serverTimestamp()
+    }
+  );
+}
+
+document.getElementById("tassa-id").value = "";
+popupNuovaTassa.classList.add("hidden");
 
     alert("✅ Tassa salvata correttamente");
 

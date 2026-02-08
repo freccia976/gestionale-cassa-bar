@@ -55,15 +55,16 @@ async function caricaTasseAnno() {
 
   tutteLeTasse = [];
 
-  snapshot.forEach(doc => {
-    const d = doc.data();
-    if (d.anno === anno) {
-      tutteLeTasse.push({
-        id: doc.id,
-        ...d
-      });
-    }
-  });
+ snapshot.forEach(doc => {
+  const d = doc.data();
+  if (d.anno === anno) {
+    tasse.push({
+      id: doc.id,
+      ...d
+    });
+  }
+});
+
 
   // ordine cronologico
   tutteLeTasse.sort(
@@ -108,9 +109,10 @@ function renderLista(tasse) {
       </div>
     `;
 
-    riga.querySelector(".btn-modifica").onclick = () => {
-      alert("Modifica tassa (step successivo)");
-    };
+  riga.querySelector(".btn-modifica").onclick = () => {
+  apriPopupModificaTassa(t);
+};
+
 
     riga.querySelector(".btn-elimina").onclick = () => {
       alert("Elimina tassa (step successivo)");
@@ -152,6 +154,39 @@ function filtraTasse(soggetto) {
         riga.dataset.soggetto === soggetto ? "flex" : "none";
     }
   });
+}
+
+function apriPopupModificaTassa(tassa) {
+  const popup = document.getElementById("popup-nuova-tassa");
+  popup.classList.remove("hidden");
+
+  document.querySelector("#popup-nuova-tassa h2").textContent =
+    "Modifica tassa / imposta";
+
+  document.getElementById("tassa-id").value = tassa.id;
+  document.getElementById("tassa-tipo").value = tassa.tipo;
+  document.getElementById("tassa-importo").value = tassa.importo;
+  document.getElementById("tassa-data").value = tassa.dataPagamento;
+
+  // soggetto
+  document
+    .querySelectorAll("#tassa-riferita .box-toggle")
+    .forEach(b => {
+      b.classList.toggle(
+        "attivo",
+        b.dataset.soggetto === tassa.soggetto
+      );
+    });
+
+  // pagamento
+  document
+    .querySelectorAll("#tassa-pagamento .box-toggle")
+    .forEach(b => {
+      b.classList.toggle(
+        "attivo",
+        b.dataset.pagamento === tassa.pagamento
+      );
+    });
 }
 
 /* =====================================================
