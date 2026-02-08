@@ -184,6 +184,11 @@ function filtraTasse(soggetto) {
    PDF TASSE ANNO
 ===================================================== */
 function generaPDFTasseAnno(tasse, anno) {
+  if (!Array.isArray(tasse)) {
+    alert("Errore: elenco tasse non valido");
+    return;
+  }
+
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
 
@@ -255,5 +260,9 @@ initAuth(() => {
   caricaTasseAnno();
   initFiltri();
 
-  btnPdfAnno?.addEventListener("click", generaPDFTasseAnno);
+  btnPdfAnno?.addEventListener("click", () => {
+  const anno = getAnnoFromUrl();
+  generaPDFTasseAnno(tasseAnnoCorrente, anno);
+});
+
 });
