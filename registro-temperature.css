@@ -55,10 +55,9 @@
 ===================================================== */
 
 .tabella-temperature {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 13px;
+  min-width: 1100px; /* base tablet landscape */
 }
+
 
 /* celle */
 .tabella-temperature th,
@@ -100,25 +99,24 @@
 /* cella mattina / pomeriggio */
 .cella-temp {
   display: flex;
-  flex-direction: column;
-  gap: 4px;
+  gap: 6px;
+  justify-content: center;
 }
 
-.cella-temp span {
-  font-size: 10px;
-  color: #555;
+.cella-temp input {
+  width: 48px;
+  padding: 6px;
+  font-size: 13px;
+  text-align: center;
 }
 
 /* =====================================================
    RESPONSIVE
 ===================================================== */
 
-@media (max-width: 900px) {
-  .tabella-temperature {
-    font-size: 12px;
-  }
-
-  .tabella-temperature input {
-    width: 46px;
+@media (min-width: 1200px) {
+  .tabella-temperature td input {
+    width: 56px;
+    font-size: 14px;
   }
 }
