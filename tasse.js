@@ -15,6 +15,8 @@ import {
 } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
 
 import { getCurrentUser, onUserChanged } from "./firebase-db.js";
+import { setDoc } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
+
 
 /* =====================================================
    SETUP FIREBASE
@@ -149,6 +151,23 @@ if (tipo) {
     dataScadenza,
     dataPagamento
   };
+/* ===== SALVA TIPO TASSA (AUTOCOMPLETE) ===== */
+const tipoRef = doc(
+  db,
+  "users",
+  user.uid,
+  "tipi_tasse",
+  tipo.toUpperCase()
+);
+
+await setDoc(
+  tipoRef,
+  {
+    nome: tipo,
+    updatedAt: serverTimestamp()
+  },
+  { merge: true }
+);
 
   const tassaId = document.getElementById("tassa-id").value;
 
@@ -179,8 +198,10 @@ if (tipo) {
 
   popupNuovaTassa.classList.add("hidden");
 
-  caricaAnniTasse();
-  alert("✅ Tassa salvata correttamente");
+ caricaAnniTasse();
+caricaTipiTassa(); // 🔑 aggiorna suggerimenti
+alert("✅ Tassa salvata correttamente");
+
 });
 
 /* =====================================================
