@@ -14,8 +14,10 @@ export function initAuth(onLogin) {
   const inputPassword = document.getElementById("login-password");
   const btnLogout = document.getElementById("btn-logout");
 
-  // LOGIN
-  if (btnLogin) {
+  /* =====================
+     LOGIN
+  ===================== */
+  if (btnLogin && inputEmail && inputPassword) {
     btnLogin.addEventListener("click", async () => {
       const email = inputEmail.value.trim();
       const password = inputPassword.value.trim();
@@ -33,23 +35,30 @@ export function initAuth(onLogin) {
     });
   }
 
-  // LOGOUT
+  /* =====================
+     LOGOUT
+  ===================== */
   if (btnLogout) {
     btnLogout.addEventListener("click", async () => {
       await logout();
-      // la UI viene aggiornata da onUserChanged
+      // UI aggiornata da onUserChanged
     });
   }
 
-  // SESSIONE
+  /* =====================
+     SESSIONE
+  ===================== */
   onUserChanged(user => {
     if (user) {
-      loginBox.classList.add("hidden");
-      appBox.classList.remove("hidden");
-      onLogin(); // avvia app.js
+      if (loginBox) loginBox.classList.add("hidden");
+      if (appBox) appBox.classList.remove("hidden");
+
+      if (typeof onLogin === "function") {
+        onLogin();
+      }
     } else {
-      loginBox.classList.remove("hidden");
-      appBox.classList.add("hidden");
+      if (loginBox) loginBox.classList.remove("hidden");
+      if (appBox) appBox.classList.add("hidden");
     }
   });
 }
