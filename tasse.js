@@ -1,5 +1,5 @@
 /* =====================================================
-   IMPORT (TUTTI IN CIMA)
+   IMPORT
 ===================================================== */
 import {
   getFirestore,
@@ -31,17 +31,13 @@ const listaAnni = document.getElementById("lista-anni-tasse");
 /* =====================================================
    POPUP APERTURA / CHIUSURA
 ===================================================== */
-if (btnNuovaTassa && popupNuovaTassa) {
-  btnNuovaTassa.onclick = () => {
-    popupNuovaTassa.classList.remove("hidden");
-  };
-}
+btnNuovaTassa?.addEventListener("click", () => {
+  popupNuovaTassa.classList.remove("hidden");
+});
 
-if (chiudiNuovaTassa && popupNuovaTassa) {
-  chiudiNuovaTassa.onclick = () => {
-    popupNuovaTassa.classList.add("hidden");
-  };
-}
+chiudiNuovaTassa?.addEventListener("click", () => {
+  popupNuovaTassa.classList.add("hidden");
+});
 
 /* =====================================================
    BOX TOGGLE (UNO SOLO ATTIVO)
@@ -53,80 +49,115 @@ function initBoxToggle(containerId) {
   const boxes = container.querySelectorAll(".box-toggle");
 
   boxes.forEach(box => {
-    box.onclick = () => {
+    box.addEventListener("click", () => {
       boxes.forEach(b => b.classList.remove("attivo"));
       box.classList.add("attivo");
-    };
+    });
   });
 }
 
+initBoxToggle("tassa-stato");
 initBoxToggle("tassa-riferita");
 initBoxToggle("tassa-pagamento");
 
 /* =====================================================
-   SALVATAGGIO TASSA (NUOVA o MODIFICA)
+   SALVATAGGIO TASSA
 ===================================================== */
-if (btnSalvaTassa) {
-  btnSalvaTassa.onclick = async () => {
-    const user = getCurrentUser();
-    if (!user) {
-      alert("Utente non loggato");
-      return;
-    }
+btnSalvaTassa?.addEventListener("click", async () => {
+  const user = getCurrentUser();
+  if (!user) {
+    alert("Utente non loggato");
+    return;
+  }
 
-    const soggetto = document.querySelector(
-      "#tassa-riferita .box-toggle.attivo"
-    )?.dataset.soggetto;
+  const soggetto = document.querySelector(
+    "#tassa-riferita .box-toggle.attivo"
+  )?.dataset.soggetto;
 
-    const pagamento = document.querySelector(
-      "#tassa-pagamento .box-toggle.attivo"
-    )?.dataset.pagamento;
+  const pagamento = document.querySelector(
+    "#tassa-pagamento .box-toggle.attivo"
+  )?.dataset.pagamento;
 
-    const tipo = document.getElementById("tassa-tipo").value.trim();
-    const importo = parseFloat(
-      document.getElementById("tassa-importo").value
-    );
-    const dataPagamento = document.getElementById("tassa-data").value;
+  const stato = document.querySelector(
+    "#tassa-stato .box-toggle.attivo"
+  )?.dataset.stato;
 
-    if (!soggetto || !pagamento || !tipo || !importo || !dataPagamento) {
-      alert("Compila tutti i campi");
-      return;
-    }
+  if (!stato) {
+    alert("Seleziona se la tassa è PAGATA o DA PAGARE");
+    return;
+  }
 
-    const anno = new Date(dataPagamento).getFullYear();
-    const tassaId = document.getElementById("tassa-id").value;
+  const tipo = document.getElementById("tassa-tipo").value.trim();
+  const importo = parseFloat(document.getElementById("tassa-importo").value);
+  const dataInput = document.getElementById("tassa-data").value;
 
-    const payload = {
-      anno,
-      soggetto,
-      tipo,
-      pagamento,
-      importo,
-      dataPagamento
-    };
+  if (!soggetto || !pagamento || !tipo || !importo || !dataInput) {
+    alert("Compila tutti i campi");
+    return;
+  }
 
-    if (tassaId) {
-      await updateDoc(
-        doc(db, "users", user.uid, "tasse", tassaId),
-        payload
-      );
-    } else {
-      await addDoc(
-        collection(db, "users", user.uid, "tasse"),
-        {
-          ...payload,
-          createdAt: serverTimestamp()
-        }
-      );
-    }
+  const anno = new Date(dataInput).getFullYear();
 
-    popupNuovaTassa.classList.add("hidden");
-    document.getElementById("tassa-id").value = "";
+  /* ===== LOGICA STATO ===== */
+  let pagata = false;
+  let dataScadenza = null;
+  let dataPagamento = null;
 
-    caricaAnniTasse();
-    alert("✅ Tassa salvata correttamente");
+  if (stato === "PAGATA") {
+    pagata = true;
+    dataPagamento = dataInput;
+    dataScadenza = dataInput;
+  }
+
+  if (stato === "DA_PAGARE") {
+    pagata = false;
+    dataScadenza = dataInput;
+    dataPagamento = null;
+  }
+
+  const payload = {
+    anno,
+    soggetto,
+    tipo,
+    pagamento,
+    importo,
+    pagata,
+    dataScadenza,
+    dataPagamento
   };
-}
+
+  const tassaId = document.getElementById("tassa-id").value;
+
+  if (tassaId) {
+    await updateDoc(
+      doc(db, "users", user.uid, "tasse", tassaId),
+      payload
+    );
+  } else {
+    await addDoc(
+      collection(db, "users", user.uid, "tasse"),
+      {
+        ...payload,
+        createdAt: serverTimestamp()
+      }
+    );
+  }
+
+  /* ===== RESET UI ===== */
+  document.getElementById("tassa-id").value = "";
+  document.getElementById("tassa-tipo").value = "";
+  document.getElementById("tassa-importo").value = "";
+  document.getElementById("tassa-data").value = "";
+
+  document
+    .querySelectorAll(".box-toggle.attivo")
+    .forEach(b => b.classList.remove("attivo"));
+
+  popupNuovaTassa.classList.add("hidden");
+
+  caricaAnniTasse();
+  alert("✅ Tassa salvata correttamente");
+});
 
 /* =====================================================
    RIEPILOGO ANNI
@@ -161,14 +192,10 @@ async function caricaAnniTasse() {
 }
 
 /* =====================================================
-   MODIFICA TASSA DA URL
+   MODIFICA TASSA
 ===================================================== */
-function getIdModificaDaUrl() {
-  return new URLSearchParams(window.location.search).get("modifica");
-}
-
 async function caricaTassaDaModificare() {
-  const tassaId = getIdModificaDaUrl();
+  const tassaId = new URLSearchParams(window.location.search).get("modifica");
   if (!tassaId) return;
 
   const user = getCurrentUser();
@@ -183,13 +210,22 @@ async function caricaTassaDaModificare() {
   const t = snap.data();
 
   popupNuovaTassa.classList.remove("hidden");
-  document.querySelector("#popup-nuova-tassa h2").textContent =
-    "Modifica tassa / imposta";
 
   document.getElementById("tassa-id").value = tassaId;
   document.getElementById("tassa-tipo").value = t.tipo;
   document.getElementById("tassa-importo").value = t.importo;
-  document.getElementById("tassa-data").value = t.dataPagamento;
+  document.getElementById("tassa-data").value =
+    t.pagata ? t.dataPagamento : t.dataScadenza;
+
+  document
+    .querySelectorAll("#tassa-stato .box-toggle")
+    .forEach(b =>
+      b.classList.toggle(
+        "attivo",
+        (t.pagata && b.dataset.stato === "PAGATA") ||
+        (!t.pagata && b.dataset.stato === "DA_PAGARE")
+      )
+    );
 
   document
     .querySelectorAll("#tassa-riferita .box-toggle")
@@ -205,7 +241,7 @@ async function caricaTassaDaModificare() {
 }
 
 /* =====================================================
-   AUTH + INIT
+   INIT
 ===================================================== */
 onUserChanged(user => {
   if (!user) return;
