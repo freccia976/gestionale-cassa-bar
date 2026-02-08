@@ -15,7 +15,6 @@ import {
 } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
 
 import { getCurrentUser, onUserChanged } from "./firebase-db.js";
-import { setDoc } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
 
 
 /* =====================================================
