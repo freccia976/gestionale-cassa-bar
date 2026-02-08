@@ -396,7 +396,7 @@ async function caricaTasseInScadenza() {
   snapshot.forEach(docSnap => {
     const t = docSnap.data();
 
-    if (t.stato !== "DA_PAGARE") return;
+    if (t.pagata === true) return;
     if (!t.dataScadenza) return;
 
 const scadenza =
