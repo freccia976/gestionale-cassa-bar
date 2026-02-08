@@ -91,10 +91,11 @@ function apriMese(anno, meseIndex, nomeMese) {
     frigoriferi.forEach(() => {
       tr.innerHTML += `
         <td>
-          <div class="cella-temp">
-            <input type="number" step="0.1" placeholder="M">
-            <input type="number" step="0.1" placeholder="P">
-          </div>
+         <div class="cella-temp">
+  <input type="text" inputmode="decimal" placeholder="M">
+  <input type="text" inputmode="decimal" placeholder="P">
+</div>
+
         </td>
       `;
     });

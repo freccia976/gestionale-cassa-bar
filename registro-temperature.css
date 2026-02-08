@@ -55,7 +55,8 @@
 ===================================================== */
 
 .tabella-temperature {
-  min-width: 1100px; /* base tablet landscape */
+  width: 100%;
+  table-layout: fixed;
 }
 
 
@@ -114,9 +115,19 @@
    RESPONSIVE
 ===================================================== */
 
+@media (max-width: 1024px) {
+  .tabella-temperature {
+    min-width: 1100px;
+  }
+}
 @media (min-width: 1200px) {
-  .tabella-temperature td input {
-    width: 56px;
-    font-size: 14px;
+  .tabella-temperature th,
+  .tabella-temperature td {
+    padding: 10px;
+  }
+
+  .cella-temp input {
+    width: 60px;
+    font-size: 15px;
   }
 }
