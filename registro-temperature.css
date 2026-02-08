@@ -1,0 +1,13 @@
+/* ===============================
+   REGISTRO TEMPERATURE
+================================ */
+
+#lista-anni {
+  margin-top: 16px;
+}
+
+#lista-anni .box-toggle {
+  font-size: 18px;
+  padding: 20px;
+  text-align: center;
+}
