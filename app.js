@@ -397,9 +397,13 @@ async function caricaTasseInScadenza() {
     const t = docSnap.data();
 
     if (t.stato !== "DA_PAGARE") return;
-    if (!t.dataPagamento) return;
+    if (!t.dataScadenza) return;
 
-    const scadenza = new Date(t.dataPagamento);
+const scadenza =
+  t.dataScadenza.seconds
+    ? new Date(t.dataScadenza.seconds * 1000)
+    : new Date(t.dataScadenza);
+
     scadenza.setHours(0, 0, 0, 0);
 
     if (scadenza <= tra7Giorni) {
