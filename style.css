@@ -1047,10 +1047,14 @@ button {
    REGISTRI – COLONNA DESTRA
 ================================ */
 
+/* ===============================
+   REGISTRI – COLONNA SINISTRA
+================================ */
+
 .box-registri {
   position: fixed;
-  top: 320px;              /* sotto il banner tasse */
-  right: 24px;
+  top: 120px;              /* sotto header */
+  left: 24px;              /* spazio bianco SINISTRA */
   width: 320px;
 
   display: flex;
@@ -1059,6 +1063,7 @@ button {
 
   z-index: 900;
 }
+
 
 .registro-card {
   display: flex;
@@ -1099,7 +1104,6 @@ button {
   border-left-color: #16a34a;
 }
 
-/* MOBILE → tornano normali */
 @media (max-width: 1100px) {
   .box-registri {
     position: static;
@@ -1107,3 +1111,4 @@ button {
     margin: 20px;
   }
 }
+
