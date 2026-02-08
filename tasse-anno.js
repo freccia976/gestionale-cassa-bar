@@ -4,7 +4,9 @@
 import {
   getFirestore,
   collection,
-  getDocs
+  getDocs,
+  doc,
+  deleteDoc
 } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
 
 import { getCurrentUser } from "./firebase-db.js";
@@ -19,14 +21,11 @@ const lista = document.getElementById("lista-tasse");
 const totaleBox = document.getElementById("totale-tasse");
 const titoloAnno = document.getElementById("titolo-anno");
 
-let tutteLeTasse = [];
-
 /* =====================================================
    UTILS
 ===================================================== */
 function getAnnoFromUrl() {
-  const params = new URLSearchParams(window.location.search);
-  return parseInt(params.get("anno"));
+  return parseInt(new URLSearchParams(window.location.search).get("anno"));
 }
 
 function formatEuro(n) {
@@ -53,30 +52,27 @@ async function caricaTasseAnno() {
     collection(db, "users", user.uid, "tasse")
   );
 
-  // ✅ QUESTA RIGA MANCAVA
-  let tasse = [];
+  const tasse = [];
 
-  snapshot.forEach(doc => {
-    const d = doc.data();
+  snapshot.forEach(docSnap => {
+    const d = docSnap.data();
     if (d.anno === anno) {
       tasse.push({
-        id: doc.id,
+        id: docSnap.id,
         ...d
       });
     }
   });
 
-  // ordine cronologico
   tasse.sort(
-    (a, b) =>
-      new Date(a.dataPagamento) - new Date(b.dataPagamento)
+    (a, b) => new Date(a.dataPagamento) - new Date(b.dataPagamento)
   );
 
   renderLista(tasse);
 }
 
 /* =====================================================
-   RENDER LISTA
+   RENDER LISTA + ELIMINAZIONE
 ===================================================== */
 function renderLista(tasse) {
   lista.innerHTML = "";
@@ -110,14 +106,27 @@ function renderLista(tasse) {
       </div>
     `;
 
-riga.querySelector(".btn-modifica").onclick = () => {
-  window.location.href = `tasse.html?modifica=${t.id}`;
-};
+    // MODIFICA → redirect
+    riga.querySelector(".btn-modifica").onclick = () => {
+      window.location.href = `tasse.html?modifica=${t.id}`;
+    };
 
+    // ELIMINAZIONE
+    riga.querySelector(".btn-elimina").onclick = async () => {
+      const conferma = confirm(
+        `Vuoi eliminare la tassa "${t.tipo}" del ${formatData(t.dataPagamento)}?`
+      );
 
+      if (!conferma) return;
 
-    riga.querySelector(".btn-elimina").onclick = () => {
-      alert("Elimina tassa (step successivo)");
+      const user = getCurrentUser();
+      if (!user) return;
+
+      await deleteDoc(
+        doc(db, "users", user.uid, "tasse", t.id)
+      );
+
+      caricaTasseAnno();
     };
 
     lista.appendChild(riga);
@@ -139,56 +148,18 @@ function initFiltri() {
     box.onclick = () => {
       boxes.forEach(b => b.classList.remove("attivo"));
       box.classList.add("attivo");
-
       filtraTasse(box.dataset.soggetto);
     };
   });
 }
 
 function filtraTasse(soggetto) {
-  const righe = document.querySelectorAll(".riga-tassa");
-
-  righe.forEach(riga => {
-    if (soggetto === "ALL") {
-      riga.style.display = "flex";
-    } else {
-      riga.style.display =
-        riga.dataset.soggetto === soggetto ? "flex" : "none";
-    }
+  document.querySelectorAll(".riga-tassa").forEach(riga => {
+    riga.style.display =
+      soggetto === "ALL" || riga.dataset.soggetto === soggetto
+        ? "flex"
+        : "none";
   });
-}
-
-function apriPopupModificaTassa(tassa) {
-  const popup = document.getElementById("popup-nuova-tassa");
-  popup.classList.remove("hidden");
-
-  document.querySelector("#popup-nuova-tassa h2").textContent =
-    "Modifica tassa / imposta";
-
-  document.getElementById("tassa-id").value = tassa.id;
-  document.getElementById("tassa-tipo").value = tassa.tipo;
-  document.getElementById("tassa-importo").value = tassa.importo;
-  document.getElementById("tassa-data").value = tassa.dataPagamento;
-
-  // soggetto
-  document
-    .querySelectorAll("#tassa-riferita .box-toggle")
-    .forEach(b => {
-      b.classList.toggle(
-        "attivo",
-        b.dataset.soggetto === tassa.soggetto
-      );
-    });
-
-  // pagamento
-  document
-    .querySelectorAll("#tassa-pagamento .box-toggle")
-    .forEach(b => {
-      b.classList.toggle(
-        "attivo",
-        b.dataset.pagamento === tassa.pagamento
-      );
-    });
 }
 
 /* =====================================================
