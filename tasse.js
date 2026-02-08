@@ -9,6 +9,8 @@ import {
   doc,
   getDoc,
   updateDoc,
+  setDoc,
+
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
 
@@ -88,6 +90,28 @@ btnSalvaTassa?.addEventListener("click", async () => {
   }
 
   const tipo = document.getElementById("tassa-tipo").value.trim();
+  // =============================
+// SALVA TIPO TASSA (AUTOCOMPLETE)
+// =============================
+if (tipo) {
+  const tipoRef = doc(
+    db,
+    "users",
+    user.uid,
+    "tipi_tasse",
+    tipo.toUpperCase()
+  );
+
+  await setDoc(
+    tipoRef,
+    {
+      nome: tipo,
+      updatedAt: serverTimestamp()
+    },
+    { merge: true }
+  );
+}
+
   const importo = parseFloat(document.getElementById("tassa-importo").value);
   const dataInput = document.getElementById("tassa-data").value;
 
