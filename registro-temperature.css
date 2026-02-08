@@ -106,3 +106,30 @@
   font-size: 10px;
   color: #555;
 }
+/* ===============================
+   CARD FULL WIDTH (REGISTRO)
+================================ */
+
+.card-full {
+  max-width: none;
+  width: calc(100vw - 40px);
+  margin-left: 20px;
+  margin-right: 20px;
+}
+
+/* su schermi molto grandi */
+@media (min-width: 1400px) {
+  .card-full {
+    width: 95vw;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+.tabella-temperature td:first-child,
+.tabella-temperature th:first-child {
+  position: sticky;
+  left: 0;
+  background: #f9fafb;
+  z-index: 1;
+  font-weight: 600;
+}
