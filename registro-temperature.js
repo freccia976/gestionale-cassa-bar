@@ -3,19 +3,14 @@
 ===================================================== */
 import {
   FRIGORIFERI,
-  generaTemperatura,
   calcolaGiorniMancanti
 } from "./registro-temperature-utils.js";
 
 import {
   getUltimaDataRegistrata,
-  creaGiornoTemperature
-} from "./registro-temperature-db.js";
-
-import {
+  creaGiornoTemperature,
   caricaTemperatureMese
 } from "./registro-temperature-db.js";
-
 
 import { initAuth } from "./auth.js";
 
@@ -91,18 +86,17 @@ async function apriMese(anno, meseIndex, nomeMese) {
 
   const datiMese = await caricaTemperatureMese(anno, meseIndex + 1);
 
-
   thead.innerHTML = "";
   tbody.innerHTML = "";
 
   /* =====================
-     INTESTAZIONE
+     INTESTAZIONE TABELLA
   ===================== */
   const trHead = document.createElement("tr");
   trHead.innerHTML = `<th class="data">Data</th>`;
 
   FRIGORIFERI.forEach(f => {
-    trHead.innerHTML += `<th>${f.label}</th>`;
+    trHead.innerHTML += `<th>${f.id.replaceAll("_", " ")}</th>`;
   });
 
   thead.appendChild(trHead);
@@ -113,38 +107,35 @@ async function apriMese(anno, meseIndex, nomeMese) {
   const giorniNelMese = new Date(anno, meseIndex + 1, 0).getDate();
 
   for (let giorno = 1; giorno <= giorniNelMese; giorno++) {
-  const tr = document.createElement("tr");
+    const tr = document.createElement("tr");
 
-  const dataISO = `${anno}-${String(meseIndex + 1).padStart(2, "0")}-${String(giorno).padStart(2, "0")}`;
-  const dataLabel = `${String(giorno).padStart(2, "0")}/${String(meseIndex + 1).padStart(2, "0")}/${anno}`;
+    const dataISO = `${anno}-${String(meseIndex + 1).padStart(2, "0")}-${String(giorno).padStart(2, "0")}`;
+    const dataLabel = `${String(giorno).padStart(2, "0")}/${String(meseIndex + 1).padStart(2, "0")}/${anno}`;
 
-  tr.innerHTML = `<td>${dataLabel}</td>`;
+    tr.innerHTML = `<td>${dataLabel}</td>`;
 
-  FRIGORIFERI.forEach(f => {
-    const datiGiorno = datiMese[dataISO]?.frigoriferi?.[f.id];
+    FRIGORIFERI.forEach(f => {
+      const datiGiorno = datiMese[dataISO]?.frigoriferi?.[f.id];
 
-    const mattina = datiGiorno?.mattina ?? "";
-    const pomeriggio = datiGiorno?.pomeriggio ?? "";
+      const mattina = datiGiorno?.mattina ?? "";
+      const pomeriggio = datiGiorno?.pomeriggio ?? "";
 
-    tr.innerHTML += `
-      <td>
-        <div class="cella-temp">
-          <input type="text" value="${mattina}" placeholder="M">
-          <input type="text" value="${pomeriggio}" placeholder="P">
-        </div>
-      </td>
-    `;
-  });
+      tr.innerHTML += `
+        <td>
+          <div class="cella-temp">
+            <input type="text" value="${mattina}" placeholder="M">
+            <input type="text" value="${pomeriggio}" placeholder="P">
+          </div>
+        </td>
+      `;
+    });
 
-  tbody.appendChild(tr);
+    tbody.appendChild(tr);
+  }
 }
 
-  }
-
-
-
 /* =====================================================
-   AUTOCOMPILA TEMPERATURE
+   AUTOCOMPILA TEMPERATURE (ANTI BUCHI)
 ===================================================== */
 async function autoCompilaTemperature() {
   const ultimaData = await getUltimaDataRegistrata();
