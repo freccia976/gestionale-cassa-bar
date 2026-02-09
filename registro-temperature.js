@@ -10,7 +10,6 @@ import {
   creaGiornoTemperature
 } from "./registro-temperature-db.js";
 
-import { calcolaGiorniMancanti } from "./registro-temperature-utils.js";
 
 
 import { initAuth } from "./auth.js";
