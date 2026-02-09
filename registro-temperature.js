@@ -44,8 +44,13 @@ const MESI = [
 function renderAnni() {
   listaAnni.innerHTML = "";
 
-  const annoCorrente = new Date().getFullYear();
-  const anni = [annoCorrente - 1, annoCorrente];
+ const ANNO_INIZIO = 2026;
+const annoCorrente = new Date().getFullYear();
+
+const anni = [];
+for (let a = ANNO_INIZIO; a <= annoCorrente; a++) {
+  anni.push(a);
+}
 
   anni.forEach(anno => {
     const box = document.createElement("div");
