@@ -15,30 +15,6 @@ import {
 import { initAuth } from "./auth.js";
 
 /* =====================================================
-   DEBUG (OK)
-===================================================== */
-console.log("TEST FRIGORIFERI:", FRIGORIFERI);
-
-console.log(
-  "TEST TEMP CUCINA:",
-  generaTemperatura(
-    FRIGORIFERI.find(f => f.id === "BANCO_FRIGO_CUCINA")
-  )
-);
-
-console.log(
-  "TEST TEMP CONGELATORE:",
-  generaTemperatura(
-    FRIGORIFERI.find(f => f.id === "CONGELATORE_GELATI")
-  )
-);
-
-console.log(
-  "TEST GIORNI MANCANTI:",
-  calcolaGiorniMancanti("2026-02-05")
-);
-
-/* =====================================================
    DOM
 ===================================================== */
 const listaAnni = document.getElementById("lista-anni");
@@ -55,7 +31,7 @@ const tbody = document.getElementById("tbody-temperature");
 /* =====================================================
    COSTANTI
 ===================================================== */
-const mesi = [
+const MESI = [
   "Gennaio", "Febbraio", "Marzo", "Aprile",
   "Maggio", "Giugno", "Luglio", "Agosto",
   "Settembre", "Ottobre", "Novembre", "Dicembre"
@@ -65,17 +41,16 @@ const mesi = [
    RENDER ANNI
 ===================================================== */
 function renderAnni() {
-  const anni = [2025, 2026];
-
   listaAnni.innerHTML = "";
+
+  const annoCorrente = new Date().getFullYear();
+  const anni = [annoCorrente - 1, annoCorrente];
 
   anni.forEach(anno => {
     const box = document.createElement("div");
     box.className = "box-toggle";
     box.textContent = `📁 ${anno}`;
-
     box.onclick = () => apriAnno(anno);
-
     listaAnni.appendChild(box);
   });
 }
@@ -90,13 +65,11 @@ function apriAnno(anno) {
   cardMesi.classList.remove("hidden");
   cardTabella.classList.add("hidden");
 
-  mesi.forEach((nomeMese, index) => {
+  MESI.forEach((nomeMese, index) => {
     const box = document.createElement("div");
     box.className = "box-toggle";
     box.textContent = nomeMese;
-
     box.onclick = () => apriMese(anno, index, nomeMese);
-
     listaMesi.appendChild(box);
   });
 }
@@ -105,18 +78,17 @@ function apriAnno(anno) {
    APRI MESE
 ===================================================== */
 async function apriMese(anno, meseIndex, nomeMese) {
-
   titoloMese.textContent = `${nomeMese} ${anno}`;
   cardTabella.classList.remove("hidden");
 
-  /* 🔥 STEP 1 — AUTOCOMPILA GIORNI MANCANTI */
-  await autoCompilaTemperature(anno, meseIndex + 1);
+  /* 🔥 AUTOCOMPILAZIONE GIORNI MANCANTI */
+  await autoCompilaTemperature();
 
   thead.innerHTML = "";
   tbody.innerHTML = "";
 
   /* =====================
-     INTESTAZIONE TABELLA
+     INTESTAZIONE
   ===================== */
   const trHead = document.createElement("tr");
   trHead.innerHTML = `<th class="data">Data</th>`;
@@ -140,12 +112,12 @@ async function apriMese(anno, meseIndex, nomeMese) {
 
     tr.innerHTML = `<td>${dataLabel}</td>`;
 
-    FRIGORIFERI.forEach(() => {
+    FRIGORIFERI.forEach(f => {
       tr.innerHTML += `
         <td>
           <div class="cella-temp">
-            <input type="text" placeholder="M">
-            <input type="text" placeholder="P">
+            <input type="text" inputmode="decimal" placeholder="M">
+            <input type="text" inputmode="decimal" placeholder="P">
           </div>
         </td>
       `;
@@ -154,32 +126,31 @@ async function apriMese(anno, meseIndex, nomeMese) {
     tbody.appendChild(tr);
   }
 
-  console.log("REGISTRO MESE APERTO:", nomeMese, anno);
+  console.log("✔ Registro aperto:", nomeMese, anno);
 }
 
 /* =====================================================
    AUTOCOMPILA TEMPERATURE
 ===================================================== */
-async function autoCompilaTemperature(anno, mese) {
-
-  const ultimaData = await getUltimaDataRegistrata(anno, mese);
+async function autoCompilaTemperature() {
+  const ultimaData = await getUltimaDataRegistrata();
 
   if (!ultimaData) {
-    console.log("Nessun dato precedente → primo avvio mese");
+    console.log("ℹ️ Nessun dato precedente → primo avvio");
     return;
   }
 
   const giorniMancanti = calcolaGiorniMancanti(ultimaData);
 
   if (!giorniMancanti.length) {
-    console.log("Nessun giorno mancante");
+    console.log("✔ Nessun giorno mancante");
     return;
   }
 
-  console.log("Autocompilo giorni:", giorniMancanti);
+  console.log("🧠 Autocompilo giorni:", giorniMancanti);
 
   for (const dataISO of giorniMancanti) {
-    await creaGiornoTemperature(anno, mese, dataISO);
+    await creaGiornoTemperature(dataISO);
   }
 }
 
