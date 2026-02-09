@@ -170,5 +170,3 @@ initAuth(async () => {
   const oggi = new Date().toISOString().split("T")[0];
   await creaGiornoTemperature(oggi);
 });
-
-
