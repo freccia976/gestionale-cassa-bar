@@ -83,7 +83,7 @@ async function apriMese(anno, meseIndex, nomeMese) {
   cardTabella.classList.remove("hidden");
 
   /* 🔥 AUTOCOMPILAZIONE GIORNI MANCANTI */
-  await autoCompilaTemperature();
+   await autoCompilaTemperature(anno, meseIndex);
 
   const datiMese = await caricaTemperatureMese(anno, meseIndex + 1);
 
@@ -138,25 +138,33 @@ async function apriMese(anno, meseIndex, nomeMese) {
 /* =====================================================
    AUTOCOMPILA TEMPERATURE (ANTI BUCHI)
 ===================================================== */
-async function autoCompilaTemperature() {
+async function autoCompilaTemperature(anno, meseIndex) {
+  const oggi = new Date();
+  const mese = meseIndex + 1;
+
   const ultimaData = await getUltimaDataRegistrata();
 
+  let dataPartenza;
+
   if (!ultimaData) {
-    console.log("ℹ️ Nessun dato precedente → primo avvio");
-    return;
+    // 🔥 PRIMO AVVIO ASSOLUTO → dal 1° del mese selezionato
+    dataPartenza = `${anno}-${String(mese).padStart(2, "0")}-01`;
+    console.log("🚀 Primo avvio → parto da", dataPartenza);
+  } else {
+    // 🔁 CONTINUITÀ → giorno dopo l’ultimo salvato
+    dataPartenza = calcolaGiorniMancanti(ultimaData)[0];
   }
 
-  const giorniMancanti = calcolaGiorniMancanti(ultimaData);
+  if (!dataPartenza) return;
 
-  if (!giorniMancanti.length) {
-    console.log("✔ Nessun giorno mancante");
-    return;
-  }
+  const oggiISO = oggi.toISOString().split("T")[0];
+  let corrente = dataPartenza;
 
-  console.log("🧠 Autocompilo giorni:", giorniMancanti);
-
-  for (const dataISO of giorniMancanti) {
-    await creaGiornoTemperature(dataISO);
+  while (corrente <= oggiISO) {
+    await creaGiornoTemperature(corrente);
+    const d = new Date(corrente);
+    d.setDate(d.getDate() + 1);
+    corrente = d.toISOString().split("T")[0];
   }
 }
 
@@ -170,3 +178,4 @@ initAuth(async () => {
   const oggi = new Date().toISOString().split("T")[0];
   await creaGiornoTemperature(oggi);
 });
+
