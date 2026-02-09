@@ -1,4 +1,34 @@
+
+import {
+  FRIGORIFERI,
+  generaTemperatura,
+  calcolaGiorniMancanti
+} from "./registro-temperature-utils.js";
+
+
 import { initAuth } from "./auth.js";
+
+console.log("TEST FRIGORIFERI:", FRIGORIFERI);
+
+console.log(
+  "TEST TEMP CUCINA:",
+  generaTemperatura(
+    FRIGORIFERI.find(f => f.id === "BANCO_FRIGO_CUCINA")
+  )
+);
+
+console.log(
+  "TEST TEMP CONGELATORE:",
+  generaTemperatura(
+    FRIGORIFERI.find(f => f.id === "CONGELATORE_GELATI")
+  )
+);
+
+console.log(
+  "TEST GIORNI MANCANTI:",
+  calcolaGiorniMancanti("2026-02-05")
+);
+
 
 const listaAnni = document.getElementById("lista-anni");
 const listaMesi = document.getElementById("lista-mesi");
