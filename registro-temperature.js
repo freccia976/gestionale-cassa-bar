@@ -13,6 +13,14 @@ import {
 } from "./registro-temperature-db.js";
 
 import { initAuth } from "./auth.js";
+initAuth(async () => {
+  renderAnni();
+
+  // 🔴 TEST FORZATO: crea un giorno oggi
+  const oggi = new Date().toISOString().split("T")[0];
+  await creaGiornoTemperature(oggi);
+});
+
 
 /* =====================================================
    DOM
