@@ -137,35 +137,56 @@ async function apriMese(anno, meseIndex, nomeMese) {
 }
 
 /* =====================================================
-   AUTOCOMPILA TEMPERATURE (ANTI BUCHI)
+   AUTOCOMPILA TEMPERATURE (ANTI BUCHI + ANTI QUOTA)
 ===================================================== */
 async function autoCompilaTemperature(anno, meseIndex) {
-  const oggi = new Date();
   const mese = meseIndex + 1;
+  const oggiISO = new Date().toISOString().split("T")[0];
 
+  const MAX_GIORNI_PER_SESSIONE = 5;
+
+  // 🔹 recupero ultima data salvata
   const ultimaData = await getUltimaDataRegistrata();
 
-  let dataPartenza;
+  let dataInizio;
 
   if (!ultimaData) {
-    // 🔥 PRIMO AVVIO ASSOLUTO → dal 1° del mese selezionato
-    dataPartenza = `${anno}-${String(mese).padStart(2, "0")}-01`;
-    console.log("🚀 Primo avvio → parto da", dataPartenza);
+    // 🚀 PRIMO AVVIO ASSOLUTO → parto dal 1° del mese aperto
+    dataInizio = `${anno}-${String(mese).padStart(2, "0")}-01`;
+    console.log("🚀 Primo avvio assoluto → parto da", dataInizio);
   } else {
-    // 🔁 CONTINUITÀ → giorno dopo l’ultimo salvato
-    dataPartenza = calcolaGiorniMancanti(ultimaData)[0];
+    // 🔁 continuo dal giorno successivo all’ultimo salvato
+    const d = new Date(ultimaData);
+    d.setDate(d.getDate() + 1);
+    dataInizio = d.toISOString().split("T")[0];
+    console.log("🔁 Continuo da", dataInizio);
   }
 
-  if (!dataPartenza) return;
+  // ⛔ se la data iniziale è futura → stop
+  if (dataInizio > oggiISO) {
+    console.log("✔ Nessun giorno da compilare");
+    return;
+  }
 
-  const oggiISO = oggi.toISOString().split("T")[0];
-  let corrente = dataPartenza;
+  let corrente = dataInizio;
+  let creati = 0;
 
-  while (corrente <= oggiISO) {
+  // 🔥 BACKFILL A RATE (ANTI QUOTA)
+  while (corrente <= oggiISO && creati < MAX_GIORNI_PER_SESSIONE) {
+    console.log("✍️ Creo giorno:", corrente);
     await creaGiornoTemperature(corrente);
+
     const d = new Date(corrente);
     d.setDate(d.getDate() + 1);
     corrente = d.toISOString().split("T")[0];
+
+    creati++;
+  }
+
+  if (corrente <= oggiISO) {
+    console.log("⏳ Altri giorni verranno creati al prossimo accesso");
+  } else {
+    console.log("✅ Registro temperature aggiornato");
   }
 }
 
@@ -175,7 +196,4 @@ async function autoCompilaTemperature(anno, meseIndex) {
 initAuth(async () => {
   renderAnni();
 
-  // 🔴 TEST FORZATO: crea un giorno oggi
-  const oggi = new Date().toISOString().split("T")[0];
-  await creaGiornoTemperature(oggi);
 });
