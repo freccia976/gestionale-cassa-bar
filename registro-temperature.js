@@ -5,6 +5,13 @@ import {
   calcolaGiorniMancanti
 } from "./registro-temperature-utils.js";
 
+import {
+  getUltimaDataRegistrata,
+  creaGiornoTemperature
+} from "./registro-temperature-db.js";
+
+import { calcolaGiorniMancanti } from "./registro-temperature-utils.js";
+
 
 import { initAuth } from "./auth.js";
 
@@ -87,9 +94,13 @@ function apriAnno(anno) {
   });
 }
 
-function apriMese(anno, meseIndex, nomeMese) {
+async function apriMese(anno, meseIndex, nomeMese) {
+
   titoloMese.textContent = `${nomeMese} ${anno}`;
   cardTabella.classList.remove("hidden");
+
+  /* 🔥 STEP 2 — AUTOCOMPILA GIORNI MANCANTI */
+  await autoCompilaTemperature(anno, meseIndex + 1);
 
   const thead = document.getElementById("thead-temperature");
   const tbody = document.getElementById("tbody-temperature");
@@ -99,6 +110,7 @@ function apriMese(anno, meseIndex, nomeMese) {
 
   /* === intestazione === */
   const trHead = document.createElement("tr");
+
 
   trHead.innerHTML = `<th class="data">Data</th>`;
 
@@ -139,3 +151,17 @@ function apriMese(anno, meseIndex, nomeMese) {
 initAuth(() => {
   renderAnni();
 });
+async function autoCompilaTemperature(anno, mese) {
+  const ultimaData = await getUltimaDataRegistrata(anno, mese);
+
+  if (!ultimaData) {
+    console.log("Nessun dato precedente → nulla da recuperare");
+    return;
+  }
+
+  const giorniMancanti = calcolaGiorniMancanti(ultimaData);
+
+  for (const giorno of giorniMancanti) {
+    await creaGiornoTemperature(anno, mese, giorno);
+  }
+}
