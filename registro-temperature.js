@@ -102,7 +102,7 @@ async function apriMese(anno, meseIndex, nomeMese) {
   trHead.innerHTML = `<th class="data">Data</th>`;
 
   FRIGORIFERI.forEach(f => {
-    trHead.innerHTML += `<th>${f.nome}</th>`;
+    trHead.innerHTML += `<th>${f.label}</th>`;
   });
 
   thead.appendChild(trHead);
