@@ -1,3 +1,6 @@
+/* =====================================================
+   IMPORT
+===================================================== */
 import {
   getFirestore,
   collection,
@@ -12,7 +15,34 @@ import {
 import { getCurrentUser } from "./firebase-db.js";
 import { FRIGORIFERI, generaTemperatura } from "./registro-temperature-utils.js";
 
+/* =====================================================
+   SETUP
+===================================================== */
 const db = getFirestore();
+
+/* =====================================================
+   CARICA TEMPERATURE MESE
+===================================================== */
+export async function caricaTemperatureMese(anno, mese) {
+  const user = getCurrentUser();
+  if (!user) return {};
+
+  const ref = collection(db, "users", user.uid, "registro_temperature");
+  const snap = await getDocs(ref);
+
+  const dati = {};
+
+  snap.forEach(docSnap => {
+    const id = docSnap.id; // YYYY-MM-DD
+    const [y, m] = id.split("-").map(Number);
+
+    if (y === anno && m === mese) {
+      dati[id] = docSnap.data();
+    }
+  });
+
+  return dati;
+}
 
 /* =====================================================
    ULTIMA DATA REGISTRATA
@@ -46,10 +76,10 @@ export async function creaGiornoTemperature(dataISO) {
     dataISO
   );
 
-  const datiFrigo = {};
+  const frigoriferiData = {};
 
   FRIGORIFERI.forEach(f => {
-    datiFrigo[f.id] = {
+    frigoriferiData[f.id] = {
       mattina: generaTemperatura(f),
       pomeriggio: generaTemperatura(f),
       automatico: true
@@ -58,7 +88,7 @@ export async function creaGiornoTemperature(dataISO) {
 
   await setDoc(ref, {
     data: dataISO,
-    frigoriferi: datiFrigo,
+    frigoriferi: frigoriferiData,
     createdAt: new Date()
   });
 
