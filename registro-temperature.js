@@ -140,44 +140,34 @@ async function apriMese(anno, meseIndex, nomeMese) {
    AUTOCOMPILA TEMPERATURE (ANTI BUCHI)
 ===================================================== */
 async function autoCompilaTemperature(anno, meseIndex) {
+  const oggi = new Date();
   const mese = meseIndex + 1;
-  const oggiISO = new Date().toISOString().split("T")[0];
 
-  // 🔹 recupero ultima data salvata
   const ultimaData = await getUltimaDataRegistrata();
 
-  let dataInizio;
+  let dataPartenza;
 
   if (!ultimaData) {
-    // 🔥 PRIMO AVVIO ASSOLUTO → dal 1° del mese aperto
-    dataInizio = `${anno}-${String(mese).padStart(2, "0")}-01`;
-    console.log("🚀 Primo avvio assoluto → parto da", dataInizio);
+    // 🔥 PRIMO AVVIO ASSOLUTO → dal 1° del mese selezionato
+    dataPartenza = `${anno}-${String(mese).padStart(2, "0")}-01`;
+    console.log("🚀 Primo avvio → parto da", dataPartenza);
   } else {
-    // 🔁 continuo dal giorno dopo l’ultimo
-    const d = new Date(ultimaData);
-    d.setDate(d.getDate() + 1);
-    dataInizio = d.toISOString().split("T")[0];
-    console.log("🔁 Continuo da", dataInizio);
+    // 🔁 CONTINUITÀ → giorno dopo l’ultimo salvato
+    dataPartenza = calcolaGiorniMancanti(ultimaData)[0];
   }
 
-  // ⛔ se la data iniziale è nel futuro → stop
-  if (dataInizio > oggiISO) {
-    console.log("✔ Nessun giorno da compilare");
-    return;
-  }
+  if (!dataPartenza) return;
 
-  let corrente = dataInizio;
+  const oggiISO = oggi.toISOString().split("T")[0];
+  let corrente = dataPartenza;
 
   while (corrente <= oggiISO) {
-    console.log("✍️ Creo giorno:", corrente);
     await creaGiornoTemperature(corrente);
-
     const d = new Date(corrente);
     d.setDate(d.getDate() + 1);
     corrente = d.toISOString().split("T")[0];
   }
 }
-
 
 /* =====================================================
    INIT
@@ -185,4 +175,7 @@ async function autoCompilaTemperature(anno, meseIndex) {
 initAuth(async () => {
   renderAnni();
 
+  // 🔴 TEST FORZATO: crea un giorno oggi
+  const oggi = new Date().toISOString().split("T")[0];
+  await creaGiornoTemperature(oggi);
 });
