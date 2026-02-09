@@ -141,7 +141,6 @@ async function apriMese(anno, meseIndex, nomeMese) {
 
   }
 
-  console.log("✔ Registro aperto:", nomeMese, anno);
 
 
 /* =====================================================
