@@ -12,6 +12,11 @@ import {
   creaGiornoTemperature
 } from "./registro-temperature-db.js";
 
+import {
+  caricaTemperatureMese
+} from "./registro-temperature-db.js";
+
+
 import { initAuth } from "./auth.js";
 
 /* =====================================================
@@ -84,6 +89,9 @@ async function apriMese(anno, meseIndex, nomeMese) {
   /* 🔥 AUTOCOMPILAZIONE GIORNI MANCANTI */
   await autoCompilaTemperature();
 
+  const datiMese = await caricaTemperatureMese(anno, meseIndex + 1);
+
+
   thead.innerHTML = "";
   tbody.innerHTML = "";
 
@@ -105,29 +113,36 @@ async function apriMese(anno, meseIndex, nomeMese) {
   const giorniNelMese = new Date(anno, meseIndex + 1, 0).getDate();
 
   for (let giorno = 1; giorno <= giorniNelMese; giorno++) {
-    const tr = document.createElement("tr");
+  const tr = document.createElement("tr");
 
-    const dataISO = `${anno}-${String(meseIndex + 1).padStart(2, "0")}-${String(giorno).padStart(2, "0")}`;
-    const dataLabel = `${String(giorno).padStart(2, "0")}/${String(meseIndex + 1).padStart(2, "0")}/${anno}`;
+  const dataISO = `${anno}-${String(meseIndex + 1).padStart(2, "0")}-${String(giorno).padStart(2, "0")}`;
+  const dataLabel = `${String(giorno).padStart(2, "0")}/${String(meseIndex + 1).padStart(2, "0")}/${anno}`;
 
-    tr.innerHTML = `<td>${dataLabel}</td>`;
+  tr.innerHTML = `<td>${dataLabel}</td>`;
 
-    FRIGORIFERI.forEach(f => {
-      tr.innerHTML += `
-        <td>
-          <div class="cella-temp">
-            <input type="text" inputmode="decimal" placeholder="M">
-            <input type="text" inputmode="decimal" placeholder="P">
-          </div>
-        </td>
-      `;
-    });
+  FRIGORIFERI.forEach(f => {
+    const datiGiorno = datiMese[dataISO]?.frigoriferi?.[f.id];
 
-    tbody.appendChild(tr);
+    const mattina = datiGiorno?.mattina ?? "";
+    const pomeriggio = datiGiorno?.pomeriggio ?? "";
+
+    tr.innerHTML += `
+      <td>
+        <div class="cella-temp">
+          <input type="text" value="${mattina}" placeholder="M">
+          <input type="text" value="${pomeriggio}" placeholder="P">
+        </div>
+      </td>
+    `;
+  });
+
+  tbody.appendChild(tr);
+}
+
   }
 
   console.log("✔ Registro aperto:", nomeMese, anno);
-}
+
 
 /* =====================================================
    AUTOCOMPILA TEMPERATURE
