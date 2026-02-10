@@ -17,31 +17,44 @@ export function generaPdfRegistroMese({
   ===================================================== */
   doc.setFontSize(14);
   doc.setFont(undefined, "bold");
-  doc.text("BAROTTO S.A.S. DI CIARDI LORENZO & C.", 105, 14, { align: "center" });
+  doc.text(
+    "BAROTTO S.A.S. DI CIARDI LORENZO & C.",
+    105,
+    14,
+    { align: "center" }
+  );
 
   doc.setFontSize(10);
   doc.setFont(undefined, "normal");
-  doc.text("Via Porta Lucchese, 8 – Pistoia", 105, 20, { align: "center" });
+  doc.text(
+    "Via Porta Lucchese, 8 – Pistoia",
+    105,
+    20,
+    { align: "center" }
+  );
 
   /* =====================================================
      TITOLO
   ===================================================== */
   doc.setFontSize(12);
   doc.setFont(undefined, "bold");
-  doc.text(`Registro Temperature – ${nomeMese} ${anno}`, 105, 28, {
-    align: "center"
-  });
+  doc.text(
+    `Registro Temperature – ${nomeMese} ${anno}`,
+    105,
+    28,
+    { align: "center" }
+  );
 
   /* =====================================================
-     HEADER TABELLA (DOPPIA RIGA)
+     HEADER TABELLA (2 RIGHE)
   ===================================================== */
-  const header1 = ["Data"];
-  const header2 = [""];
+  const headerRiga1 = ["Data"];
+  const headerRiga2 = [""];
 
   FRIGORIFERI.forEach(f => {
     const nome = f.id.replaceAll("_", " ");
-    header1.push(nome, "");
-    header2.push("M", "P");
+    headerRiga1.push(nome, ""); // colSpan gestito dopo
+    headerRiga2.push("M", "P");
   });
 
   /* =====================================================
@@ -72,7 +85,7 @@ export function generaPdfRegistroMese({
   ===================================================== */
   doc.autoTable({
     startY: 34,
-    head: [header1, header2],
+    head: [headerRiga1, headerRiga2],
     body,
     theme: "grid",
     styles: {
@@ -90,12 +103,33 @@ export function generaPdfRegistroMese({
       0: { halign: "left", fontStyle: "bold", cellWidth: 22 }
     },
     didParseCell(data) {
-      // unisce le celle del nome frigorifero
-      if (data.row.index === 0 && data.column.index > 0) {
+      // 👉 COLSPAN SOLO SULLA PRIMA RIGA HEADER
+      if (
+        data.section === "head" &&
+        data.row.index === 0 &&
+        data.column.index > 0
+      ) {
         data.cell.colSpan = 2;
       }
     }
   });
+
+  /* =====================================================
+     FIRMA OPERATORE
+  ===================================================== */
+  const yFirma = doc.lastAutoTable.finalY + 14;
+
+  doc.setFontSize(10);
+  doc.setFont(undefined, "normal");
+
+  doc.text("Firma operatore:", 14, yFirma);
+  doc.line(50, yFirma + 1, 140, yFirma + 1);
+
+  doc.text(
+    `Data: ____ / ____ / ${anno}`,
+    150,
+    yFirma
+  );
 
   /* =====================================================
      SALVA
