@@ -10,11 +10,12 @@ import {
 } from "./registro-sanificazione-utils.js";
 
 import {
-  getUltimaDataRegistrata,
+  getUltimaDataSanificazione,
   creaGiornoSanificazione,
   caricaSanificazioneMese,
   aggiornaValoreSanificazione
 } from "./registro-sanificazione-db.js";
+
 /* =====================================================
    DOM
 ===================================================== */
@@ -106,11 +107,12 @@ async function apriMese(anno, meseIndex, nomeMese) {
         const nuovo = td.textContent === VALORE_OK ? VALORE_NO : VALORE_OK;
         td.textContent = nuovo;
 
-        await aggiornaValoreSanificazione(
-          dataISO,
-          col.id,
-          nuovo
-        );
+        await aggiornaValoreSanificazione({
+  dataISO,
+  tipo: col.id,
+  valore: nuovo
+});
+
       };
 
       tr.appendChild(td);
@@ -120,7 +122,8 @@ async function apriMese(anno, meseIndex, nomeMese) {
   }
 }
 async function autoCompilaSanificazione() {
-  const ultimaData = await getUltimaDataRegistrata();
+  const ultimaData = await getUltimaDataSanificazione();
+
 
   const oggiISO = new Date().toISOString().split("T")[0];
 
