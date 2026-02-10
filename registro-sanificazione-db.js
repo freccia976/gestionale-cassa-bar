@@ -13,27 +13,11 @@ import {
 import { getCurrentUser } from "./firebase-db.js";
 import { valoreDefault } from "./registro-sanificazione-utils.js";
 
-await setDoc(ref, {
-  data: dataISO,
-  sanificazione: {
-    giornaliera: valoreDefault(),
-    settimanale: valoreDefault(),
-    mensile: valoreDefault()
-  },
-  infestanti: {
-    giornaliero: valoreDefault(),
-    semestrale: valoreDefault()
-  },
-  automatico: true,
-  createdAt: new Date()
-});
-
-
 const db = getFirestore();
 
-/* ===========================
+/* =====================================================
    ULTIMA DATA REGISTRATA
-=========================== */
+===================================================== */
 export async function getUltimaDataSanificazione() {
   const user = getCurrentUser();
   if (!user) return null;
@@ -43,12 +27,12 @@ export async function getUltimaDataSanificazione() {
   const snap = await getDocs(q);
 
   if (snap.empty) return null;
-  return snap.docs[0].id;
+  return snap.docs[0].id; // YYYY-MM-DD
 }
 
-/* ===========================
-   CREA GIORNO (SE NON ESISTE)
-=========================== */
+/* =====================================================
+   CREA GIORNO SANIFICAZIONE (SE NON ESISTE)
+===================================================== */
 export async function creaGiornoSanificazione(dataISO) {
   const user = getCurrentUser();
   if (!user) return;
@@ -62,7 +46,10 @@ export async function creaGiornoSanificazione(dataISO) {
   );
 
   const snap = await getDoc(ref);
-  if (snap.exists()) return; // ⛔ NON rigenerare
+  if (snap.exists()) {
+    console.log("⏭️ Giorno già presente:", dataISO);
+    return;
+  }
 
   await setDoc(ref, {
     data: dataISO,
@@ -82,9 +69,9 @@ export async function creaGiornoSanificazione(dataISO) {
   console.log("🧼 Sanificazione creata:", dataISO);
 }
 
-/* ===========================
-   CARICA MESE
-=========================== */
+/* =====================================================
+   CARICA SANIFICAZIONE MESE
+===================================================== */
 export async function caricaSanificazioneMese(anno, mese) {
   const user = getCurrentUser();
   if (!user) return {};
@@ -102,4 +89,44 @@ export async function caricaSanificazioneMese(anno, mese) {
   });
 
   return dati;
+}
+
+/* =====================================================
+   AGGIORNA VALORE (SPUNTA)
+===================================================== */
+export async function aggiornaValoreSanificazione({
+  dataISO,
+  gruppo,   // "sanificazione" | "infestanti"
+  campo,    // es. "giornaliera"
+  valore    // true / false
+}) {
+  const user = getCurrentUser();
+  if (!user) return;
+
+  const ref = doc(
+    db,
+    "users",
+    user.uid,
+    "registro_sanificazione",
+    dataISO
+  );
+
+  await setDoc(
+    ref,
+    {
+      [gruppo]: {
+        [campo]: valore
+      },
+      updatedAt: new Date()
+    },
+    { merge: true }
+  );
+
+  console.log(
+    "✅ Sanificazione aggiornata:",
+    dataISO,
+    gruppo,
+    campo,
+    valore
+  );
 }
