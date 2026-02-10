@@ -11,6 +11,8 @@ import {
   creaGiornoTemperature,
   caricaTemperatureMese
 } from "./registro-temperature-db.js";
+import { generaPdfRegistroMese } from "./registro-temperature-pdf.js";
+
 
 import { initAuth } from "./auth.js";
 
@@ -85,6 +87,13 @@ function apriAnno(anno) {
 ===================================================== */
 async function apriMese(anno, meseIndex, nomeMese) {
   titoloMese.textContent = `${nomeMese} ${anno}`;
+  titoloMese.innerHTML = `
+  ${nomeMese} ${anno}
+  <button id="btn-pdf-mese" class="btn-primary" style="margin-left:12px">
+    📄 PDF
+  </button>
+`;
+
   cardTabella.classList.remove("hidden");
 
   /* 🔥 AUTOCOMPILAZIONE GIORNI MANCANTI */
@@ -92,6 +101,16 @@ async function apriMese(anno, meseIndex, nomeMese) {
 
 
   const datiMese = await caricaTemperatureMese(anno, meseIndex + 1);
+
+  document.getElementById("btn-pdf-mese").onclick = () => {
+  generaPdfRegistroMese({
+    anno,
+    meseIndex,
+    nomeMese,
+    datiMese
+  });
+};
+
 
   thead.innerHTML = "";
   tbody.innerHTML = "";
