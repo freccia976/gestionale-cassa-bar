@@ -6,6 +6,7 @@ import {
   collection,
   doc,
   getDocs,
+  getDoc,
   setDoc,
   query,
   orderBy,
@@ -21,7 +22,7 @@ import { FRIGORIFERI, generaTemperatura } from "./registro-temperature-utils.js"
 const db = getFirestore();
 
 /* =====================================================
-   CARICA TEMPERATURE MESE
+   CARICA TEMPERATURE DI UN MESE
 ===================================================== */
 export async function caricaTemperatureMese(anno, mese) {
   const user = getCurrentUser();
@@ -33,7 +34,7 @@ export async function caricaTemperatureMese(anno, mese) {
   const dati = {};
 
   snap.forEach(docSnap => {
-    const id = docSnap.id; // YYYY-MM-DD
+    const id = docSnap.id; // formato YYYY-MM-DD
     const [y, m] = id.split("-").map(Number);
 
     if (y === anno && m === mese) {
@@ -45,7 +46,7 @@ export async function caricaTemperatureMese(anno, mese) {
 }
 
 /* =====================================================
-   ULTIMA DATA REGISTRATA
+   ULTIMA DATA REGISTRATA (ANTI BUCHI)
 ===================================================== */
 export async function getUltimaDataRegistrata() {
   const user = getCurrentUser();
@@ -63,6 +64,7 @@ export async function getUltimaDataRegistrata() {
 
 /* =====================================================
    CREA GIORNO TEMPERATURE (AUTOMATICO)
+   ⚠️ NON sovrascrive se esiste già
 ===================================================== */
 export async function creaGiornoTemperature(dataISO) {
   const user = getCurrentUser();
@@ -75,6 +77,13 @@ export async function creaGiornoTemperature(dataISO) {
     "registro_temperature",
     dataISO
   );
+
+  // 🔒 controllo esistenza
+  const snap = await getDoc(ref);
+  if (snap.exists()) {
+    console.log("⏭️ Giorno già presente, salto:", dataISO);
+    return;
+  }
 
   const frigoriferiData = {};
 
