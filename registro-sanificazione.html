@@ -1,20 +1,63 @@
-<button onclick="window.location.href='index.html'">⬅ Home</button>
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <title>Registro Sanificazione</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<h2>Anni</h2>
-<div id="lista-anni"></div>
+  <!-- CSS globali -->
+  <link rel="stylesheet" href="style.css">
 
-<section id="card-mesi" class="hidden">
+  <!-- CSS dedicato -->
+  <link rel="stylesheet" href="registro-sanificazione.css">
+</head>
+
+<body class="page-full">
+
+<header class="header">
+  <img src="img/logo.png" class="logo">
+  <h1>Registro Sanificazione</h1>
+</header>
+
+<!-- NAV -->
+<section class="card">
+  <button onclick="window.location.href='index.html'">
+    ⬅ Torna alla Home
+  </button>
+</section>
+
+<!-- ANNI -->
+<section class="card">
+  <h2>Anni</h2>
+  <div id="lista-anni" class="box-grid"></div>
+</section>
+
+<!-- MESI -->
+<section class="card hidden" id="card-mesi">
   <h2 id="titolo-anno"></h2>
-  <div id="lista-mesi"></div>
+  <div id="lista-mesi" class="box-grid"></div>
 </section>
 
-<section id="card-tabella" class="hidden">
-  <h2 id="titolo-mese"></h2>
+<!-- TABELLA FULL WIDTH -->
+<section class="card card-full hidden" id="card-tabella">
+  <div class="card-header-inline">
+    <h2 id="titolo-mese"></h2>
 
-  <button id="btn-pdf-sanificazione">📄 PDF</button>
+    <button id="btn-pdf-sanificazione" class="btn-primary">
+      📄 Esporta PDF
+    </button>
+  </div>
 
-  <table>
-    <thead id="thead-sanificazione"></thead>
-    <tbody id="tbody-sanificazione"></tbody>
-  </table>
+  <div class="tabella-wrapper">
+    <table class="tabella-sanificazione">
+      <thead id="thead-sanificazione"></thead>
+      <tbody id="tbody-sanificazione"></tbody>
+    </table>
+  </div>
 </section>
+
+<script src="auth.js" type="module"></script>
+<script src="registro-sanificazione.js" type="module"></script>
+
+</body>
+</html>

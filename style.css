@@ -428,7 +428,6 @@ button {
 /* ===== POPUP MODIFICA ===== */
 #popup-modifica .popup-content {
   display: flex;
-  flex-direction: column;
   gap: 14px; /* spazio verticale generale */
 }
 
@@ -1112,3 +1111,63 @@ button {
   }
 }
 
+/* ===============================
+   PAGINA FULL WIDTH
+================================ */
+
+.page-full .card {
+  max-width: none;
+  width: 100%;
+}
+
+.page-full .card:not(.card-full) {
+  max-width: 900px;
+  margin-left: auto;
+  margin-right: auto;
+}
+/* ===============================
+   TABELLA SANIFICAZIONE
+================================ */
+
+.tabella-sanificazione {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.tabella-sanificazione th,
+.tabella-sanificazione td {
+  border: 1px solid #ddd;
+  padding: 10px;
+  text-align: center;
+}
+
+.tabella-sanificazione th {
+  background: #1f2937;
+  color: #fff;
+  font-weight: 600;
+}
+
+.tabella-sanificazione td:first-child,
+.tabella-sanificazione th:first-child {
+  text-align: left;
+  font-weight: 600;
+  min-width: 110px;
+}
+/* ===============================
+   SPUNTE
+================================ */
+
+.cella-spunta {
+  font-size: 20px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.cella-spunta:contains("✔") {
+  color: #16a34a;
+}
+
+.cella-spunta:contains("✖") {
+  color: #dc2626;
+}
