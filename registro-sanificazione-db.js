@@ -13,6 +13,22 @@ import {
 import { getCurrentUser } from "./firebase-db.js";
 import { valoreDefault } from "./registro-sanificazione-utils.js";
 
+await setDoc(ref, {
+  data: dataISO,
+  sanificazione: {
+    giornaliera: valoreDefault(),
+    settimanale: valoreDefault(),
+    mensile: valoreDefault()
+  },
+  infestanti: {
+    giornaliero: valoreDefault(),
+    semestrale: valoreDefault()
+  },
+  automatico: true,
+  createdAt: new Date()
+});
+
+
 const db = getFirestore();
 
 /* ===========================

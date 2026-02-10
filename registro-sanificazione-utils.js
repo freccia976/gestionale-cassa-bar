@@ -1,3 +1,7 @@
+/* =====================================================
+   CONFIG COLONNE SANIFICAZIONE
+===================================================== */
+
 export const SANIFICAZIONE_COLONNE = [
   { id: "san_giornaliera", label: "Sanificazione giornaliera" },
   { id: "san_settimanale", label: "Sanificazione settimanale" },
@@ -6,6 +10,13 @@ export const SANIFICAZIONE_COLONNE = [
   { id: "inf_semestrale", label: "Controllo infestanti semestrale" }
 ];
 
+/* =====================================================
+   VALORI STANDARD
+===================================================== */
+
+export const VALORE_OK = "✔";
+export const VALORE_NO = "✖";
+
 export function valoreDefault() {
-  return "OK";
+  return VALORE_OK;
 }
