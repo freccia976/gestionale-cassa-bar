@@ -1,7 +1,13 @@
-import { jsPDF } from "https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.es.min.js";
-import "https://cdn.jsdelivr.net/npm/jspdf-autotable@3.5.29/dist/jspdf.plugin.autotable.min.js";
+/* =====================================================
+   IMPORT CORRETTI (ESM browser compatibili)
+===================================================== */
+import { jsPDF } from "https://esm.sh/jspdf@2.5.1";
+import autoTable from "https://esm.sh/jspdf-autotable@3.5.29";
 
 import { FRIGORIFERI } from "./registro-temperature-utils.js";
+
+/* collega plugin a jsPDF */
+autoTable(jsPDF);
 
 /* =====================================================
    PDF REGISTRO TEMPERATURE (MESE)
@@ -12,7 +18,9 @@ export function generaPdfRegistroMese({
   nomeMese,
   datiMese
 }) {
-  const doc = new jsPDF("landscape");
+  const doc = new jsPDF({
+    orientation: "landscape"
+  });
 
   /* =====================
      TITOLO
@@ -44,13 +52,18 @@ export function generaPdfRegistroMese({
   const giorniNelMese = new Date(anno, meseIndex + 1, 0).getDate();
 
   for (let giorno = 1; giorno <= giorniNelMese; giorno++) {
-    const dataISO = `${anno}-${String(meseIndex + 1).padStart(2, "0")}-${String(giorno).padStart(2, "0")}`;
-    const dataLabel = `${String(giorno).padStart(2, "0")}/${String(meseIndex + 1).padStart(2, "0")}/${anno}`;
+
+    const dataISO =
+      `${anno}-${String(meseIndex + 1).padStart(2, "0")}-${String(giorno).padStart(2, "0")}`;
+
+    const dataLabel =
+      `${String(giorno).padStart(2, "0")}/${String(meseIndex + 1).padStart(2, "0")}/${anno}`;
 
     const riga = [dataLabel];
 
     FRIGORIFERI.forEach(f => {
-      const dati = datiMese[dataISO]?.frigoriferi?.[f.id];
+      const dati = datiMese?.[dataISO]?.frigoriferi?.[f.id];
+
       riga.push(dati?.mattina ?? "");
       riga.push(dati?.pomeriggio ?? "");
     });
@@ -74,12 +87,17 @@ export function generaPdfRegistroMese({
       fillColor: [31, 41, 55]
     },
     columnStyles: {
-      0: { halign: "left", fontStyle: "bold" }
+      0: {
+        halign: "left",
+        fontStyle: "bold"
+      }
     }
   });
 
   /* =====================
-     SALVA
+     SALVA PDF
   ===================== */
-  doc.save(`registro-temperature-${anno}-${String(meseIndex + 1).padStart(2, "0")}.pdf`);
+  doc.save(
+    `registro-temperature-${anno}-${String(meseIndex + 1).padStart(2, "0")}.pdf`
+  );
 }
