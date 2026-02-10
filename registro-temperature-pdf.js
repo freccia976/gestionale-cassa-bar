@@ -9,8 +9,13 @@ export function generaPdfRegistroMese({
   nomeMese,
   datiMese
 }) {
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF({ orientation: "landscape" });
+  if (!window.jspdf || !window.jspdf.jsPDF) {
+    alert("jsPDF non caricato correttamente");
+    return;
+  }
+
+  const jsPDF = window.jspdf.jsPDF;
+  const doc = new jsPDF("landscape");
 
   /* =====================
      TITOLO
@@ -22,20 +27,18 @@ export function generaPdfRegistroMese({
   doc.text("Gestione interna – uso alimentare", 14, 22);
 
   /* =====================
-     HEADER TABELLA
+     HEADER
   ===================== */
-  const head = [
-    [
-      "Data",
-      ...FRIGORIFERI.flatMap(f => [
-        `${f.id.replaceAll("_", " ")} M`,
-        `${f.id.replaceAll("_", " ")} P`
-      ])
-    ]
-  ];
+  const head = [[
+    "Data",
+    ...FRIGORIFERI.flatMap(f => [
+      `${f.id.replaceAll("_", " ")} M`,
+      `${f.id.replaceAll("_", " ")} P`
+    ])
+  ]];
 
   /* =====================
-     BODY TABELLA
+     BODY
   ===================== */
   const body = [];
 
@@ -56,29 +59,16 @@ export function generaPdfRegistroMese({
     body.push(riga);
   }
 
-  /* =====================
-     AUTOTABLE
-  ===================== */
   doc.autoTable({
     startY: 28,
     head,
     body,
-    styles: {
-      fontSize: 8,
-      halign: "center",
-      valign: "middle"
-    },
-    headStyles: {
-      fillColor: [31, 41, 55]
-    },
-    columnStyles: {
-      0: { halign: "left", fontStyle: "bold" }
-    }
+    styles: { fontSize: 8, halign: "center" },
+    headStyles: { fillColor: [31, 41, 55] },
+    columnStyles: { 0: { fontStyle: "bold", halign: "left" } }
   });
 
-  /* =====================
-     SALVATAGGIO
-  ===================== */
-  const meseNumero = String(meseIndex + 1).padStart(2, "0");
-  doc.save(`registro-temperature-${anno}-${meseNumero}.pdf`);
+  doc.save(
+    `registro-temperature-${anno}-${String(meseIndex + 1).padStart(2, "0")}.pdf`
+  );
 }
