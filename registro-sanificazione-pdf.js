@@ -2,7 +2,7 @@ import { SANIFICAZIONE_COLONNE }
   from "./registro-sanificazione-utils.js";
 
 /* =====================================================
-   PDF REGISTRO SANIFICAZIONE – MESE
+   PDF REGISTRO SANIFICAZIONE – MESE (1 PAGINA)
 ===================================================== */
 export function generaPdfSanificazioneMese({
   anno,
@@ -48,7 +48,7 @@ export function generaPdfSanificazioneMese({
   );
 
   /* =====================================================
-     HEADER
+     HEADER TABELLA
   ===================================================== */
   const header = [[
     "Data",
@@ -87,7 +87,7 @@ export function generaPdfSanificazioneMese({
           datiMese[dataISO]?.infestanti?.[col.id] ?? "";
       }
 
-      /* ✔ → X visibile */
+      /* ✔ → X grande */
       let stampa = "";
       if (valore === "✔") stampa = "X";
 
@@ -98,7 +98,7 @@ export function generaPdfSanificazioneMese({
   }
 
   /* =====================================================
-     AUTOTABLE
+     AUTOTABLE COMPATTA (STA IN 1 PAGINA)
   ===================================================== */
   doc.autoTable({
     startY: 34,
@@ -107,10 +107,10 @@ export function generaPdfSanificazioneMese({
     theme: "grid",
 
     styles: {
-      fontSize: 8,
+      fontSize: 7,          // compatta per stare in 1 pagina
       halign: "center",
       valign: "middle",
-      cellPadding: 2
+      cellPadding: 1.5
     },
 
     headStyles: {
@@ -123,47 +123,30 @@ export function generaPdfSanificazioneMese({
       0: {
         halign: "left",
         fontStyle: "bold",
-        cellWidth: 22
+        cellWidth: 20
       }
     },
 
-    /* Spunte più visibili */
+    /* Spunte grandi */
     didParseCell(data) {
       if (
         data.section === "body" &&
         data.cell.raw === "X"
       ) {
         data.cell.styles.fontStyle = "bold";
-        data.cell.styles.fontSize = 11;
+        data.cell.styles.fontSize = 10;
       }
-    }
+    },
+
+    /* Evita page break */
+    pageBreak: "avoid"
   });
-
-  /* =====================================================
-     LEGENDA COMPATTA (SOTTO TABELLA)
-  ===================================================== */
-  const yLegenda =
-    doc.lastAutoTable.finalY + 8;
-
-  doc.setFontSize(8);
-  doc.setFont(undefined, "normal");
-
-  doc.text(
-    "Legenda:",
-    14,
-    yLegenda
-  );
-
-  doc.text(
-    "G = Giornaliera   S = Settimanale   M = Mensile   SE = Semestrale   I = Infestanti",
-    14,
-    yLegenda + 5
-  );
 
   /* =====================================================
      FIRMA + DATA SU UNA RIGA
   ===================================================== */
-  const yFirma = yLegenda + 14;
+  const yFirma =
+    doc.lastAutoTable.finalY + 12;
 
   doc.setFontSize(10);
   doc.setFont(undefined, "bold");
@@ -182,7 +165,7 @@ export function generaPdfSanificazioneMese({
     yFirma + 1
   );
 
-  /* Data sulla stessa riga */
+  /* Data */
   doc.text(
     "Data:",
     130,
