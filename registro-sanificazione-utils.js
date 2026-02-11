@@ -3,11 +3,31 @@
 ===================================================== */
 
 export const SANIFICAZIONE_COLONNE = [
-  { id: "san_giornaliera", label: "Sanificazione giornaliera" },
-  { id: "san_settimanale", label: "Sanificazione settimanale" },
-  { id: "san_mensile", label: "Sanificazione mensile" },
-  { id: "inf_giornaliero", label: "Controllo infestanti giornaliero" },
-  { id: "inf_semestrale", label: "Controllo infestanti semestrale" }
+  {
+    id: "giornaliera",
+    label: "Sanificazione giornaliera",
+    gruppo: "sanificazione"
+  },
+  {
+    id: "settimanale",
+    label: "Sanificazione settimanale",
+    gruppo: "sanificazione"
+  },
+  {
+    id: "mensile",
+    label: "Sanificazione mensile",
+    gruppo: "sanificazione"
+  },
+  {
+    id: "semestrale",
+    label: "Sanificazione semestrale",
+    gruppo: "sanificazione"
+  },
+  {
+    id: "giornaliero",
+    label: "Controllo infestanti giornaliero",
+    gruppo: "infestanti"
+  }
 ];
 
 /* =====================================================
@@ -17,20 +37,38 @@ export const SANIFICAZIONE_COLONNE = [
 export const VALORE_OK = "✔";
 export const VALORE_NO = "✖";
 
-export function valoreDefault() {
-  return VALORE_OK;
-}
+/* =====================================================
+   REGOLE FREQUENZA
+===================================================== */
+
 export function isSettimanaAttiva(dataISO) {
   const d = new Date(dataISO);
-  return d.getDay() === 1; // LUNEDÌ
+  return d.getDay() === 1;
 }
 
 export function isMensileAttiva(dataISO) {
   const d = new Date(dataISO);
-  return d.getDate() === 1; // primo giorno del mese
+  return d.getDate() === 1;
 }
 
 export function isSemestraleAttiva(dataISO) {
   const d = new Date(dataISO);
-  return d.getDate() === 1 && (d.getMonth() === 0 || d.getMonth() === 6);
+  return (
+    d.getDate() === 1 &&
+    (d.getMonth() === 0 || d.getMonth() === 6)
+  );
+}
+
+/* =====================================================
+   FREQUENZE ATTIVE PER DATA
+===================================================== */
+
+export function getFrequenzeAttive(dataISO) {
+  return {
+    giornaliera: true,
+    settimanale: isSettimanaAttiva(dataISO),
+    mensile: isMensileAttiva(dataISO),
+    semestrale: isSemestraleAttiva(dataISO),
+    infestanti_giornaliero: true
+  };
 }
