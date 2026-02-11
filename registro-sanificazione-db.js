@@ -1,3 +1,6 @@
+/* =====================================================
+   IMPORT
+===================================================== */
 import {
   getFirestore,
   collection,
@@ -11,8 +14,17 @@ import {
 } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
 
 import { getCurrentUser } from "./firebase-db.js";
-import { valoreDefault } from "./registro-sanificazione-utils.js";
 
+import {
+  valoreDefault,
+  isSettimanaAttiva,
+  isMensileAttiva,
+  isSemestraleAttiva
+} from "./registro-sanificazione-utils.js";
+
+/* =====================================================
+   SETUP
+===================================================== */
 const db = getFirestore();
 
 /* =====================================================
@@ -27,7 +39,8 @@ export async function getUltimaDataSanificazione() {
   const snap = await getDocs(q);
 
   if (snap.empty) return null;
-  return snap.docs[0].id; // YYYY-MM-DD
+
+  return snap.docs[0].id; // formato YYYY-MM-DD
 }
 
 /* =====================================================
@@ -46,6 +59,8 @@ export async function creaGiornoSanificazione(dataISO) {
   );
 
   const snap = await getDoc(ref);
+
+  // ⛔ NON rigenerare se già esiste
   if (snap.exists()) {
     console.log("⏭️ Giorno già presente:", dataISO);
     return;
@@ -53,15 +68,27 @@ export async function creaGiornoSanificazione(dataISO) {
 
   await setDoc(ref, {
     data: dataISO,
+
     sanificazione: {
       giornaliera: valoreDefault(),
-      settimanale: valoreDefault(),
-      mensile: valoreDefault()
+
+      settimanale: isSettimanaAttiva(dataISO)
+        ? valoreDefault()
+        : "",
+
+      mensile: isMensileAttiva(dataISO)
+        ? valoreDefault()
+        : "",
+
+      semestrale: isSemestraleAttiva(dataISO)
+        ? valoreDefault()
+        : ""
     },
+
     infestanti: {
-      giornaliero: valoreDefault(),
-      semestrale: valoreDefault()
+      giornaliero: valoreDefault()
     },
+
     automatico: true,
     createdAt: new Date()
   });
@@ -82,9 +109,11 @@ export async function caricaSanificazioneMese(anno, mese) {
   const dati = {};
 
   snap.forEach(docSnap => {
-    const [y, m] = docSnap.id.split("-").map(Number);
+    const id = docSnap.id; // YYYY-MM-DD
+    const [y, m] = id.split("-").map(Number);
+
     if (y === anno && m === mese) {
-      dati[docSnap.id] = docSnap.data();
+      dati[id] = docSnap.data();
     }
   });
 
