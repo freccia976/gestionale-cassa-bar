@@ -20,3 +20,17 @@ export const VALORE_NO = "✖";
 export function valoreDefault() {
   return VALORE_OK;
 }
+export function isSettimanaAttiva(dataISO) {
+  const d = new Date(dataISO);
+  return d.getDay() === 1; // LUNEDÌ
+}
+
+export function isMensileAttiva(dataISO) {
+  const d = new Date(dataISO);
+  return d.getDate() === 1; // primo giorno del mese
+}
+
+export function isSemestraleAttiva(dataISO) {
+  const d = new Date(dataISO);
+  return d.getDate() === 1 && (d.getMonth() === 0 || d.getMonth() === 6);
+}
