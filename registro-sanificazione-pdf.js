@@ -89,7 +89,12 @@ export function generaPdfSanificazioneMese({
           datiMese[dataISO]?.infestanti?.[col.id] ?? "";
       }
 
-      riga.push(valore);
+     let stampa = "";
+
+if (valore === "✔") stampa = "X";
+
+riga.push(stampa);
+
     });
 
     body.push(riga);
@@ -174,16 +179,44 @@ export function generaPdfSanificazioneMese({
   /* =====================================================
      FIRMA
   ===================================================== */
-  const yFirma = yLegenda + 46;
+/* =====================================================
+   FIRMA OPERATORE
+===================================================== */
 
-  doc.text("Firma operatore:", 14, yFirma);
-  doc.line(50, yFirma + 1, 140, yFirma + 1);
+const yFirma = doc.lastAutoTable.finalY + 20;
 
-  doc.text(
-    `Data: ____ / ____ / ${anno}`,
-    150,
-    yFirma
-  );
+doc.setFontSize(11);
+doc.setFont(undefined, "bold");
+
+doc.text(
+  "Firma operatore:",
+  14,
+  yFirma
+);
+
+doc.setFont(undefined, "normal");
+
+/* Linea firma lunga */
+doc.line(
+  50,
+  yFirma + 1,
+  170,
+  yFirma + 1
+);
+
+/* Data compilazione */
+doc.text(
+  "Data:",
+  14,
+  yFirma + 14
+);
+
+doc.line(
+  30,
+  yFirma + 15,
+  80,
+  yFirma + 15
+);
 
   /* =====================================================
      SALVA
