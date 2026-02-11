@@ -15,6 +15,11 @@ import {
   creaIeriSeManca
 } from "./registro-sanificazione-db.js";
 
+import {
+  generaPdfSanificazioneMese
+} from "./registro-sanificazione-pdf.js";
+
+
 /* =====================================================
    DOM
 ===================================================== */
@@ -84,6 +89,20 @@ async function apriMese(anno, meseIndex, nomeMese) {
 
   const datiMese =
     await caricaSanificazioneMese(anno, meseIndex + 1);
+
+    document
+  .getElementById("btn-pdf-sanificazione")
+  .onclick = () => {
+
+    generaPdfSanificazioneMese({
+      anno,
+      meseIndex,
+      nomeMese,
+      datiMese
+    });
+
+  };
+
 
   thead.innerHTML = "";
   tbody.innerHTML = "";
