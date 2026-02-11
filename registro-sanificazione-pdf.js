@@ -50,12 +50,10 @@ export function generaPdfSanificazioneMese({
   /* =====================================================
      HEADER
   ===================================================== */
-  const header = [
-    [
-      "Data",
-      ...SANIFICAZIONE_COLONNE.map(c => c.label)
-    ]
-  ];
+  const header = [[
+    "Data",
+    ...SANIFICAZIONE_COLONNE.map(c => c.label)
+  ]];
 
   /* =====================================================
      BODY
@@ -89,12 +87,11 @@ export function generaPdfSanificazioneMese({
           datiMese[dataISO]?.infestanti?.[col.id] ?? "";
       }
 
-     let stampa = "";
+      /* ✔ → X visibile */
+      let stampa = "";
+      if (valore === "✔") stampa = "X";
 
-if (valore === "✔") stampa = "X";
-
-riga.push(stampa);
-
+      riga.push(stampa);
     });
 
     body.push(riga);
@@ -110,7 +107,7 @@ riga.push(stampa);
     theme: "grid",
 
     styles: {
-      fontSize: 7,
+      fontSize: 8,
       halign: "center",
       valign: "middle",
       cellPadding: 2
@@ -128,95 +125,76 @@ riga.push(stampa);
         fontStyle: "bold",
         cellWidth: 22
       }
+    },
+
+    /* Spunte più visibili */
+    didParseCell(data) {
+      if (
+        data.section === "body" &&
+        data.cell.raw === "X"
+      ) {
+        data.cell.styles.fontStyle = "bold";
+        data.cell.styles.fontSize = 11;
+      }
     }
   });
 
   /* =====================================================
-     LEGENDA FREQUENZE
+     LEGENDA COMPATTA (SOTTO TABELLA)
   ===================================================== */
   const yLegenda =
-    doc.lastAutoTable.finalY + 10;
+    doc.lastAutoTable.finalY + 8;
 
-  doc.setFontSize(9);
+  doc.setFontSize(8);
   doc.setFont(undefined, "normal");
 
   doc.text(
-    "Legenda frequenze:",
+    "Legenda:",
     14,
     yLegenda
   );
 
   doc.text(
-    "- Sanificazione giornaliera: ogni giorno",
+    "G = Giornaliera   S = Settimanale   M = Mensile   SE = Semestrale   I = Infestanti",
     14,
-    yLegenda + 6
-  );
-
-  doc.text(
-    "- Sanificazione settimanale: 1 volta a settimana",
-    14,
-    yLegenda + 12
-  );
-
-  doc.text(
-    "- Sanificazione mensile: 1 volta al mese",
-    14,
-    yLegenda + 18
-  );
-
-  doc.text(
-    "- Sanificazione semestrale: gennaio / luglio",
-    14,
-    yLegenda + 24
-  );
-
-  doc.text(
-    "- Controllo infestanti: giornaliero",
-    14,
-    yLegenda + 30
+    yLegenda + 5
   );
 
   /* =====================================================
-     FIRMA
+     FIRMA + DATA SU UNA RIGA
   ===================================================== */
-/* =====================================================
-   FIRMA OPERATORE
-===================================================== */
+  const yFirma = yLegenda + 14;
 
-const yFirma = doc.lastAutoTable.finalY + 20;
+  doc.setFontSize(10);
+  doc.setFont(undefined, "bold");
 
-doc.setFontSize(11);
-doc.setFont(undefined, "bold");
+  /* Firma */
+  doc.text(
+    "Firma operatore:",
+    14,
+    yFirma
+  );
 
-doc.text(
-  "Firma operatore:",
-  14,
-  yFirma
-);
+  doc.line(
+    50,
+    yFirma + 1,
+    120,
+    yFirma + 1
+  );
 
-doc.setFont(undefined, "normal");
+  /* Data sulla stessa riga */
+  doc.text(
+    "Data:",
+    130,
+    yFirma
+  );
 
-/* Linea firma lunga */
-doc.line(
-  50,
-  yFirma + 1,
-  170,
-  yFirma + 1
-);
-
-/* Data compilazione */
-doc.text(
-  "Data:",
-  14,
-  yFirma + 14
-);
-
-doc.line(
-  30,
-  yFirma + 15,
-  80,
-  yFirma + 15
-);
+  doc.line(
+    150,
+    yFirma + 1,
+    190,
+    yFirma + 1
+  );
 
   /* =====================================================
      SALVA
@@ -225,3 +203,4 @@ doc.line(
     `registro-sanificazione-${anno}-${String(meseIndex+1).padStart(2,"0")}.pdf`
   );
 }
+
