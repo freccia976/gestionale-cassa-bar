@@ -30,23 +30,35 @@ const titoloMese = document.getElementById("titolo-mese");
 
 const thead = document.getElementById("thead-sanificazione");
 const tbody = document.getElementById("tbody-sanificazione");
+
+/* =====================================================
+   COSTANTI
+===================================================== */
+const ANNO_ATTIVO = 2026;
+
 const MESI = [
   "Gennaio","Febbraio","Marzo","Aprile",
   "Maggio","Giugno","Luglio","Agosto",
   "Settembre","Ottobre","Novembre","Dicembre"
 ];
+
+/* =====================================================
+   RENDER ANNI
+===================================================== */
 function renderAnni() {
   listaAnni.innerHTML = "";
 
-  const anno = 2026;
-
   const box = document.createElement("div");
   box.className = "box-toggle";
-  box.textContent = `📁 ${anno}`;
-  box.onclick = () => apriAnno(anno);
+  box.textContent = `📁 ${ANNO_ATTIVO}`;
+  box.onclick = () => apriAnno(ANNO_ATTIVO);
 
   listaAnni.appendChild(box);
 }
+
+/* =====================================================
+   APRI ANNO
+===================================================== */
 function apriAnno(anno) {
   titoloAnno.textContent = `Anno ${anno}`;
   listaMesi.innerHTML = "";
@@ -62,11 +74,14 @@ function apriAnno(anno) {
     listaMesi.appendChild(box);
   });
 }
+
+/* =====================================================
+   APRI MESE
+===================================================== */
 async function apriMese(anno, meseIndex, nomeMese) {
   titoloMese.textContent = `${nomeMese} ${anno}`;
   cardTabella.classList.remove("hidden");
 
-  // 🔁 autocrea SOLO i giorni mancanti
   await autoCompilaSanificazione();
 
   const datiMese = await caricaSanificazioneMese(anno, meseIndex + 1);
@@ -78,8 +93,8 @@ async function apriMese(anno, meseIndex, nomeMese) {
   const trHead = document.createElement("tr");
   trHead.innerHTML = `<th class="data">Data</th>`;
 
-  SANIFICAZIONE_COLONNE.forEach(c => {
-    trHead.innerHTML += `<th>${c.label}</th>`;
+  SANIFICAZIONE_COLONNE.forEach(col => {
+    trHead.innerHTML += `<th>${col.label}</th>`;
   });
 
   thead.appendChild(trHead);
@@ -88,6 +103,7 @@ async function apriMese(anno, meseIndex, nomeMese) {
   const giorniNelMese = new Date(anno, meseIndex + 1, 0).getDate();
 
   for (let g = 1; g <= giorniNelMese; g++) {
+
     const dataISO = `${anno}-${String(meseIndex + 1).padStart(2,"0")}-${String(g).padStart(2,"0")}`;
     const dataLabel = `${String(g).padStart(2,"0")}/${String(meseIndex + 1).padStart(2,"0")}/${anno}`;
 
@@ -95,8 +111,16 @@ async function apriMese(anno, meseIndex, nomeMese) {
     tr.innerHTML = `<td>${dataLabel}</td>`;
 
     SANIFICAZIONE_COLONNE.forEach(col => {
-      const valore =
-        datiMese[dataISO]?.[col.id] ?? VALORE_OK;
+
+      let valore = "";
+
+      if (col.gruppo === "sanificazione") {
+        valore = datiMese[dataISO]?.sanificazione?.[col.id] ?? "";
+      }
+
+      if (col.gruppo === "infestanti") {
+        valore = datiMese[dataISO]?.infestanti?.[col.id] ?? "";
+      }
 
       const td = document.createElement("td");
       td.textContent = valore;
@@ -104,15 +128,16 @@ async function apriMese(anno, meseIndex, nomeMese) {
       td.style.cursor = "pointer";
 
       td.onclick = async () => {
+
         const nuovo = td.textContent === VALORE_OK ? VALORE_NO : VALORE_OK;
         td.textContent = nuovo;
 
         await aggiornaValoreSanificazione({
-  dataISO,
-  tipo: col.id,
-  valore: nuovo
-});
-
+          dataISO,
+          gruppo: col.gruppo,
+          campo: col.id,
+          valore: nuovo
+        });
       };
 
       tr.appendChild(td);
@@ -121,16 +146,19 @@ async function apriMese(anno, meseIndex, nomeMese) {
     tbody.appendChild(tr);
   }
 }
+
+/* =====================================================
+   AUTOCOMPILA SANIFICAZIONE
+===================================================== */
 async function autoCompilaSanificazione() {
+
   const ultimaData = await getUltimaDataSanificazione();
-
-
   const oggiISO = new Date().toISOString().split("T")[0];
 
   let dataCorrente;
 
   if (!ultimaData) {
-    dataCorrente = "2026-01-01";
+    dataCorrente = `${ANNO_ATTIVO}-01-01`;
   } else {
     const d = new Date(ultimaData);
     d.setDate(d.getDate() + 1);
@@ -145,6 +173,10 @@ async function autoCompilaSanificazione() {
     dataCorrente = d.toISOString().split("T")[0];
   }
 }
+
+/* =====================================================
+   INIT
+===================================================== */
 initAuth(() => {
   renderAnni();
 });
