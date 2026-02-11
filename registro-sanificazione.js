@@ -5,15 +5,14 @@ import { initAuth } from "./auth.js";
 
 import {
   SANIFICAZIONE_COLONNE,
-  VALORE_OK,
-  VALORE_NO
+  VALORE_OK
 } from "./registro-sanificazione-utils.js";
 
 import {
-  getUltimaDataSanificazione,
-  creaGiornoSanificazione,
   caricaSanificazioneMese,
-  aggiornaValoreSanificazione
+  aggiornaValoreSanificazione,
+  autoCompilaFinoOggi,
+  creaIeriSeManca
 } from "./registro-sanificazione-db.js";
 
 /* =====================================================
@@ -79,12 +78,12 @@ function apriAnno(anno) {
    APRI MESE
 ===================================================== */
 async function apriMese(anno, meseIndex, nomeMese) {
+
   titoloMese.textContent = `${nomeMese} ${anno}`;
   cardTabella.classList.remove("hidden");
 
-  await autoCompilaSanificazione();
-
-  const datiMese = await caricaSanificazioneMese(anno, meseIndex + 1);
+  const datiMese =
+    await caricaSanificazioneMese(anno, meseIndex + 1);
 
   thead.innerHTML = "";
   tbody.innerHTML = "";
@@ -100,12 +99,19 @@ async function apriMese(anno, meseIndex, nomeMese) {
   thead.appendChild(trHead);
 
   /* ===== RIGHE ===== */
-  const giorniNelMese = new Date(anno, meseIndex + 1, 0).getDate();
+  const giorniNelMese =
+    new Date(anno, meseIndex + 1, 0).getDate();
+
+  const oggiISO =
+    new Date().toISOString().split("T")[0];
 
   for (let g = 1; g <= giorniNelMese; g++) {
 
-    const dataISO = `${anno}-${String(meseIndex + 1).padStart(2,"0")}-${String(g).padStart(2,"0")}`;
-    const dataLabel = `${String(g).padStart(2,"0")}/${String(meseIndex + 1).padStart(2,"0")}/${anno}`;
+    const dataISO =
+      `${anno}-${String(meseIndex+1).padStart(2,"0")}-${String(g).padStart(2,"0")}`;
+
+    const dataLabel =
+      `${String(g).padStart(2,"0")}/${String(meseIndex+1).padStart(2,"0")}/${anno}`;
 
     const tr = document.createElement("tr");
     tr.innerHTML = `<td>${dataLabel}</td>`;
@@ -115,30 +121,43 @@ async function apriMese(anno, meseIndex, nomeMese) {
       let valore = "";
 
       if (col.gruppo === "sanificazione") {
-        valore = datiMese[dataISO]?.sanificazione?.[col.id] ?? "";
+        valore =
+          datiMese[dataISO]?.sanificazione?.[col.id] ?? "";
       }
 
       if (col.gruppo === "infestanti") {
-        valore = datiMese[dataISO]?.infestanti?.[col.id] ?? "";
+        valore =
+          datiMese[dataISO]?.infestanti?.[col.id] ?? "";
       }
 
       const td = document.createElement("td");
       td.textContent = valore;
       td.className = "cella-spunta";
-      td.style.cursor = "pointer";
 
-      td.onclick = async () => {
+      /* 🔒 BLOCCO FUTURI */
+      if (dataISO > oggiISO) {
+        td.style.background = "#eee";
+        td.style.cursor = "not-allowed";
+      } else {
 
-        const nuovo = td.textContent === VALORE_OK ? VALORE_NO : VALORE_OK;
-        td.textContent = nuovo;
+        td.style.cursor = "pointer";
 
-        await aggiornaValoreSanificazione({
-          dataISO,
-          gruppo: col.gruppo,
-          campo: col.id,
-          valore: nuovo
-        });
-      };
+        td.onclick = async () => {
+
+          const attivo =
+            td.textContent === VALORE_OK;
+
+          td.textContent =
+            attivo ? "" : VALORE_OK;
+
+          await aggiornaValoreSanificazione({
+            dataISO,
+            gruppo: col.gruppo,
+            campo: col.id,
+            valore: !attivo
+          });
+        };
+      }
 
       tr.appendChild(td);
     });
@@ -148,35 +167,12 @@ async function apriMese(anno, meseIndex, nomeMese) {
 }
 
 /* =====================================================
-   AUTOCOMPILA SANIFICAZIONE
-===================================================== */
-async function autoCompilaSanificazione() {
-
-  const ultimaData = await getUltimaDataSanificazione();
-  const oggiISO = new Date().toISOString().split("T")[0];
-
-  let dataCorrente;
-
-  if (!ultimaData) {
-    dataCorrente = `${ANNO_ATTIVO}-01-01`;
-  } else {
-    const d = new Date(ultimaData);
-    d.setDate(d.getDate() + 1);
-    dataCorrente = d.toISOString().split("T")[0];
-  }
-
-  while (dataCorrente <= oggiISO) {
-    await creaGiornoSanificazione(dataCorrente);
-
-    const d = new Date(dataCorrente);
-    d.setDate(d.getDate() + 1);
-    dataCorrente = d.toISOString().split("T")[0];
-  }
-}
-
-/* =====================================================
    INIT
 ===================================================== */
-initAuth(() => {
+initAuth(async () => {
+
+  await creaIeriSeManca();     // giorno precedente
+  await autoCompilaFinoOggi(); // buchi fino a oggi
+
   renderAnni();
 });
