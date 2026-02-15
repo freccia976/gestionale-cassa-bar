@@ -1222,3 +1222,11 @@ document
 
   });
 
+document
+  .getElementById("btn-apri-agenda")
+  ?.addEventListener("click", () => {
+
+    window.location.href =
+      "agenda-lista.html";
+
+  });

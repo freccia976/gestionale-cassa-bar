@@ -235,6 +235,14 @@
 <div class="home-actions">
 
   <button
+    id="btn-apri-agenda"
+    class="btn-secondary">
+
+    📋 Agenda
+
+  </button>
+
+  <button
     id="btn-nuovo-promemoria"
     class="btn-primary">
 
@@ -252,13 +260,28 @@
 
 </div>
 
+
 <!-- ================= BANNER AGENDA ================= -->
 <section class="card agenda-banner">
 
-  <h2>📅 Agenda – Prossime scadenze</h2>
+  <div class="agenda-banner-header">
+
+    <h2>📅 Agenda</h2>
+
+    <button
+      onclick="window.location.href='agenda-lista.html'"
+      class="btn-secondary">
+
+      Apri agenda
+
+    </button>
+
+  </div>
 
   <div id="agenda-preview">
+
     <!-- eventi caricati via JS -->
+
   </div>
 
 </section>
