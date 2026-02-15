@@ -1230,3 +1230,11 @@ document
       "agenda-lista.html";
 
   });
+document
+  .querySelector(".agenda-banner")
+  ?.addEventListener("click", () => {
+
+    window.location.href =
+      "agenda-lista.html";
+
+  });
