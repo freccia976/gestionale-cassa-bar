@@ -1,0 +1,61 @@
+/* ===== FORM AGENDA ===== */
+
+.agenda-form {
+  max-width: 900px;
+  margin: auto;
+}
+
+/* Grid campi */
+.agenda-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+/* Gruppi */
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+/* Campi full width */
+.form-group.full {
+  grid-column: 1 / -1;
+}
+
+/* Checkbox */
+.checkbox-row {
+  align-items: center;
+}
+
+/* Input styling coerente */
+.agenda-form input,
+.agenda-form select,
+.agenda-form textarea {
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+}
+
+/* Focus */
+.agenda-form input:focus,
+.agenda-form select:focus,
+.agenda-form textarea:focus {
+  outline: none;
+  border-color: #2563eb;
+}
+
+/* Azioni */
+.form-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 10px;
+}

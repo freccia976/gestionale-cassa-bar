@@ -6,67 +6,125 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="agenda.css">
 </head>
 
-<body class="page-form">
+<body class="page-full">
 
+<!-- ================= HEADER ================= -->
 <header class="header">
-  <h1>📅 Nuovo Promemoria</h1>
+
+  <img src="img/logo.png" class="logo">
+
+  <div class="header-titoli">
+    <h1>Agenda</h1>
+    <span>Nuovo promemoria / scadenza</span>
+  </div>
+
 </header>
 
-<section class="card form-card">
+<!-- ================= NAV ================= -->
+<section class="card">
 
-  <!-- TITOLO -->
-  <label>Titolo</label>
-  <input
-    type="text"
-    id="titolo"
-    placeholder="Es. Pagamento IVA"
-  >
+  <button
+    onclick="window.location.href='index.html'"
+    class="btn-secondary">
 
-  <!-- TIPO -->
-  <label>Tipo</label>
-  <select id="tipo">
-    <option value="appuntamento">Appuntamento</option>
-    <option value="scadenza">Scadenza</option>
-    <option value="nota">Nota</option>
-  </select>
+    ⬅ Torna alla Home
 
-  <!-- DATA -->
-  <label>Data</label>
-  <input type="date" id="data">
+  </button>
 
-  <!-- ORA -->
-  <label>Ora</label>
-  <input type="time" id="ora">
+</section>
 
-  <!-- PRIORITÀ -->
-  <label>Priorità</label>
-  <select id="priorita">
-    <option value="bassa">Bassa</option>
-    <option value="media" selected>Media</option>
-    <option value="alta">Alta</option>
-  </select>
+<!-- ================= FORM ================= -->
+<section class="card form-card agenda-form">
 
-  <!-- DESCRIZIONE -->
-  <label>Descrizione</label>
-  <textarea
-    id="descrizione"
-    rows="3"
-    placeholder="Note aggiuntive..."
-  ></textarea>
+  <h2>📅 Inserisci evento</h2>
 
-  <!-- PROMEMORIA -->
-  <label class="checkbox">
-    <input type="checkbox" id="promemoria">
-    Attiva promemoria
-  </label>
+  <!-- ================= TITOLO ================= -->
+  <div class="form-group full">
+    <label>Titolo evento</label>
+    <input
+      type="text"
+      id="titolo"
+      placeholder="Es. Pagamento IVA / Riunione fornitore"
+    >
+  </div>
 
-  <!-- BOTTONI -->
+  <!-- ================= TIPO ================= -->
+  <div class="form-group">
+
+    <label>Tipo evento</label>
+
+    <select id="tipo">
+      <option value="appuntamento">📌 Appuntamento</option>
+      <option value="scadenza">⚠️ Scadenza</option>
+      <option value="nota">📝 Nota</option>
+    </select>
+
+  </div>
+
+  <!-- ================= PRIORITÀ ================= -->
+  <div class="form-group">
+
+    <label>Priorità</label>
+
+    <select id="priorita">
+      <option value="bassa">🟢 Bassa</option>
+      <option value="media" selected>🟡 Media</option>
+      <option value="alta">🔴 Alta</option>
+    </select>
+
+  </div>
+
+  <!-- ================= DATA ================= -->
+  <div class="form-group">
+
+    <label>Data</label>
+    <input type="date" id="data">
+
+  </div>
+
+  <!-- ================= ORA ================= -->
+  <div class="form-group">
+
+    <label>Ora (opzionale)</label>
+    <input type="time" id="ora">
+
+  </div>
+
+  <!-- ================= DESCRIZIONE ================= -->
+  <div class="form-group full">
+
+    <label>Descrizione / Note</label>
+
+    <textarea
+      id="descrizione"
+      rows="3"
+      placeholder="Annotazioni, dettagli, riferimenti..."
+    ></textarea>
+
+  </div>
+
+  <!-- ================= PROMEMORIA ================= -->
+  <div class="form-group full checkbox-row">
+
+    <label>
+      <input type="checkbox" id="promemoria">
+      🔔 Attiva promemoria
+    </label>
+
+  </div>
+
+  <!-- ================= AZIONI ================= -->
   <div class="form-actions">
 
-    <button id="salva-evento" class="btn-primary">
-      💾 Salva
+    <button
+      id="salva-evento"
+      class="btn-primary">
+
+      💾 Salva evento
+
     </button>
 
     <button
@@ -74,12 +132,14 @@
       class="btn-secondary">
 
       ❌ Annulla
+
     </button>
 
   </div>
 
 </section>
 
+<!-- ================= SCRIPT ================= -->
 <script
   src="agenda-form.js"
   type="module">
