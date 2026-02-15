@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <title>Nuovo Promemoria</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="page-form">
+
+<header class="header">
+  <h1>📅 Nuovo Promemoria</h1>
+</header>
+
+<section class="card form-card">
+
+  <!-- TITOLO -->
+  <label>Titolo</label>
+  <input
+    type="text"
+    id="titolo"
+    placeholder="Es. Pagamento IVA"
+  >
+
+  <!-- TIPO -->
+  <label>Tipo</label>
+  <select id="tipo">
+    <option value="appuntamento">Appuntamento</option>
+    <option value="scadenza">Scadenza</option>
+    <option value="nota">Nota</option>
+  </select>
+
+  <!-- DATA -->
+  <label>Data</label>
+  <input type="date" id="data">
+
+  <!-- ORA -->
+  <label>Ora</label>
+  <input type="time" id="ora">
+
+  <!-- PRIORITÀ -->
+  <label>Priorità</label>
+  <select id="priorita">
+    <option value="bassa">Bassa</option>
+    <option value="media" selected>Media</option>
+    <option value="alta">Alta</option>
+  </select>
+
+  <!-- DESCRIZIONE -->
+  <label>Descrizione</label>
+  <textarea
+    id="descrizione"
+    rows="3"
+    placeholder="Note aggiuntive..."
+  ></textarea>
+
+  <!-- PROMEMORIA -->
+  <label class="checkbox">
+    <input type="checkbox" id="promemoria">
+    Attiva promemoria
+  </label>
+
+  <!-- BOTTONI -->
+  <div class="form-actions">
+
+    <button id="salva-evento" class="btn-primary">
+      💾 Salva
+    </button>
+
+    <button
+      onclick="window.history.back()"
+      class="btn-secondary">
+
+      ❌ Annulla
+    </button>
+
+  </div>
+
+</section>
+
+<script
+  src="agenda-form.js"
+  type="module">
+</script>
+
+</body>
+</html>
