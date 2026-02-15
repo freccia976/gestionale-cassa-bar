@@ -1153,3 +1153,10 @@ if (btnTasse) {
     window.location.href = "tasse.html";
   };
 }
+document
+  .getElementById("btn-nuovo-promemoria")
+  ?.addEventListener("click", () => {
+
+    window.location.href = "agenda.html";
+
+  });

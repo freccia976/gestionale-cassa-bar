@@ -1173,7 +1173,8 @@ button {
 }
 .home-actions {
   display: flex;
-  gap: 10px;
   justify-content: flex-end;
-  margin-bottom: 20px;
+  gap: 10px;
+  margin: 10px 0 20px;
 }
+
