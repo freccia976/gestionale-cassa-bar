@@ -19,6 +19,10 @@ import { getChiusuraBySettimana } from "./firebase-db.js";
 import { caricaChiusureSettimanali } from "./firebase-db.js";
 import { generaPDFMese } from "./pdf-mese.js";
 import { generaPDFFiltro } from "./pdf-filtro.js";
+import {
+  caricaProssimiEventi
+} from "./agenda-db.js";
+
 
 import {
   getFirestore,
@@ -447,6 +451,61 @@ const scadenza =
 
       listaTasseScadenza.appendChild(riga);
     });
+}
+
+/* =====================
+   BANNER AGENDA HOME
+===================== */
+async function renderAgendaBanner() {
+
+  const container =
+    document.getElementById("agenda-preview");
+
+  if (!container) return;
+
+  const eventi =
+    await caricaProssimiEventi(3);
+
+  container.innerHTML = "";
+
+  if (!eventi.length) {
+    container.innerHTML =
+      "<span>Nessuna scadenza imminente</span>";
+    return;
+  }
+
+  const oggi =
+    new Date().toISOString().split("T")[0];
+
+  eventi.forEach(ev => {
+
+    let statoClass = "";
+
+    if (ev.data < oggi)
+      statoClass = "preview-scaduto";
+
+    if (ev.data === oggi)
+      statoClass = "preview-oggi";
+
+    const div =
+      document.createElement("div");
+
+    div.className = `
+      agenda-preview-item
+      preview-${ev.tipo}
+      ${statoClass}
+    `;
+
+    div.innerHTML = `
+      <span>
+        <strong>${ev.titolo}</strong><br>
+        📅 ${ev.data}
+      </span>
+    `;
+
+    container.appendChild(div);
+  });
+
 }
 
   /* =====================
@@ -1124,6 +1183,8 @@ initUscite({
 
   aggiornaUI();
   caricaTasseInScadenza();
+  renderAgendaBanner();
+
 
   /* =====================
    REGISTRI – HOME
@@ -1160,3 +1221,4 @@ document
     window.location.href = "agenda.html";
 
   });
+

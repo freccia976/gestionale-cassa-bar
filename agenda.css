@@ -59,3 +59,51 @@
   gap: 10px;
   margin-top: 10px;
 }
+/* ===== Banner Agenda ===== */
+
+.agenda-banner-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+#agenda-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Evento preview */
+.agenda-preview-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: #f9fafb;
+  border-left: 5px solid #ccc;
+  font-size: 14px;
+}
+
+/* Tipi */
+.preview-appuntamento {
+  border-color: #3b82f6;
+}
+
+.preview-scadenza {
+  border-color: #ef4444;
+}
+
+.preview-nota {
+  border-color: #6b7280;
+}
+
+/* Stati */
+.preview-scaduto {
+  background: #fee2e2;
+}
+
+.preview-oggi {
+  background: #fef3c7;
+}
