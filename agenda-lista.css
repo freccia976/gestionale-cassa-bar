@@ -1,0 +1,83 @@
+.agenda-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Card evento */
+.agenda-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  border-radius: 10px;
+  background: #f9fafb;
+  border-left: 6px solid #ccc;
+}
+
+/* Tipi */
+.tipo-appuntamento {
+  border-color: #3b82f6;
+}
+
+.tipo-scadenza {
+  border-color: #ef4444;
+}
+
+.tipo-nota {
+  border-color: #6b7280;
+}
+
+/* Titolo */
+.agenda-titolo {
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+/* Meta */
+.agenda-meta {
+  font-size: 13px;
+  display: flex;
+  gap: 10px;
+}
+
+/* Priorità */
+.priorita.alta {
+  color: #ef4444;
+  font-weight: bold;
+}
+
+.priorita.media {
+  color: #f59e0b;
+}
+
+.priorita.bassa {
+  color: #10b981;
+}
+
+/* Stato */
+.stato.scaduto {
+  color: #ef4444;
+  font-weight: bold;
+}
+
+.stato.oggi {
+  color: #f59e0b;
+  font-weight: bold;
+}
+
+/* Azioni */
+.agenda-azioni button {
+  border: none;
+  background: none;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.btn-ok {
+  color: #10b981;
+}
+
+.btn-del {
+  color: #ef4444;
+}

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <title>Agenda</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="agenda-lista.css">
+</head>
+
+<body class="page-full">
+
+<!-- ================= HEADER ================= -->
+<header class="header">
+
+  <img src="img/logo.png" class="logo">
+
+  <div>
+    <h1>Agenda</h1>
+    <span>Eventi e scadenze</span>
+  </div>
+
+</header>
+
+<!-- ================= NAV ================= -->
+<section class="card">
+
+  <button
+    onclick="window.location.href='index.html'"
+    class="btn-secondary">
+
+    ⬅ Torna alla Home
+
+  </button>
+
+  <button
+    onclick="window.location.href='agenda.html'"
+    class="btn-primary">
+
+    ➕ Nuovo evento
+
+  </button>
+
+</section>
+
+<!-- ================= LISTA ================= -->
+<section class="card">
+
+  <h2>📅 Eventi programmati</h2>
+
+  <div id="lista-agenda" class="agenda-lista"></div>
+
+</section>
+
+<script
+  src="agenda-lista.js"
+  type="module">
+</script>
+
+</body>
+</html>
