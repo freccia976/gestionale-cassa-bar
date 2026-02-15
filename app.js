@@ -456,6 +456,9 @@ const scadenza =
 /* =====================
    BANNER AGENDA HOME
 ===================== */
+/* =====================
+   BANNER AGENDA HOME
+===================== */
 async function renderAgendaBanner() {
 
   const container =
@@ -464,49 +467,57 @@ async function renderAgendaBanner() {
   if (!container) return;
 
   const eventi =
-    await caricaProssimiEventi(3);
-
-  container.innerHTML = "";
-
-  if (!eventi.length) {
-    container.innerHTML =
-      "<span>Nessuna scadenza imminente</span>";
-    return;
-  }
+    await caricaProssimiEventi(10);
 
   const oggi =
     new Date().toISOString().split("T")[0];
 
-  eventi.forEach(ev => {
+  /* ✔ FILTRO SOLO OGGI + FUTURI */
+  const eventiValidi =
+    eventi.filter(ev => ev.data >= oggi);
 
-    let statoClass = "";
+  container.innerHTML = "";
 
-    if (ev.data < oggi)
-      statoClass = "preview-scaduto";
+  if (!eventiValidi.length) {
 
-    if (ev.data === oggi)
-      statoClass = "preview-oggi";
+    container.innerHTML =
+      "<span>Nessuna scadenza imminente</span>";
 
-    const div =
-      document.createElement("div");
+    return;
+  }
 
-    div.className = `
-      agenda-preview-item
-      preview-${ev.tipo}
-      ${statoClass}
-    `;
+  /* Mostra solo i primi 3 */
+  eventiValidi
+    .slice(0, 3)
+    .forEach(ev => {
 
-    div.innerHTML = `
-      <span>
-        <strong>${ev.titolo}</strong><br>
-        📅 ${ev.data}
-      </span>
-    `;
+      let statoClass = "";
 
-    container.appendChild(div);
-  });
+      if (ev.data === oggi)
+        statoClass = "preview-oggi";
+
+      const div =
+        document.createElement("div");
+
+      div.className = `
+        agenda-preview-item
+        preview-${ev.tipo}
+        ${statoClass}
+      `;
+
+      div.innerHTML = `
+        <span>
+          <strong>${ev.titolo}</strong><br>
+          📅 ${formattaData(ev.data)}
+        </span>
+      `;
+
+      container.appendChild(div);
+
+    });
 
 }
+
 
   /* =====================
      MOSTRA FORM
